@@ -27,7 +27,7 @@
 <div class="architecture-scroll" tabindex="0" role="region" aria-label="项目架构图，小屏幕可横向滚动">
 <svg class="architecture-diagram" viewBox="0 0 1200 700" role="img" aria-labelledby="diagram-title diagram-description">
 <title id="diagram-title">FitGen 模块架构</title>
-<desc id="diagram-description">模块 1 到 6 构成生成流水线。模块 7 构建动作数据库，数据库调用模块 8 能量消耗计算，得到带能量标签的数据库，供模块 3、4、5 使用。生成的完整团操也进入模块 8，输出总能量消耗和各肌群能量消耗。点击模块方框可查看详情。</desc>
+<desc id="diagram-description">模块 1 到 6 构成生成流水线。模块 7 构建动作数据库，数据库调用模块 8 能量消耗计算，得到带能量标签的数据库，供模块 3、4、5 使用。生成的完整团操也进入模块 8，输出总能量消耗和各肌群能量消耗。模块 1、4、8 以绿色标签标记，已补充详细实现。点击模块方框可查看详情。</desc>
 <defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#267e70"/></marker></defs>
 <g class="architecture-wires" fill="none" stroke="#267e70" stroke-width="2.5" stroke-linejoin="round">
 <path d="M260 70 V100" marker-end="url(#architecture-arrow)"/>
@@ -53,15 +53,15 @@
 </g>
 <g class="architecture-source"><rect x="160" y="10" width="200" height="60" rx="10"/><text x="260" y="46">WAV 音乐</text><rect x="210" y="125" width="180" height="50" rx="10"/><text x="300" y="156">用户需求</text></g>
 <g class="architecture-modules">
-<a href="#module-1" aria-label="模块 1：音乐结构分析"><rect x="10" y="210" width="180" height="110" rx="10"/><text x="100" y="246" class="diagram-number">模块 1</text><text x="100" y="280">音乐结构分析</text></a>
+<a class="implemented-module" href="#module-1" aria-label="已补充实现细节，模块 1：音乐结构分析"><rect class="module-box" x="10" y="210" width="180" height="110" rx="10"/><text x="100" y="237" class="diagram-number">模块 1</text><text x="100" y="266">音乐结构分析</text><rect class="diagram-status-pill" x="35" y="286" width="130" height="23" rx="11.5"/><text class="diagram-status-text" x="100" y="302">详细实现已补充</text></a>
 <a href="#module-2" aria-label="模块 2：八拍课程规划与 IR 生成"><rect x="210" y="210" width="180" height="110" rx="10"/><text x="300" y="240" class="diagram-number">模块 2</text><text x="300" y="269">八拍课程规划</text><text x="300" y="296">与 IR 生成</text></a>
 <a href="#module-3" aria-label="模块 3：动作候选闭集筛选"><rect x="410" y="210" width="180" height="110" rx="10"/><text x="500" y="246" class="diagram-number">模块 3</text><text x="500" y="280">动作候选闭集筛选</text></a>
-<a href="#module-4" aria-label="模块 4：XTW 动作变速"><rect x="610" y="210" width="180" height="110" rx="10"/><text x="700" y="246" class="diagram-number">模块 4</text><text x="700" y="280">XTW 动作变速</text></a>
+<a class="implemented-module" href="#module-4" aria-label="已补充实现细节，模块 4：XTW 动作变速"><rect class="module-box" x="610" y="210" width="180" height="110" rx="10"/><text x="700" y="237" class="diagram-number">模块 4</text><text x="700" y="266">XTW 动作变速</text><rect class="diagram-status-pill" x="635" y="286" width="130" height="23" rx="11.5"/><text class="diagram-status-text" x="700" y="302">详细实现已补充</text></a>
 <a href="#module-5" aria-label="模块 5：动作拼接、连续化"><rect x="810" y="210" width="180" height="110" rx="10"/><text x="900" y="246" class="diagram-number">模块 5</text><text x="900" y="280">动作拼接、连续化</text></a>
 <a href="#module-6" aria-label="模块 6：Retarget 和数字人渲染"><rect x="1010" y="210" width="180" height="110" rx="10"/><text x="1100" y="240" class="diagram-number">模块 6</text><text x="1100" y="269">Retarget</text><text x="1100" y="296">和数字人渲染</text></a>
 <g class="database-resource"><rect x="310" y="370" width="540" height="60" rx="10"/><text x="580" y="407">带能量标签的动作数据库</text></g>
 <g class="database-resource"><rect x="310" y="485" width="540" height="60" rx="10"/><text x="580" y="522">外部动作数据库</text></g>
-<a href="#module-8" aria-label="模块 8：能量消耗计算"><rect x="980" y="445" width="210" height="110" rx="10"/><text x="1085" y="480" class="diagram-number">模块 8</text><text x="1085" y="515">能量消耗计算</text></a>
+<a class="implemented-module" href="#module-8" aria-label="已补充实现细节，模块 8：能量消耗计算"><rect class="module-box" x="980" y="445" width="210" height="110" rx="10"/><text x="1085" y="472" class="diagram-number">模块 8</text><text x="1085" y="501">能量消耗计算</text><rect class="diagram-status-pill" x="1020" y="521" width="130" height="23" rx="11.5"/><text class="diagram-status-text" x="1085" y="537">详细实现已补充</text></a>
 <a href="#module-7" aria-label="模块 7：数据集构建"><rect x="310" y="600" width="540" height="65" rx="10"/><text x="580" y="640">模块 7：数据集构建</text></a>
 <g class="energy-result"><rect x="980" y="600" width="210" height="75" rx="10"/><text x="1085" y="629">团操总能量消耗</text><text x="1085" y="655">各肌群能量消耗</text></g>
 <text x="1100" y="379" class="diagram-flow-label">生成的完整团操</text>

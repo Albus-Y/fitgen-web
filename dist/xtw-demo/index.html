@@ -1,1 +1,22 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XTW 动作变速 Demo · FitGen</title><link rel="stylesheet" href="styles.css"></head><body><main><header><a href="../index.html#module-4">← FitGen 路线图</a><span>MODULE 04 / SAVED RESULTS</span></header><h1>让动作跟上音乐。</h1><p class="intro">XTW 变速对比 · 同一音乐时间轴，比较原动作、Anchor xTW 与 Event GDTW。</p><section class="controls"><label for="sample">选择已完成的样例</label><select id="sample"></select><p id="meta"></p></section><section class="player"><div class="legend"><span>原动作</span><span>Anchor xTW</span><span>Event GDTW</span></div><video id="video" controls preload="metadata" playsinline></video><p>视频已包含音乐。骨架闪色与下方游标帮助观察节拍对齐，可使用播放控件定位和全屏查看。</p></section><section class="panel"><h2>节拍与动作质量</h2><p>误差根据原 motion beats 经时间映射后的最近邻距离计算，单位毫秒；并非对变速动作重新提取 beats。两个方向分别显示。</p><div class="table-scroll"><table><thead><tr><th>指标</th><th>原动作</th><th>Anchor</th><th>Event</th></tr></thead><tbody id="metrics"></tbody></table></div><p class="note">骨长漂移以同一源查询时刻的骨长为基准。单向节拍误差变小，不代表每个音乐 beat 都被动作覆盖；此处是样例诊断。</p></section><section class="panel"><h2>时间映射与节拍分布</h2><img id="plot" alt="两条 XTW 路线的时间映射与节拍分布诊断图"><p>上图展示 Anchor / Event 的音乐→动作时间映射；下图竖线是音乐 beats，散点为原始与映射后的 motion beats。</p></section><footer>来源：服务器 Module2_xtw / outputs/xtw_comparison/real_good_feeling_chorus · 已生成的 8 个 AIST++ 样例 · 本地静态展示</footer></main><script src="data.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>XTW 动作变速 Demo · FitGen</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f5f7f8;color:#203037;font-family:system-ui,-apple-system,"PingFang SC",sans-serif}main{max-width:1200px;margin:auto;padding:36px 32px 52px}header{display:flex;justify-content:space-between;gap:20px;align-items:center}a{color:#157b6e;text-decoration:none}header span{font-size:11px;letter-spacing:2px;color:#7a8d94}h1{font-size:clamp(28px,4vw,44px);margin:44px 0 12px;letter-spacing:-1px}.intro{color:#70848b;line-height:1.8}.player{background:white;border:1px solid #dfe7e7;border-radius:14px;padding:22px;margin-top:28px}.legend{display:grid;grid-template-columns:1fr 1fr;text-align:center;gap:12px;font-size:14px;font-weight:600;color:#236456;margin-bottom:18px}video{display:block;width:100%;background:#101819;border-radius:8px}.note{color:#71858a;font-size:13px;line-height:1.9;margin-bottom:0}footer{margin-top:25px;font-size:12px;color:#8a9ba0}@media(max-width:600px){main{padding:24px 16px}.player{padding:12px}header{align-items:flex-start;flex-direction:column}.legend{font-size:12px}}
+  .demo-status{background:#fff7e8;border:1px solid #efdfbf;color:#86602d;padding:16px 20px;border-radius:10px}</style>
+</head>
+<body><main>
+  <header><a href="../index.html#module-4">← FitGen 路线图</a><span>MODULE 04 / WORK IN PROGRESS</span></header>
+  <h1>XTW 动作变速 · 当前 Demo</h1>
+  <p class="intro demo-status">skeleton 展示效果不好，这段动作节奏对齐效果也不好，新 Demo 正在制作中。</p>
+  <section class="player" aria-label="XTW 当前 Demo">
+    
+    <video controls preload="metadata" playsinline aria-label="XTW 动作变速当前 Demo">浏览器不支持视频播放，请<a href="current-demo.mp4">打开视频</a>。</video>
+    <p class="note">当前样例仅展示视频效果，可播放、拖动进度或全屏查看。新 Demo 制作完成后会替换本页。</p>
+  </section>
+  <footer>本地静态展示 · 无需连接服务器</footer>
+</main><script src="../media-manifest.js"></script><script src="../media-loader.js"></script><script>FitGenMedia.attach(document.querySelector("video"),"current-demo.mp4");</script></body>
+</html>

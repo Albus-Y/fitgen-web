@@ -8,8 +8,8 @@ Object.assign(window.FITGEN_MODULES.find(m => m.id === 4), {
   implementation: ['统一入口 module2.retime_keypoints_to_music 自动提取 motion beats，再分派至 Anchor 或 Event 路线。默认 method="anchor"，Event 必须显式选择。', '核心依赖 NumPy / SciPy，连续时间映射调用固定版本的官方 GDTW Python / C++ 求解器；这是确定性对齐流程，不训练新的变速模型。'],
   technicalDetails: ['服务器目录名是 Module2_xtw，网页中仍按整体路线图编号为模块 4。当前功能是已有动作的重定时，按本项目实现范围展示 XTW。', '运动重采样只针对三维位置；音乐播放速度保持原样。音频文件只用于 Demo 配乐，核心 API 直接消费已分析的 beats。'],
   overviewMeta: '实现概览 · 从已有动作与音乐节拍到变速骨架 · Module2_xtw v0.4.2',
-  demoUrl: 'xtw-demo/index.html', demoTitle: 'XTW 变速对比 Demo',
-  demoDescription: '查看 8 组已有结果：原动作、Anchor xTW 与 Event GDTW 同步对比。',
+  demoUrl: 'xtw-demo/index.html', demoTitle: 'XTW 当前 Demo · 新版本制作中',
+  demoDescription: 'skeleton 展示效果不好，这段动作节奏对齐效果也不好，新 Demo 正在制作中。',
   overviewSections: [
     {title: '01 · 动作如何跟上音乐节拍', paragraphs: ['先从动作中找出减速、停顿或换向附近的 motion beats，再与 Module1 已导出的 music beats 比较。两侧节拍数量可以不同，算法估计在音乐的每一时刻应该读取原动作的哪个时刻。', '这个映射写作 $t_{\\mathrm{motion}} = \\phi(t_{\\mathrm{music}})$。例如音乐播放到 3 秒时，映射指向原动作 3.6 秒，就在原动作 3.6 秒处取姿态；$\\phi$ 的局部斜率 $\\phi^{\\prime}(t)>1$ 表示加速，$\\phi^{\\prime}(t)<1$ 表示减速。'], code: '三维动作 → 动作节拍 ─┐\n                     ├→ 对齐 → 受约束时间映射 → 30 FPS 重采样动作\n模块 1 → 音乐节拍 ───┘', sources: ['module2/api.py', 'xtw/pipeline.py', 'xtw/resampling.py']},
     {title: '02 · 两条已实现的对齐路线', paragraphs: ['默认 Anchor xTW：为两侧 beats 构造位置与前后间隔描述子，Drop-DTW 选择严格一对一的匹配、跳过不合适的节拍，再用 GDTW 优化时间映射。跳过的是节拍匹配，原动作轨迹仍通过连续映射读取。', '可选 Event GDTW：把每个 beat 编码为 Gaussian 峰，直接对齐两条事件曲线，不经过描述子与 Drop-DTW。两条路线共用速度约束和动作重采样。'], table: {headers: ['路线', '对齐依据', '定位'], rows: [['Anchor（默认）', 'beat 描述子 → 双侧 drop → 时间锚点 → GDTW', '可追踪匹配、drop 与锚点残差'], ['Event（可选）', 'Gaussian beat-event 曲线 → GDTW', '直接优化事件曲线，供比较与显式调用']]}, sources: ['xtw/descriptors.py', 'xtw/drop_dtw.py', 'xtw/time_warper.py', 'xtw/event_warper.py']},

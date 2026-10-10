@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>FitGen · 音乐分析 Demo</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">CHOREOGRAPH · MODULE 1</p><a class="roadmap-back" href="../index.html#module-1">← 返回项目路线图</a>
+          <h1>音乐结构与八拍网格 Demo</h1>
+          <p class="subtitle">4 首音乐 · 播放、节拍、段落与八拍网格展示。</p>
+        </div>
+        <div class="status-pill" id="dataStatus" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>正在载入曲目</span>
+        </div>
+      </header>
+
+      <section class="panel track-panel" aria-labelledby="trackHeading">
+        <div class="section-heading">
+          <div>
+            <p class="step-label">01 / 选择音乐</p>
+            <h2 id="trackHeading">曲目</h2>
+          </div>
+          <span class="track-count" id="trackCount">0 首</span>
+        </div>
+
+        <div class="source-tabs" id="sourceTabs" role="tablist" aria-label="音乐来源">
+          <button type="button" class="source-tab active" data-source="dataset" role="tab" aria-selected="true">Harmonix 评测曲目</button>
+          <button type="button" class="source-tab" data-source="new" role="tab" aria-selected="false">测试新音频效果</button>
+        </div>
+
+        <div class="track-picker" id="datasetPicker">
+          <label class="field-label" for="trackSearch">按 ID 或歌名搜索</label>
+          <input id="trackSearch" class="search-input" type="search" placeholder="输入关键词…" autocomplete="off">
+          <label class="sr-only" for="trackSelect">选择曲目</label>
+          <select id="trackSelect" class="track-select" size="5" aria-describedby="trackHint"></select>
+          <p class="field-hint" id="trackHint">双击或按 Enter 载入选中的曲目</p>
+        </div>
+
+        <div class="new-audio-picker hidden" id="newAudioPicker">
+          <label class="field-label" for="newAudioSelect">选择音乐</label>
+          <div class="new-audio-controls">
+            <select id="newAudioSelect" class="new-audio-select" aria-describedby="newAudioHint"></select>
+            <button type="button" class="secondary-button" id="refreshNewAudioButton">重载曲目</button>
+            <button type="button" class="primary-button" id="analyzeButton" disabled>开始分析</button>
+          </div>
+          <div class="analysis-progress hidden" id="analysisProgress" role="progressbar" aria-label="音频分析进度" aria-valuemin="0" aria-valuemax="100" aria-hidden="true"><span></span></div>
+          <p class="field-hint new-audio-hint" id="newAudioHint">选择曲目后自动载入结果，可切换 Beat、Downbeat、Segment 和八拍网格。</p>
+          <p class="new-audio-status" id="newAudioStatus" role="status" aria-live="polite">正在载入本地音乐…</p>
+        </div>
+      </section>
+
+      <section class="panel player-panel" aria-labelledby="playerHeading">
+        <div class="now-playing">
+          <div class="cover-mark" aria-hidden="true"><span>♪</span></div>
+          <div class="track-copy">
+            <p class="step-label">02 / 播放与导航</p>
+            <h2 id="playerHeading">尚未选择曲目</h2>
+            <p id="trackMeta">请从上方列表选择一首歌</p>
+          </div>
+          <div class="time-display" aria-label="播放时间">
+            <span id="currentTime">00:00.000</span>
+            <span class="time-divider">/</span>
+            <span id="durationTime">00:00.000</span>
+          </div>
+        </div>
+
+        <audio id="audioPlayer" class="audio-player" controls preload="metadata"></audio>
+
+        <div class="overview-block">
+          <div class="overview-labels">
+            <span>全曲导航</span>
+            <span>点击任意位置跳转 · 阴影区域为当前时间窗</span>
+          </div>
+          <div class="overview" id="overview" role="slider" tabindex="0" aria-label="全曲播放位置" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="overview-progress" id="overviewProgress"></div>
+            <div class="overview-window" id="overviewWindow"></div>
+            <div class="overview-cursor" id="overviewCursor"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel analysis-panel" aria-labelledby="analysisHeading">
+        <div class="analysis-toolbar">
+          <div>
+            <p class="step-label" id="analysisStepLabel">03 / 对比分析</p>
+            <h2 id="analysisHeading">选择观察维度</h2>
+          </div>
+          <div class="window-switcher" aria-label="时间窗长度">
+            <span>时间窗</span>
+            <div class="segmented-control" id="windowControls">
+              <button type="button" data-window="6">6 秒</button>
+              <button type="button" data-window="12" class="active" aria-pressed="true">12 秒</button>
+              <button type="button" data-window="24">24 秒</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mode-tabs" id="modeTabs" role="tablist" aria-label="分析维度">
+          <button type="button" class="mode-tab active" data-mode="beat" role="tab" aria-selected="true">
+            <span class="mode-dot beat-dot" aria-hidden="true"></span>Beat
+          </button>
+          <button type="button" class="mode-tab" data-mode="downbeat" role="tab" aria-selected="false">
+            <span class="mode-dot downbeat-dot" aria-hidden="true"></span>Downbeat
+          </button>
+          <button type="button" class="mode-tab" data-mode="segment" role="tab" aria-selected="false">
+            <span class="mode-dot segment-dot" aria-hidden="true"></span>Segment
+          </button>
+          <button type="button" class="mode-tab hidden" data-mode="grid" id="gridModeTab" role="tab" aria-selected="false">
+            <span class="mode-dot grid-dot" aria-hidden="true"></span>八拍网格
+          </button>
+        </div>
+
+        <div class="legend" id="legend">
+          <span id="referenceLegend"><i class="legend-line reference-line"></i>参考标注（实线）</span>
+          <span id="predictionLegend"><i class="legend-line prediction-line"></i>模型预测（虚线）</span>
+          <span><i class="legend-mark beat-mark"></i>Beat</span>
+          <span><i class="legend-mark downbeat-mark"></i>Downbeat</span>
+          <span><code class="position-key">beat_position</code> 节拍位置</span>
+          <span id="gridLegend" class="hidden"><i class="legend-state full-grid-state"></i>Full / Partial / Gap</span>
+          <span id="matchedLegend"><i class="legend-state matched-state"></i>匹配</span>
+          <span id="mismatchLegend"><i class="legend-state missed-state"></i>遗漏 / 额外</span>
+        </div>
+
+        <div class="timeline-card" id="timelineCard">
+          <div class="timeline-header">
+            <span id="windowRange">00:00.000 — 00:12.000</span>
+            <span class="timeline-note" id="timelineNote">当前播放位置居中，播放时自动滚动</span>
+          </div>
+          <div class="timeline" id="timeline" aria-label="局部时间窗可视化">
+            <div class="time-grid" id="timeGrid"></div>
+            <div class="playhead" id="playhead"><span>当前</span></div>
+            <div id="beatView" class="timeline-view">
+              <div class="lane">
+                <div class="lane-label"><strong id="referenceBeatCode">REF</strong><span id="referenceBeatCaption">参考标注</span></div>
+                <div class="lane-track beat-track" id="referenceBeats"></div>
+              </div>
+              <div class="lane">
+                <div class="lane-label"><strong id="predictionBeatCode">PRED</strong><span id="predictionBeatCaption">模型预测</span></div>
+                <div class="lane-track beat-track" id="predictionBeats"></div>
+              </div>
+            </div>
+            <div id="segmentView" class="timeline-view hidden">
+              <div class="lane segment-lane">
+                <div class="lane-label"><strong id="referenceSegmentCode">REF</strong><span id="referenceSegmentCaption">参考标注</span></div>
+                <div class="lane-track segment-track" id="referenceSegments"></div>
+              </div>
+              <div class="lane segment-lane">
+                <div class="lane-label"><strong id="predictionSegmentCode">PRED</strong><span id="predictionSegmentCaption">模型预测</span></div>
+                <div class="lane-track segment-track" id="predictionSegments"></div>
+              </div>
+            </div>
+            <div id="gridView" class="timeline-view hidden">
+              <div class="lane grid-lane">
+                <div class="lane-label"><strong>8CT</strong><span>八拍块</span></div>
+                <div class="lane-track eight-count-track" id="eightCountBlocks"></div>
+              </div>
+              <div class="lane grid-section-lane">
+                <div class="lane-label"><strong>SEC</strong><span>有效边界</span></div>
+                <div class="lane-track grid-section-track" id="gridSections"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="metric-section" aria-labelledby="fullMetricsHeading">
+            <div class="metric-heading">
+              <div>
+                <p class="metric-kicker">FULL TRACK</p>
+                <h3 id="fullMetricsHeading">全曲评测指标</h3>
+              </div>
+              <span class="scope-badge" id="metricScope">后端评测结果</span>
+            </div>
+            <div class="metric-cards" id="metricCards">
+              <p class="empty-copy">载入曲目后显示</p>
+            </div>
+          </section>
+
+          <section class="metric-section window-stat-section" aria-labelledby="windowStatsHeading">
+            <div class="metric-heading">
+              <div>
+                <p class="metric-kicker">VISIBLE WINDOW</p>
+                <h3 id="windowStatsHeading">当前时间窗统计</h3>
+              </div>
+              <span class="scope-badge accent" id="windowScope">仅供定位</span>
+            </div>
+            <div class="window-stats" id="windowStats">
+              <p class="empty-copy">载入曲目后显示</p>
+            </div>
+            <p class="stat-disclaimer" id="windowDisclaimer">窗口统计只描述当前可见片段，不等同于全曲 F1。</p>
+          </section>
+        </div>
+      </section>
+
+      <footer class="keyboard-help">
+        <span><kbd>←</kbd><kbd>→</kbd> 前后跳转 5 秒</span>
+        <span><kbd>Space</kbd> 播放 / 暂停</span>
+      </footer>
+    </main>
+
+    <div class="toast" id="toast" role="alert" aria-live="assertive"></div>
+    <script src="../media-manifest.js"></script><script src="../media-loader.js"></script><script src="data.js"></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>

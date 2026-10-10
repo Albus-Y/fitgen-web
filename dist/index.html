@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FitGen · 项目路线图</title>
+<meta name="description" content="FitGen 项目架构与模块路线图：从 WAV 音乐、课程规划到动作生成和数字人渲染。">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<aside class="sidebar">
+<a class="brand" href="#top"><span class="brand-icon">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<div class="workspace-label">PROJECT WORKSPACE</div>
+<a class="nav-main" href="#top"><span>◈</span> 项目路线图 <span class="nav-count">08</span></a>
+<div class="nav-label">生成流水线</div>
+<nav id="module-nav" aria-label="模块导航"></nav>
+<div class="sidebar-bottom"><span class="green-dot"></span> 架构蓝图 <small>实现细节持续补充</small></div>
+</aside>
+<main id="top">
+<header><span>项目工作台 <span class="slash">/</span> <b>Roadmap</b></span><span class="header-tag">FITGEN / V 0.1</span></header>
+<section class="intro">
+<div><div class="eyebrow"><span></span> MUSIC → MOVEMENT</div><h1>从音乐出发，<br>让运动有迹可循<span>。</span></h1><p>FitGen 项目路线图 · 音乐驱动的健身动作生成</p></div>
+<div class="intro-note"><span class="note-line"></span><p>以八拍为单位连接音乐、课程与动作，<br>最终生成连贯的数字人健身视频。</p><div><b>06</b> 生成模块 <i></i> <b>01</b> 数据基础 <i></i> <b>01</b> 能耗计算</div></div>
+</section>
+<section class="overview" aria-labelledby="overview-title">
+<div class="section-heading"><div><span class="section-no">01 /</span><h2 id="overview-title">架构总览</h2></div><span class="muted">点击方框，查看模块详情 ↗</span></div>
+<div class="architecture-scroll" tabindex="0" role="region" aria-label="项目架构图，小屏幕可横向滚动">
+<svg class="architecture-diagram" viewBox="0 0 1200 700" role="img" aria-labelledby="diagram-title diagram-description">
+<title id="diagram-title">FitGen 模块架构</title>
+<desc id="diagram-description">模块 1 到 6 构成生成流水线。模块 7 构建动作数据库，数据库调用模块 8 能量消耗计算，得到带能量标签的数据库，供模块 3、4、5 使用。生成的完整团操也进入模块 8，输出总能量消耗和各肌群能量消耗。点击模块方框可查看详情。</desc>
+<defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#267e70"/></marker></defs>
+<g class="architecture-wires" fill="none" stroke="#267e70" stroke-width="2.5" stroke-linejoin="round">
+<path d="M260 70 V100" marker-end="url(#architecture-arrow)"/>
+<path d="M260 100 H100 V210" marker-end="url(#architecture-arrow)"/>
+<path d="M260 100 H700 V210" marker-end="url(#architecture-arrow)"/>
+<path d="M300 175 V210" marker-end="url(#architecture-arrow)"/>
+<path d="M190 265 H210" marker-end="url(#architecture-arrow)"/>
+<path d="M390 265 H410" marker-end="url(#architecture-arrow)"/>
+<path d="M590 265 H610" marker-end="url(#architecture-arrow)"/>
+<path d="M790 265 H810" marker-end="url(#architecture-arrow)"/>
+<path d="M990 265 H1010" marker-end="url(#architecture-arrow)"/>
+<!-- 带能量标签的数据库供筛选、变速与拼接使用。 -->
+<path d="M500 370 V320" marker-end="url(#architecture-arrow)"/>
+<path d="M700 370 V320" marker-end="url(#architecture-arrow)"/>
+<path d="M850 400 H900 V320" marker-end="url(#architecture-arrow)"/>
+<!-- 数据集构建 → 数据库 → 能耗计算 → 已标注数据库。 -->
+<path d="M630 600 V545" marker-end="url(#architecture-arrow)"/>
+<path d="M850 515 H980" marker-end="url(#architecture-arrow)"/>
+<path d="M980 475 H935 V400 H850" marker-end="url(#architecture-arrow)"/>
+<!-- 完整团操的能耗计算与结果。 -->
+<path d="M1100 320 V445" marker-end="url(#architecture-arrow)"/>
+<path d="M1085 555 V600" marker-end="url(#architecture-arrow)"/>
+</g>
+<g class="architecture-source"><rect x="160" y="10" width="200" height="60" rx="10"/><text x="260" y="46">WAV 音乐</text><rect x="210" y="125" width="180" height="50" rx="10"/><text x="300" y="156">用户需求</text></g>
+<g class="architecture-modules">
+<a href="#module-1" aria-label="模块 1：音乐结构分析"><rect x="10" y="210" width="180" height="110" rx="10"/><text x="100" y="246" class="diagram-number">模块 1</text><text x="100" y="280">音乐结构分析</text></a>
+<a href="#module-2" aria-label="模块 2：八拍课程规划与 IR 生成"><rect x="210" y="210" width="180" height="110" rx="10"/><text x="300" y="240" class="diagram-number">模块 2</text><text x="300" y="269">八拍课程规划</text><text x="300" y="296">与 IR 生成</text></a>
+<a href="#module-3" aria-label="模块 3：动作候选闭集筛选"><rect x="410" y="210" width="180" height="110" rx="10"/><text x="500" y="246" class="diagram-number">模块 3</text><text x="500" y="280">动作候选闭集筛选</text></a>
+<a href="#module-4" aria-label="模块 4：XTW 动作变速"><rect x="610" y="210" width="180" height="110" rx="10"/><text x="700" y="246" class="diagram-number">模块 4</text><text x="700" y="280">XTW 动作变速</text></a>
+<a href="#module-5" aria-label="模块 5：动作拼接、连续化"><rect x="810" y="210" width="180" height="110" rx="10"/><text x="900" y="246" class="diagram-number">模块 5</text><text x="900" y="280">动作拼接、连续化</text></a>
+<a href="#module-6" aria-label="模块 6：Retarget 和数字人渲染"><rect x="1010" y="210" width="180" height="110" rx="10"/><text x="1100" y="240" class="diagram-number">模块 6</text><text x="1100" y="269">Retarget</text><text x="1100" y="296">和数字人渲染</text></a>
+<g class="database-resource"><rect x="310" y="370" width="540" height="60" rx="10"/><text x="580" y="407">带能量标签的动作数据库</text></g>
+<g class="database-resource"><rect x="310" y="485" width="540" height="60" rx="10"/><text x="580" y="522">外部动作数据库</text></g>
+<a href="#module-8" aria-label="模块 8：能量消耗计算"><rect x="980" y="445" width="210" height="110" rx="10"/><text x="1085" y="480" class="diagram-number">模块 8</text><text x="1085" y="515">能量消耗计算</text></a>
+<a href="#module-7" aria-label="模块 7：数据集构建"><rect x="310" y="600" width="540" height="65" rx="10"/><text x="580" y="640">模块 7：数据集构建</text></a>
+<g class="energy-result"><rect x="980" y="600" width="210" height="75" rx="10"/><text x="1085" y="629">团操总能量消耗</text><text x="1085" y="655">各肌群能量消耗</text></g>
+<text x="1100" y="379" class="diagram-flow-label">生成的完整团操</text>
+</g>
+</svg>
+</div>
+</section>
+<section class="modules-section" aria-labelledby="modules-title">
+<div class="section-heading"><div><span class="section-no">02 /</span><h2 id="modules-title">模块详情</h2><span class="pill">8 个模块</span></div><button id="toggle-all" type="button">展开全部细节 <span>＋</span></button></div>
+<p class="section-description">按生成顺序梳理职责与数据交接。展开模块，逐步补充具体实现和技术方案。</p>
+<div id="modules"></div>
+</section>
+<footer><span><b>FitGen</b> / 项目架构蓝图</span><span>音乐 × 运动 × 生成</span><a href="#top">回到顶部 ↑</a></footer>
+</main>
+<script src="vendor/katex/katex.min.js"></script><script src="vendor/katex/contrib/auto-render.min.js"></script><script src="modules.js"></script><script src="module1-details.js"></script><script src="module4-details.js"></script><script src="module8-details.js"></script><script src="app.js"></script>
+</body></html>

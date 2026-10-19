@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>实现过程中遇到的问题 · FitGen</title><meta name="description" content="FitGen OpenSim 模型与代谢能耗计算笔记">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究笔记 <span>/</span> 01</div><div class="sidebar-title">OpenSim<br>模型与代谢能耗</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>完整链路</span><span class="nav-arrow">↗</span></a><a href="model.html" class="nav-item " ><span class="nav-number">02</span><span>模型与肌肉</span><span class="nav-arrow">↗</span></a><a href="pipeline.html" class="nav-item " ><span class="nav-number">03</span><span>求解过程</span><span class="nav-arrow">↗</span></a><a href="issues.html" class="nav-item active" aria-current="page"><span class="nav-number">04</span><span>实现问题</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 能量消耗计算</div></aside>
+<main><header><div>FitGen <span>/</span> 能量消耗计算 <span>/</span> <b>实现问题</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-4" id="content"><div class="eyebrow"><span></span> OPENSIM <i>/</i> RESEARCH NOTES</div>
+<div class="page-number">04 <span>/ 04</span></div><h1>实现过程中遇到的问题</h1><div class="title-rule"></div>
+<div class="prose"><h2>3.1 retarget问题</h2>
+<p>一开始受SKEL影响想采用 SMPL -&gt; virtual points -&gt; OpenSim IK 得到 OpenSim 骨骼的运动学，但有两个问题：</p>
+<ol start="1"><li>SKEL采用的BSM模型虽然是.osim，但是用Nimble导出的，和OpenSim不兼容，无法正常IK</li></ol>
+<figure><button class="image-button" aria-label="放大原文问题截图"><img src="assets/retarget.png" alt="原文问题截图"></button><figcaption>原文问题截图 · 点击放大</figcaption></figure>
+<ol start="2"><li>换用全身肌肉覆盖的模型cathures之后，virtual points 和 cathures 的对应关系缺少标注，部分骨骼对应错误导致 retarget 效果很差，多处跳变</li></ol>
+<p>该用SMPL骨骼和catherus对应的方法进行retarget之后没有大范围跳变了。</p>
+<h2>3.2 肌肉甩出人体</h2>
+<figure><button class="image-button" aria-label="放大原文问题截图"><img src="assets/muscle-1.png" alt="原文问题截图"></button><figcaption>原文问题截图 · 点击放大</figcaption></figure>
+<figure><button class="image-button" aria-label="放大原文问题截图"><img src="assets/muscle-2.png" alt="原文问题截图"></button><figcaption>原文问题截图 · 点击放大</figcaption></figure></div><footer class="page-navigation" aria-label="翻页"><a href="pipeline.html"><small>← 上一页</small><span>求解过程</span></a><a class="next" href="index.html"><small>返回首页 ↗</small><span>完整链路</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> OpenSim 模型梳理</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>从动作到代谢能耗的求解过程 · FitGen</title><meta name="description" content="FitGen OpenSim 模型与代谢能耗计算笔记">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究笔记 <span>/</span> 01</div><div class="sidebar-title">OpenSim<br>模型与代谢能耗</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>完整链路</span><span class="nav-arrow">↗</span></a><a href="model.html" class="nav-item " ><span class="nav-number">02</span><span>模型与肌肉</span><span class="nav-arrow">↗</span></a><a href="pipeline.html" class="nav-item active" aria-current="page"><span class="nav-number">03</span><span>求解过程</span><span class="nav-arrow">↗</span></a><a href="issues.html" class="nav-item " ><span class="nav-number">04</span><span>实现问题</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 能量消耗计算</div></aside>
+<main><header><div>FitGen <span>/</span> 能量消耗计算 <span>/</span> <b>求解过程</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-3" id="content"><div class="eyebrow"><span></span> OPENSIM <i>/</i> RESEARCH NOTES</div>
+<div class="page-number">03 <span>/ 04</span></div><h1>从动作到代谢能耗的求解过程</h1><div class="title-rule"></div>
+<div class="prose"><h2>1. 重定向与逆运动学</h2>
+<p>把 SMPL-X 的动作对应到 OpenSim 骨骼模型，通过重定向与逆运动学（IK）得到 OpenSim 的关节运动学 $q(t)$。</p>
+<h2>2. 逆动力学：由运动求关节力矩</h2>
+<p>结合关节运动学、人体模型参数和外力信息，通过 Inverse Dynamics 求出各关节需要的力矩 $\tau(t)$。</p>
+<h2>3. 肌肉求解：由关节力矩求肌肉激活</h2>
+<p>根据模型中的肌肉路径和力臂，求出能产生所需关节力矩的肌肉激活或兴奋信号。</p>
+<div class="table-wrap"><table><thead><tr><th>求解方法</th><th>基本思路</th></tr></thead><tbody><tr><td>Static Optimization</td><td>逐时刻寻找满足关节力矩要求的一组肌肉激活，并用优化目标选择解</td></tr><tr><td>CMC（Computed Muscle Control）</td><td>根据目标运动与当前运动的误差调整肌肉兴奋，通过前向仿真跟踪目标动作</td></tr></tbody></table></div>
+<h2>4. 肌肉动力学：得到肌肉力与状态</h2>
+<p>结合肌肉激活、肌纤维长度、收缩速度以及肌腱状态，计算每条肌肉的力与相关状态。肌肉求解和动力学在实际工具中可能耦合进行。</p>
+<h2>5. 代谢模型：由肌肉状态求代谢功率</h2>
+<p>将 activation、fiber length、fiber velocity、force 等量交给代谢模型（如 Umberger），得到随时间变化的代谢功率。</p>
+<h2>6. 时间积分：由功率得到能耗</h2>
+<p>对代谢功率进行时间积分，再转换单位，得到整段动作的代谢能耗（kcal）。</p></div><footer class="page-navigation" aria-label="翻页"><a href="model.html"><small>← 上一页</small><span>模型与肌肉</span></a><a class="next" href="issues.html"><small>下一页 →</small><span>实现问题</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> OpenSim 模型梳理</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

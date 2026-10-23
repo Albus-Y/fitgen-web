@@ -1,2 +1,19 @@
 /original-audio-chunks/
 /previous-demos/
+
+# 本机运行记录、凭证、预览产物与安装目录。
+.DS_Store
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+node_modules/
+.sites-runtime/
+*.log
+*.tar
+*.tar.gz
+*.zip
+/*preview.png

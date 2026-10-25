@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数据筛选与视频切分 · FitGen</title><meta name="description" content="FitGen OpenSim 模型与代谢能耗计算笔记">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 01</div><div class="sidebar-title">数据构建与模型<br>阶段性汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>完整链路</span><span class="nav-arrow">↗</span></a><a href="model.html" class="nav-item " ><span class="nav-number">02</span><span>模型与肌肉</span><span class="nav-arrow">↗</span></a><a href="pipeline.html" class="nav-item " ><span class="nav-number">03</span><span>求解过程</span><span class="nav-arrow">↗</span></a><a href="issues.html" class="nav-item " ><span class="nav-number">04</span><span>实现问题</span><span class="nav-arrow">↗</span></a><a href="hmr-data.html" class="nav-item active" aria-current="page"><span class="nav-number">05</span><span>视频筛选与切分</span><span class="nav-arrow">↗</span></a><a href="hmr-model.html" class="nav-item " ><span class="nav-number">06</span><span>HMR 优化与选型</span><span class="nav-arrow">↗</span></a><a href="hmr-progress.html" class="nav-item " ><span class="nav-number">07</span><span>进展与成对数据库</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 能量消耗计算</div></aside>
+<main><header><div>FitGen <span>/</span> 能量消耗计算 <span>/</span> <b>视频筛选与切分</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-5" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">05 <span>/ 7</span></div><h1>数据筛选与视频切分</h1><div class="title-rule"></div>
+<div class="prose"><h2>已筛选 3 个高质量单人合集</h2>
+<ul><li><strong>Kyra Pro</strong>：588 条视频；舞蹈有氧、步行、拳击/踢拳、HIIT、家庭力量、芭蕾、瑜伽/拉伸。</li><li><strong>MadFit</strong>：780 条视频；全身/核心、上下肢力量、哑铃、低冲击、舞蹈/芭蕾、热身冷身、瑜伽拉伸。</li><li><strong>Pamela Reif</strong>：260 条视频；核心腹部、臀腿、上肢、HIIT/Cardio、舞蹈、普拉提/瑜伽、拉伸、器械。</li></ul>
+<h2>处理主线</h2>
+<ol start="1"><li><strong>视频筛选</strong>：单人主体、动作清晰、机位稳定。</li><li><strong>倒计时 OCR</strong>：识别倒计时变化，获得候选时间点。</li><li><strong>边界校正</strong>：去重、容错与连续区间合并。</li><li><strong>视频切分</strong>：先切片，统一视频片段粒度。</li><li><strong>HMR 提取</strong>：逐片段恢复人体运动序列。</li></ol>
+<p>当前处理规模约 <strong>350 h</strong>。倒计时作为弱监督边界，能够减少冗余计算，提升视频片段粒度一致性。</p></div><footer class="page-navigation" aria-label="翻页"><a href="issues.html"><small>← 上一页</small><span>实现问题</span></a><a class="next" href="hmr-model.html"><small>下一页 →</small><span>HMR 优化与选型</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 数据构建与模型阶段性汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

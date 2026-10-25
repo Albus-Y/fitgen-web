@@ -18,5 +18,20 @@
     "filename": "issues.html",
     "short": "实现问题",
     "source": "issues.md"
+  },
+  {
+    "filename": "hmr-data.html",
+    "short": "视频筛选与切分",
+    "source": "hmr-data.md"
+  },
+  {
+    "filename": "hmr-model.html",
+    "short": "HMR 优化与选型",
+    "source": "hmr-model.md"
+  },
+  {
+    "filename": "hmr-progress.html",
+    "short": "进展与成对数据库",
+    "source": "hmr-progress.md"
   }
 ]

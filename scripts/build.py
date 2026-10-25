@@ -93,8 +93,7 @@ def main():
         if not heading.startswith('# '):
             raise ValueError('页面必须以一级标题开头：' + page['source'])
         pages.append((page['filename'], page['short'], heading[2:], body.strip()))
-    if len(pages) != 4:
-        raise ValueError('当前模板对应四页 OpenSim 汇报。')
+    total_pages = len(pages)
     for index, (filename, short, title, md) in enumerate(pages):
         links = []
         for n, page in enumerate(pages):
@@ -103,7 +102,7 @@ def main():
             links.append('<a href="{}" class="nav-item {}" {}><span class="nav-number">0{}</span><span>{}</span><span class="nav-arrow">↗</span></a>'.format(page[0], active, current, n + 1, html.escape(page[1])))
         prev = '<a href="{}"><small>← 上一页</small><span>{}</span></a>'.format(pages[index-1][0], html.escape(pages[index-1][1])) if index else '<span></span>'
         nxt = '<a class="next" href="{}"><small>下一页 →</small><span>{}</span></a>'.format(pages[index+1][0], html.escape(pages[index+1][1])) if index < len(pages)-1 else '<a class="next" href="index.html"><small>返回首页 ↗</small><span>完整链路</span></a>'
-        values = {'body': render_markdown(md), 'page_number': str(index+1), 'title': html.escape(title), 'short': html.escape(short), 'nav': ''.join(links), 'prev': prev, 'next': nxt}
+        values = {'body': render_markdown(md), 'page_number': str(index+1), 'total_pages': str(total_pages), 'title': html.escape(title), 'short': html.escape(short), 'nav': ''.join(links), 'prev': prev, 'next': nxt}
         document = re.sub(r'\{\{([a-z_]+)\}\}', lambda m: values[m[1]], template)
         (ROOT / filename).write_text(document, encoding='utf-8')
         print('已生成 dist/opensim-note/' + filename)

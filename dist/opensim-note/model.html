@@ -5,11 +5,11 @@
 <script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="app.js"></script></head>
 <body><a class="skip-link" href="#content">跳至正文</a>
 <aside class="sidebar"><a href="index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
-<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究笔记 <span>/</span> 01</div><div class="sidebar-title">OpenSim<br>模型与代谢能耗</div>
-<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>完整链路</span><span class="nav-arrow">↗</span></a><a href="model.html" class="nav-item active" aria-current="page"><span class="nav-number">02</span><span>模型与肌肉</span><span class="nav-arrow">↗</span></a><a href="pipeline.html" class="nav-item " ><span class="nav-number">03</span><span>求解过程</span><span class="nav-arrow">↗</span></a><a href="issues.html" class="nav-item " ><span class="nav-number">04</span><span>实现问题</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 能量消耗计算</div></aside>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 01</div><div class="sidebar-title">数据构建与模型<br>阶段性汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>完整链路</span><span class="nav-arrow">↗</span></a><a href="model.html" class="nav-item active" aria-current="page"><span class="nav-number">02</span><span>模型与肌肉</span><span class="nav-arrow">↗</span></a><a href="pipeline.html" class="nav-item " ><span class="nav-number">03</span><span>求解过程</span><span class="nav-arrow">↗</span></a><a href="issues.html" class="nav-item " ><span class="nav-number">04</span><span>实现问题</span><span class="nav-arrow">↗</span></a><a href="hmr-data.html" class="nav-item " ><span class="nav-number">05</span><span>视频筛选与切分</span><span class="nav-arrow">↗</span></a><a href="hmr-model.html" class="nav-item " ><span class="nav-number">06</span><span>HMR 优化与选型</span><span class="nav-arrow">↗</span></a><a href="hmr-progress.html" class="nav-item " ><span class="nav-number">07</span><span>进展与成对数据库</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 能量消耗计算</div></aside>
 <main><header><div>FitGen <span>/</span> 能量消耗计算 <span>/</span> <b>模型与肌肉</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
-<article class="page page-2" id="content"><div class="eyebrow"><span></span> OPENSIM <i>/</i> RESEARCH NOTES</div>
-<div class="page-number">02 <span>/ 04</span></div><h1>OpenSim 如何表示人体骨骼与肌肉</h1><div class="title-rule"></div>
+<article class="page page-2" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">02 <span>/ 7</span></div><h1>OpenSim 如何表示人体骨骼与肌肉</h1><div class="title-rule"></div>
 <div class="prose"><h2>1. 骨骼与关节</h2>
 <p>OpenSim 把人体表示为由关节连接的刚体链，例如骨盆、大腿骨、小腿骨和脚。</p>
 <p>每个刚体包含质量、惯性以及空间位置和旋转等信息。关节定义刚体之间如何运动，以及允许运动的自由度；例如，简化的膝关节可以只保留屈伸这一个角度自由度。</p>
@@ -42,5 +42,5 @@ $$</div>
 <p>在得到肌肉状态后，将以下量传入代谢模型（如 Umberger）：</p>
 <div class="table-wrap"><table><thead><tr><th>输入量</th><th>含义</th></tr></thead><tbody><tr><td>activation</td><td>肌肉激活程度</td></tr><tr><td>fiber length</td><td>肌纤维长度</td></tr><tr><td>fiber velocity</td><td>肌纤维收缩速度</td></tr><tr><td>force</td><td>肌肉力</td></tr></tbody></table></div>
 <p>这些是随动作变化的输入，计算还使用模型中预设的肌肉参数。代谢模型输出代谢功率（metabolic rate），再对时间积分并换算为 kcal，得到这段动作的代谢能耗。</p></div><footer class="page-navigation" aria-label="翻页"><a href="index.html"><small>← 上一页</small><span>完整链路</span></a><a class="next" href="pipeline.html"><small>下一页 →</small><span>求解过程</span></a></footer></article>
-<div class="document-footer">FITGEN <span>·</span> OpenSim 模型梳理</div></main>
+<div class="document-footer">FITGEN <span>·</span> 数据构建与模型阶段性汇报</div></main>
 <dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

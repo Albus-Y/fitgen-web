@@ -8,6 +8,8 @@ import shutil
 REPO = Path(__file__).resolve().parents[1]
 CONTENT = REPO / 'content' / 'opensim-note'
 ROOT = REPO / 'dist' / 'opensim-note'
+SECOND_CONTENT = REPO / 'content' / 'pamela-kyrapro' / 'index.md'
+SECOND_ROOT = REPO / 'dist' / 'pamela-kyrapro-report'
 image_files = json.loads((CONTENT / 'images.json').read_text(encoding='utf-8'))
 
 def inline(text):
@@ -107,6 +109,24 @@ def main():
         (ROOT / filename).write_text(document, encoding='utf-8')
         print('已生成 dist/opensim-note/' + filename)
     shutil.copyfile(CONTENT / '原文.md', ROOT / '原文.md')
+    build_second_report()
+
+def build_second_report():
+    """Build the independent 2026-10-26 report using the shared report style."""
+    raw = SECOND_CONTENT.read_text(encoding='utf-8')
+    heading, _, body = raw.partition('\n')
+    if not heading.startswith('# '):
+        raise ValueError('第二次汇报必须以一级标题开头：' + str(SECOND_CONTENT))
+    SECOND_ROOT.mkdir(parents=True, exist_ok=True)
+    template = (REPO / 'templates' / 'pamela-report.html').read_text(encoding='utf-8')
+    values = {
+        'title': html.escape(heading[2:]),
+        'body': render_markdown(body.strip()),
+    }
+    document = re.sub(r'\{\{([a-z_]+)\}\}', lambda m: values[m[1]], template)
+    (SECOND_ROOT / 'index.html').write_text(document, encoding='utf-8')
+    shutil.copyfile(SECOND_CONTENT, SECOND_ROOT / '原文.md')
+    print('已生成 dist/pamela-kyrapro-report/index.html')
 
 if __name__ == '__main__':
     main()

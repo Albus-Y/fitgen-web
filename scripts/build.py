@@ -112,21 +112,51 @@ def main():
     build_second_report()
 
 def build_second_report():
-    """Build the independent 2026-10-26 report using the shared report style."""
+    """Build the independent 2026-10-26 report, one page per major heading."""
     raw = SECOND_CONTENT.read_text(encoding='utf-8')
     heading, _, body = raw.partition('\n')
     if not heading.startswith('# '):
         raise ValueError('第二次汇报必须以一级标题开头：' + str(SECOND_CONTENT))
     SECOND_ROOT.mkdir(parents=True, exist_ok=True)
+    for old in SECOND_ROOT.glob('*.html'):
+        old.unlink()
     template = (REPO / 'templates' / 'pamela-report.html').read_text(encoding='utf-8')
-    values = {
-        'title': html.escape(heading[2:]),
-        'body': render_markdown(body.strip()),
-    }
-    document = re.sub(r'\{\{([a-z_]+)\}\}', lambda m: values[m[1]], template)
-    (SECOND_ROOT / 'index.html').write_text(document, encoding='utf-8')
+    sections = []
+    current_title = None
+    current_lines = []
+    for line in body.splitlines():
+        match = re.match(r'^##\s+(.+)$', line.strip())
+        if match:
+            if current_title is not None:
+                sections.append((current_title, '\n'.join(current_lines).strip()))
+            current_title = match[1].strip()
+            current_lines = []
+        elif current_title is not None:
+            current_lines.append(line)
+    if current_title is not None:
+        sections.append((current_title, '\n'.join(current_lines).strip()))
+    if not sections:
+        sections = [(heading[2:], body.strip())]
+    names = ['index.html'] + [f'{i:02d}.html' for i in range(2, len(sections) + 1)]
+    report_pages = list(zip(names, sections))
+    nav = []
+    for index, (filename, (section_title, _)) in enumerate(report_pages):
+        active = 'active' if index == 0 else ''
+        current = 'aria-current="page"' if index == 0 else ''
+        nav.append('<a href="{}" class="nav-item {}" {}><span class="nav-number">{:02d}</span><span>{}</span><span class="nav-arrow">↗</span></a>'.format(filename, active, current, index + 1, html.escape(section_title)))
+    for index, (filename, (section_title, section_body)) in enumerate(report_pages):
+        previous = '<a href="{}"><small>← 上一页</small><span>{}</span></a>'.format(report_pages[index - 1][0], html.escape(report_pages[index - 1][1][0])) if index else '<span></span>'
+        following = '<a class="next" href="{}"><small>下一页 →</small><span>{}</span></a>'.format(report_pages[index + 1][0], html.escape(report_pages[index + 1][1][0])) if index < len(report_pages) - 1 else '<a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a>'
+        values = {
+            'title': html.escape(section_title), 'body': render_markdown(section_body),
+            'page_number': str(index + 1), 'page_number_padded': f'{index + 1:02d}',
+            'total_pages': str(len(report_pages)), 'nav': ''.join(nav),
+            'prev': previous, 'next': following,
+        }
+        document = re.sub(r'\{\{([a-z_]+)\}\}', lambda m: values[m[1]], template)
+        (SECOND_ROOT / filename).write_text(document, encoding='utf-8')
+        print('已生成 dist/pamela-kyrapro-report/' + filename)
     shutil.copyfile(SECOND_CONTENT, SECOND_ROOT / '原文.md')
-    print('已生成 dist/pamela-kyrapro-report/index.html')
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>二、Pamela 原子动作切分逻辑 · FitGen</title><meta name="description" content="FitGen Pamela 与 KyraPro 原子动作切分第二次汇报">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 02</div><div class="sidebar-title">Pamela 与 KyraPro<br>原子动作切分汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item active" aria-current="page"><span class="nav-number">01</span><span>一、报告范围与总体流程</span><span class="nav-arrow">↗</span></a><a href="02.html" class="nav-item " ><span class="nav-number">02</span><span>二、Pamela 原子动作切分逻辑</span><span class="nav-arrow">↗</span></a><a href="03.html" class="nav-item " ><span class="nav-number">03</span><span>三、Pamela 测试中发现的问题及当前解决方案</span><span class="nav-arrow">↗</span></a><a href="04.html" class="nav-item " ><span class="nav-number">04</span><span>四、KyraPro 原子动作切分逻辑</span><span class="nav-arrow">↗</span></a><a href="05.html" class="nav-item " ><span class="nav-number">05</span><span>五、下一步计划</span><span class="nav-arrow">↗</span></a><a href="06.html" class="nav-item " ><span class="nav-number">06</span><span>六、总结</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 数据构建 <span>/</span> <b>Pamela 与 KyraPro</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-2" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">02 <span>/ 6</span></div><h1>二、Pamela 原子动作切分逻辑</h1><div class="title-rule"></div>
+<div class="prose"><p>Pamela 的流程可以概括为：长视频倒计时切段 → HMR 三维动作提取 → 完整动作周期检测 → OCR 动作归类与去重。</p>
+<h3>2.1 基于倒计时的初始切段</h3>
+<p>首先读取 Pamela 视频右上角的倒计时区域，使用 PaddleOCR 识别倒计时数字，同时兼容 <code>mm:ss</code> 和纯秒数格式。</p>
+<p>由于视频中存在 OCR 漏检、数字跳变、零值持续多帧以及倒计时重新开始等情况，所以没有采用“识别到单帧 0 就立即切段”的方式，而是使用状态机确认边界。</p>
+<p>当前的判断原则是：</p>
+<ul><li>倒计时必须先出现稳定的下降序列；</li><li>出现 0 后，需要检测到下一轮倒计时重新开始；</li><li>连续多个 0 只保留最后一个 0 作为边界；</li><li>单独一次错误的 0 不算边界；</li><li>中间漏检不能自动制造零值；</li><li>结尾没有明确重新开始的尾部不作为新的有效动作片段；</li><li>持续时间太短的片段直接丢弃。</li></ul>
+<h3>2.2 使用 HMR 三维动作轨迹</h3>
+<p>每个有效切片都有对应的 HMR 动作结果，最终使用带骨骼动画的 <code>world4d.glb</code> 进行周期分析。</p>
+<p>动作特征主要包括：</p>
+<ul><li>骨盆、躯干、手、脚和四肢等命名关节；</li><li>关节相对于骨盆的相对位置；</li><li>关节旋转；</li><li>关节速度；</li><li>左右关节交换后的镜像姿态。</li></ul>
+<h3>2.3 完整动作周期检测</h3>
+<p>Pamela 的原子动作不是按照固定时长截取，也不是直接选取一段最相似的局部片段，而是寻找完整的动作编排周期。</p>
+<p>检测过程主要包括以下几步（下面详细解释每一步的目的和判断依据）：</p>
+<ol start="1"><li>在整段动作轨迹上寻找重复间隔；</li><li>检查周期内部的动作阶段是否按照相同顺序出现；</li><li>检查每个阶段是否能够完整返回，周期边界是否稳定；</li><li>检查每轮动作的持续时间和可观察动作次数；</li><li>使用全身受限 DTW 比较不同周期之间的姿态和速度变化；</li><li>从多个完整周期中选取最具有代表性的一轮作为 canonical representative。</li></ol>
+<p>代表周期不是默认取第一轮，而是计算每一轮与其他完整周期的平均 DTW 距离，选择最接近整体中位状态的真实周期。这样可以避开第一轮准备动作、中间不完整动作、擦汗或调整姿态等异常轮次。</p>
+<p>这里的“平均 DTW 距离”可以理解为“这一轮动作和其他所有完整轮次的平均差异”。假设一个 segment 中通过完整性检查后有 4 轮动作，分别记为 A、B、C、D，那么 A 的平均 DTW 距离为：</p>
+<pre><code>mean_DTW(A) = [DTW(A,B) + DTW(A,C) + DTW(A,D)] / 3</code></pre>
+<p>B、C、D 也分别进行同样的计算。平均值越小，说明这一轮和其他轮次越接近，越能代表这个 segment 中动作的共同形态。</p>
+<p>DTW 是动态时间规整距离。它允许两轮动作存在合理的速度差异，例如一轮稍快、另一轮稍慢，同时比较整段动作中所有关节的姿态和速度变化。这里使用的是受限 DTW，时间匹配只能在有限范围内调整，不能把任意两个时间点无限制地对齐。因此，局部姿态相似但阶段顺序不同的片段，仍然会得到较大的整体距离。</p>
+<p>最终选择的是实际出现在视频中的一轮完整动作，而不是把多轮动作平均成一个不存在的视频。该轮同时需要满足动作阶段完整、边界稳定、时间变化合理，并且平均 DTW 距离较小。</p>
+<h3>2.4 左右侧动作的处理</h3>
+<p>Pamela 的左右处理主要用于动作命名和镜像标注。动作周期本身先按照该 segment 中的完整重复结构确定；之后再根据 OCR 名称中明确出现的 <code>LEFT</code> 或 <code>RIGHT</code> 记录左右语义。</p>
+<p>例如：</p>
+<pre><code>SIDE LUNGE LEFT
+SIDE LUNGE RIGHT</code></pre>
+<p>会归为同一个动作组，但保留两个独立的视频，分别标记为 <code>left_mirror</code> 和 <code>right_mirror</code>。左右视频不进行水平翻转，也不拼接。<code>SIDE TO SIDE</code>、交替左右等已经包含双侧语义的名称，则作为一个无镜像动作保留。</p>
+<h3>2.5 OCR 动作名称归类</h3>
+<p>运动轨迹负责回答“哪里是完整动作周期”，但不负责决定两个动作在语义上是否属于同一类。动作类别主要通过视频画面中的 exercise title 进行识别。</p>
+<p>具体做法是：</p>
+<ul><li>在倒计时左侧截取动作名称区域；</li><li>在一个 segment 的多个时间点进行采样；</li><li>使用 PaddleOCR 识别动作名称；</li><li>做大写化、标点归一化和无关词清理；</li></ul>
+<p>归类规则是：</p>
+<ul><li>每个 segment 先视为一个动作语义单元；</li><li>相同 OCR 名称的 segment 可以归为同一动作；</li><li>同名动作中只保留质量最好的完整周期作为 canonical action；</li><li>其他周期保留在 <code>sources.json</code> 中作为来源证据；</li><li>姿态相似但 OCR 名称不同的动作不强行合并；</li></ul>
+<h3>2.6 左右镜像标注</h3>
+<p>左右镜像不是根据画面坐标判断，而是根据 OCR 名称中明确出现的 <code>LEFT</code> 或 <code>RIGHT</code> 判断。</p>
+<p>例如：</p>
+<pre><code>SIDE LUNGE LEFT
+SIDE LUNGE RIGHT</code></pre>
+<p>会归为同一个动作组，但保留两个独立的视频：一个标记为 <code>left_mirror</code>，另一个标记为 <code>right_mirror</code>。</p>
+<p>左右动作不做水平翻转，也不拼接成一个视频。对于 <code>SIDE TO SIDE</code>、交替左右等本身已经包含双侧动作的名称，则标记为无镜像，不再拆分。</p></div><footer class="page-navigation" aria-label="翻页"><a href="index.html"><small>← 上一页</small><span>一、报告范围与总体流程</span></a><a class="next" href="03.html"><small>下一页 →</small><span>三、Pamela 测试中发现的问题及当前解决方案</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-10-26 第 02 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

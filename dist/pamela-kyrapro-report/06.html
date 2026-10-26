@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>六、总结 · FitGen</title><meta name="description" content="FitGen Pamela 与 KyraPro 原子动作切分第二次汇报">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 02</div><div class="sidebar-title">Pamela 与 KyraPro<br>原子动作切分汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item active" aria-current="page"><span class="nav-number">01</span><span>一、报告范围与总体流程</span><span class="nav-arrow">↗</span></a><a href="02.html" class="nav-item " ><span class="nav-number">02</span><span>二、Pamela 原子动作切分逻辑</span><span class="nav-arrow">↗</span></a><a href="03.html" class="nav-item " ><span class="nav-number">03</span><span>三、Pamela 测试中发现的问题及当前解决方案</span><span class="nav-arrow">↗</span></a><a href="04.html" class="nav-item " ><span class="nav-number">04</span><span>四、KyraPro 原子动作切分逻辑</span><span class="nav-arrow">↗</span></a><a href="05.html" class="nav-item " ><span class="nav-number">05</span><span>五、下一步计划</span><span class="nav-arrow">↗</span></a><a href="06.html" class="nav-item " ><span class="nav-number">06</span><span>六、总结</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 数据构建 <span>/</span> <b>Pamela 与 KyraPro</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-6" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">06 <span>/ 6</span></div><h1>六、总结</h1><div class="title-rule"></div>
+<div class="prose"><p>最后总结一下：</p>
+<p>Pamela 目前采用“倒计时切段 + HMR 周期检测 + OCR 语义归类 + 左右镜像标注”的方案，重点保证动作名称和左右语义的可解释性。KyraPro 则采用“专用倒计时识别 + HMR 周期检测 + 全身 DTW 跨 segment 聚类”的方案，重点保证动作周期和跨片段去重的稳定性。两套方案的底层周期检测已经统一，主要差异在于动作语义归类方式和倒计时切分器的专门化程度。</p></div><footer class="page-navigation" aria-label="翻页"><a href="05.html"><small>← 上一页</small><span>五、下一步计划</span></a><a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-10-26 第 02 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

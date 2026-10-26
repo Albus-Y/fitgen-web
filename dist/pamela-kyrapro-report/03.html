@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三、Pamela 测试中发现的问题及当前解决方案 · FitGen</title><meta name="description" content="FitGen Pamela 与 KyraPro 原子动作切分第二次汇报">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 02</div><div class="sidebar-title">Pamela 与 KyraPro<br>原子动作切分汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item active" aria-current="page"><span class="nav-number">01</span><span>一、报告范围与总体流程</span><span class="nav-arrow">↗</span></a><a href="02.html" class="nav-item " ><span class="nav-number">02</span><span>二、Pamela 原子动作切分逻辑</span><span class="nav-arrow">↗</span></a><a href="03.html" class="nav-item " ><span class="nav-number">03</span><span>三、Pamela 测试中发现的问题及当前解决方案</span><span class="nav-arrow">↗</span></a><a href="04.html" class="nav-item " ><span class="nav-number">04</span><span>四、KyraPro 原子动作切分逻辑</span><span class="nav-arrow">↗</span></a><a href="05.html" class="nav-item " ><span class="nav-number">05</span><span>五、下一步计划</span><span class="nav-arrow">↗</span></a><a href="06.html" class="nav-item " ><span class="nav-number">06</span><span>六、总结</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 数据构建 <span>/</span> <b>Pamela 与 KyraPro</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-3" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">03 <span>/ 6</span></div><h1>三、Pamela 测试中发现的问题及当前解决方案</h1><div class="title-rule"></div>
+<div class="prose"><p>Pamela 当前暴露出的主要问题首先来自输入视频和前置结果的完整性，可以归纳为三类视频问题。它们需要分别处理，不能全部归结为原子动作算法本身。</p>
+<p>这三类问题都会直接影响后续的原子动作周期寻找：多人会使单人 HMR 的人体序列发生错位，shot change 会把不同镜头中的人体轨迹拼在一起，中央缩小预告则会使人体尺度和关键点轨迹突然改变。因此，质量控制必须发生在 HMR 重跑和周期分析之前。</p>
+<h3>3.1 三类问题总览</h3>
+<div class="table-wrap"><table><thead><tr><th>问题类型</th><th>典型现象</th><th>对 HMR 和周期分析的影响</th><th>处理原则</th></tr></thead><tbody><tr><td>双人或多人</td><td>两个人都在中央；或 Pamela 在中央、另一人在左右两侧作为背景</td><td>单人 GVHMR 可能跟错人、序列跳到另一人物，导致骨架错位和周期不完整</td><td>用 ViTPose 识别每个人的 2D 关键点、置信度和人体框，再决定 GVHMR 或 PromptHMR 多人模式</td></tr><tr><td>shot change</td><td>镜头切换、画面突变、人物框和关键点轨迹同时跳变</td><td>一个视频段内混入两个镜头，HMR 轨迹不连续，周期边界失真</td><td>使用 PySceneDetect 产生场景候选，再用人体框和 2D 关键点变化确认；必要时先切开再分别运行 HMR</td></tr><tr><td>中央画面边界虚化/缩小预告</td><td>先出现完整人物，随后虚化或缩小为中央小画面；通常持续约 10 秒，并预告后面约 30 秒的完整动作</td><td>小画面阶段的人体尺度、清晰度和关键点分布异常，容易生成错误 HMR 或错误周期</td><td>标记预告区间并排除该区间，使用后续正常画面重跑；不直接删除对应完整动作</td></tr></tbody></table></div>
+<h3>3.2 基于 ViTPose 的多人识别和位置判断</h3>
+<p>错误的第一轮 HOG 代理标签不再使用。新的质量标签流程对视频均匀采样帧，逐帧保存以下信息：</p>
+<ul><li>每个人的人体框 <code>bbox</code> 及检测置信度；</li><li>17 个 COCO 2D 关键点及每个关键点的置信度；</li><li>有效关键点数量、平均关键点置信度；</li><li>人体框中心、面积和相邻采样帧的轨迹变化。</li></ul>
+<p>只有在关键点数量和置信度达到最低要求，并且在多个采样帧中持续出现的人体，才计入人数。根据人体框中心和面积进行位置分类：</p>
+<pre><code>单个有效人体位于中央       → single_central_person → GVHMR
+两个或更多有效人体位于中央  → central_multi_person → PromptHMR --keep-all-persons
+最大人体位于中央、其他人在两侧 → side_background_person → GVHMR 主人物，必要时回退多人模式
+关键点不足或严重遮挡        → pose_insufficient / pose_occlusion → 人工复核</code></pre>
+<p><code>multi_person</code> 只在多人条件得到多个采样帧支持时添加，避免把单帧检测噪声当作第二个人。每个片段的原始关键点和人体框证据写入 JSONL，便于抽帧复核和选择最终人体序列。</p>
+<h3>3.3 shot change 检测</h3>
+<p>shot change 使用 Multi-THuMBS 中的 PySceneDetect 接口作为场景候选检测器，并联合 ViTPose 的人体时序特征进行确认。每个候选边界保留三类证据：</p>
+<ol start="1"><li><code>scene</code>：PySceneDetect 的像素/场景变化分数；</li><li><code>bbox</code>：边界前后人体框的面积、位置和 IoU 是否突然变化；</li><li><code>pose</code>：归一化 2D 关键点轨迹和可见关键点数量是否突然变化。</li></ol>
+<p>只有场景证据与人体证据相互支持，或者场景边界本身非常明确时，才标记为 <code>shot_change_candidate</code>。确认后的处理顺序为：</p>
+<pre><code>检测边界 → 保存边界帧和触发来源 → 在边界处分割 → 对各子段分别运行 HMR</code></pre>
+<p>如果切分后仍然没有足够长、连续的人体轨迹，该片段标记为 <code>needs_review</code>，而不是将不同镜头强行拼接成一个动作周期。</p>
+<h3>3.4 中央画面边界虚化/缩小预告检测</h3>
+<p>这类问题不能只用单一的模糊度阈值判断。新的检测同时使用画面级和人体级时序证据：</p>
+<ul><li>画面级：Laplacian 方差、边缘密度、局部熵，以及中央区域和四周区域的清晰度变化；</li><li>人体级：最大人体框面积占比、人体框宽高、人体框中心、有效关键点数量和关键点置信度；</li><li>时序级：从正常大画面到过渡/虚化，再到中央稳定小画面的持续变化，并检查后续是否出现正常大小的完整人物。</li></ul>
+<p>只有以下模式同时出现时，才标记 <code>center_preview_candidate</code>：</p>
+<pre><code>正常完整人物
+    → 过渡或边界虚化
+    → 人体框稳定缩小到中央、但关键点仍可见
+    → 后续出现较长的正常完整动作</code></pre>
+<p>输出中记录 <code>preview_intervals</code>，包括开始时间、结束时间和触发证据。该区间只作为 HMR 的排除区间，不删除后续完整动作；后续正常画面仍需参与周期检测。如果只有整体失焦、人物暂时蹲下、短时遮挡或镜头拉远而没有稳定的小画面模式，则不标记为预告。</p>
+<h3>3.5 三类问题对应的 HMR 策略</h3>
+<div class="table-wrap"><table><thead><tr><th>标签/判断结果</th><th>HMR 策略</th><th>后续动作周期处理</th></tr></thead><tbody><tr><td><code>single_central_person</code></td><td>GVHMR</td><td>正常进入完整周期检测</td></tr><tr><td><code>central_multi_person</code></td><td>PromptHMR 多人模式，保留全部人体序列</td><td>比较各人体序列的完整周期、稳定性和质量，选择最终序列</td></tr><tr><td><code>side_background_person</code></td><td>先用 GVHMR 提取中央主人物</td><td>若主人物轨迹不稳定，再运行多人模式复核</td></tr><tr><td><code>shot_change_candidate</code></td><td>先按确认边界切分，再分别运行 HMR</td><td>不跨镜头寻找周期</td></tr><tr><td><code>center_preview_candidate</code></td><td>排除预告区间，使用后续正常画面重跑</td><td>只从正常完整动作中寻找周期</td></tr><tr><td><code>pose_insufficient</code> / <code>pose_occlusion</code></td><td>暂不自动接受结果</td><td>进入人工复核或重新抽帧</td></tr></tbody></table></div>
+<p>当前新的打标实现为 <code>scripts/quality_tag_vitpose.py</code>，输出目录为 <code>AAProblems问题视频/vitpose_parts</code>。标签阶段完成后，才根据标签选择 GVHMR 或 PromptHMR，并将 HMR 结果和标签结果分开保存，避免把质量控制文件混入原始视频目录。</p></div><footer class="page-navigation" aria-label="翻页"><a href="02.html"><small>← 上一页</small><span>二、Pamela 原子动作切分逻辑</span></a><a class="next" href="04.html"><small>下一页 →</small><span>四、KyraPro 原子动作切分逻辑</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-10-26 第 02 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

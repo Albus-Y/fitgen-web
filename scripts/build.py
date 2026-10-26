@@ -149,12 +149,12 @@ def build_second_report():
         sections = [(heading[2:], body.strip())]
     names = ['index.html'] + [f'{i:02d}.html' for i in range(2, len(sections) + 1)]
     report_pages = list(zip(names, sections))
-    nav = []
-    for index, (filename, (section_title, _)) in enumerate(report_pages):
-        active = 'active' if index == 0 else ''
-        current = 'aria-current="page"' if index == 0 else ''
-        nav.append('<a href="{}" class="nav-item {}" {}><span class="nav-number">{:02d}</span><span>{}</span><span class="nav-arrow">↗</span></a>'.format(filename, active, current, index + 1, html.escape(section_title)))
     for index, (filename, (section_title, section_body)) in enumerate(report_pages):
+        nav = []
+        for nav_index, (nav_filename, (nav_title, _)) in enumerate(report_pages):
+            active = 'active' if nav_index == index else ''
+            current = 'aria-current="page"' if nav_index == index else ''
+            nav.append('<a href="{}" class="nav-item {}" {}><span class="nav-number">{:02d}</span><span>{}</span><span class="nav-arrow">↗</span></a>'.format(nav_filename, active, current, nav_index + 1, html.escape(nav_title)))
         previous = '<a href="{}"><small>← 上一页</small><span>{}</span></a>'.format(report_pages[index - 1][0], html.escape(report_pages[index - 1][1][0])) if index else '<span></span>'
         following = '<a class="next" href="{}"><small>下一页 →</small><span>{}</span></a>'.format(report_pages[index + 1][0], html.escape(report_pages[index + 1][1][0])) if index < len(report_pages) - 1 else '<a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a>'
         values = {

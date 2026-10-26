@@ -14,6 +14,7 @@
 <p>但 KyraPro 在倒计时识别和跨 segment 动作归并方面采用了更专门化的处理。</p>
 <h3>4.1 KyraPro 的倒计时识别</h3>
 <p>KyraPro 的倒计时具有比较明显的视觉特征，包括右上角倒计时、斜体数字、紫色或粉色数字，以及结束阶段的红色数字。尤其是单独的斜体数字 0，容易被通用 OCR 漏掉。</p>
+<figure><button class="image-button" aria-label="放大KyraPro 倒计时示例"><img src="assets/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202026-10-26%20114108.png" alt="KyraPro 倒计时示例"></button><figcaption>KyraPro 倒计时示例 · 点击放大</figcaption></figure>
 <p>采用的自适应采样，分为三个状态：</p>
 <ul><li>空白搜索阶段：低频采样，大约 1 FPS；</li><li>正常倒计时阶段：按照设定频率跟踪；</li><li>接近 0 或出现重置跳变时：提高到视频原始帧率逐帧检查。</li></ul>
 <p>KyraPro 还增加了以下规则：</p>

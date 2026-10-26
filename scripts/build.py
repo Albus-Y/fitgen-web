@@ -4,6 +4,7 @@ import html
 import json
 import re
 import shutil
+from urllib.parse import quote
 
 REPO = Path(__file__).resolve().parents[1]
 CONTENT = REPO / 'content' / 'opensim-note'
@@ -26,7 +27,7 @@ def inline(text):
         text = text.replace(f'\x00{i}\x00', value)
     return text
 
-def render_markdown(md):
+def render_markdown(md, image_prefix='assets/'):
     lines = md.splitlines()
     out, i = [], 0
     while i < len(lines):
@@ -53,6 +54,11 @@ def render_markdown(md):
             path = 'assets/' + image_files[name]
             alt = 'MTU几何与动力学关系图解' if name.startswith('MTU') else '原文问题截图'
             out.append(f'<figure><button class="image-button" aria-label="放大{alt}"><img src="{path}" alt="{alt}"></button><figcaption>{alt} · 点击放大</figcaption></figure>')
+        elif match := re.fullmatch(r'!\[([^\]]*)\]\((?:<([^>]+)>|([^\)]+))\)', line):
+            alt = match[1] or '汇报配图'
+            image_name = match[2] or match[3]
+            image_path = image_prefix + quote(image_name, safe='/')
+            out.append(f'<figure><button class="image-button" aria-label="放大{html.escape(alt)}"><img src="{image_path}" alt="{html.escape(alt)}"></button><figcaption>{html.escape(alt)} · 点击放大</figcaption></figure>')
         elif line.startswith('#'):
             match = re.match(r'(#{1,6})\s*(.+)', line)
             # 源文第三级标题在独立页面内仍保留层级。
@@ -121,6 +127,10 @@ def build_second_report():
     for old in SECOND_ROOT.glob('*.html'):
         old.unlink()
     template = (REPO / 'templates' / 'pamela-report.html').read_text(encoding='utf-8')
+    assets_source = SECOND_CONTENT.parent / 'assets'
+    assets_target = SECOND_ROOT / 'assets'
+    if assets_source.is_dir():
+        shutil.copytree(assets_source, assets_target, dirs_exist_ok=True)
     sections = []
     current_title = None
     current_lines = []
@@ -148,7 +158,7 @@ def build_second_report():
         previous = '<a href="{}"><small>← 上一页</small><span>{}</span></a>'.format(report_pages[index - 1][0], html.escape(report_pages[index - 1][1][0])) if index else '<span></span>'
         following = '<a class="next" href="{}"><small>下一页 →</small><span>{}</span></a>'.format(report_pages[index + 1][0], html.escape(report_pages[index + 1][1][0])) if index < len(report_pages) - 1 else '<a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a>'
         values = {
-            'title': html.escape(section_title), 'body': render_markdown(section_body),
+            'title': html.escape(section_title), 'body': render_markdown(section_body, 'assets/'),
             'page_number': str(index + 1), 'page_number_padded': f'{index + 1:02d}',
             'total_pages': str(len(report_pages)), 'nav': ''.join(nav),
             'prev': previous, 'next': following,

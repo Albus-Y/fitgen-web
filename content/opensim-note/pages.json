@@ -33,5 +33,10 @@
     "filename": "hmr-progress.html",
     "short": "进展与成对数据库",
     "source": "hmr-progress.md"
+  },
+  {
+    "filename": "pamela-kyrapro.html",
+    "short": "Pamela 与 KyraPro 原子动作",
+    "source": "pamela-kyrapro.md"
   }
 ]

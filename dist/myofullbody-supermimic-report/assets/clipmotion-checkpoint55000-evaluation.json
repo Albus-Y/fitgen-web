@@ -1,0 +1,93 @@
+{
+  "snapshot_date": "2026-11-02",
+  "checkpoint": "model_055000.pt",
+  "selection": "Most recently adopted complete evaluation shown in the requested chat; not an all-history optimum claim.",
+  "completed_utc": "2026-11-02T05:15:56.604498+00:00",
+  "protocol": "hiit_reference_contact_v3+numerical-censor-v1",
+  "normalizers_unchanged": true,
+  "physics_audits_passed": true,
+  "selected_source_hours": 50,
+  "selected_source_sequences": 7548,
+  "selected_windows": 20686,
+  "prepared_windows": 20077,
+  "cumulative_training_wall_seconds": 263674.41341340356,
+  "pre_migration_training_wall_seconds": 51584.02746571228,
+  "groups": {
+    "train": {
+      "evaluated_clips": 13997,
+      "norm_return": 0.5076208599957396,
+      "mean17_original_world_m": 0.3991647198820359,
+      "physical_no_fall_completion_rate": 0.7224405229692077,
+      "formal_completion_rate": 0.6129884975351861,
+      "common_tracking_pass_rate": 0.13917267985997,
+      "numerical_failure_count": 1,
+      "actual_fall_count": 3884,
+      "median_actual_fall_s": 0.56,
+      "source_duration_hours": 33.803805555555556,
+      "no_fall_count": 10112,
+      "common_tracking_pass_count": 1948,
+      "actual_fall_s": {
+        "count": 3884,
+        "min": 0.17,
+        "median": 0.56,
+        "max": 9.98
+      },
+      "first_training_termination_s": {
+        "count": 2352,
+        "min": 0.05,
+        "median": 4.07,
+        "max": 10.0
+      },
+      "first_common_gate_failure_s": {
+        "count": 10749,
+        "min": 0.02,
+        "median": 0.93,
+        "max": 10.0
+      },
+      "numerical_failure_s": {
+        "count": 1,
+        "min": 0.22,
+        "median": 0.22,
+        "max": 0.22
+      }
+    },
+    "test": {
+      "evaluated_clips": 6080,
+      "norm_return": 0.4896000559477646,
+      "mean17_original_world_m": 0.4083040882714589,
+      "physical_no_fall_completion_rate": 0.6970394736842105,
+      "formal_completion_rate": 0.5894736842105263,
+      "common_tracking_pass_rate": 0.1424342105263158,
+      "numerical_failure_count": 1,
+      "actual_fall_count": 1841,
+      "median_actual_fall_s": 0.56,
+      "source_duration_hours": 14.695694444444445,
+      "no_fall_count": 4238,
+      "common_tracking_pass_count": 866,
+      "actual_fall_s": {
+        "count": 1841,
+        "min": 0.18,
+        "median": 0.56,
+        "max": 9.91
+      },
+      "first_training_termination_s": {
+        "count": 1021,
+        "min": 0.04,
+        "median": 3.9,
+        "max": 10.0
+      },
+      "first_common_gate_failure_s": {
+        "count": 4641,
+        "min": 0.02,
+        "median": 0.87,
+        "max": 10.0
+      },
+      "numerical_failure_s": {
+        "count": 1,
+        "min": 0.38,
+        "median": 0.38,
+        "max": 0.38
+      }
+    }
+  }
+}

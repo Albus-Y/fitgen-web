@@ -1,0 +1,7 @@
+[
+  {"filename": "index.html", "short": "问题回顾与链路", "source": "index.md"},
+  {"filename": "multi-person.html", "short": "多人检测", "source": "multi-person.md"},
+  {"filename": "shotchange.html", "short": "ShotChange", "source": "shotchange.md"},
+  {"filename": "blur.html", "short": "四周虚化", "source": "blur.md"},
+  {"filename": "atomic-cycle.html", "short": "原子周期切分", "source": "atomic-cycle.md"}
+]

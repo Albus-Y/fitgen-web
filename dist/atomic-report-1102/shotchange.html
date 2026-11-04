@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShotChange 镜头边界检测 · FitGen</title><meta name="description" content="FitGen 2026-11-02 原子动作切分第三次汇报">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 03</div><div class="sidebar-title">原子动作切分<br>第三次汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>问题回顾与链路</span><span class="nav-arrow">↗</span></a><a href="multi-person.html" class="nav-item " ><span class="nav-number">02</span><span>多人检测</span><span class="nav-arrow">↗</span></a><a href="shotchange.html" class="nav-item active" aria-current="page"><span class="nav-number">03</span><span>ShotChange</span><span class="nav-arrow">↗</span></a><a href="blur.html" class="nav-item " ><span class="nav-number">04</span><span>四周虚化</span><span class="nav-arrow">↗</span></a><a href="atomic-cycle.html" class="nav-item " ><span class="nav-number">05</span><span>原子周期切分</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 数据构建 <span>/</span> <b>ShotChange</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-3" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">03 <span>/ 5</span></div><h1>ShotChange 镜头边界检测</h1><div class="title-rule"></div>
+<div class="prose"><h2>1. 检测目标</h2>
+<p>ShotChange 的目标是把视频划分为若干个时空上连续的 shot，并定位 shot 之间的边界。它不是简单判断相邻两帧是否变化很大，而是对一个时间窗口整体回答：窗口中包含几个连续镜头、每个镜头在哪里结束、镜头之间是什么关系。</p>
+<p>同一镜头中的快速动作、甩镜、闪光和字幕都可能造成大帧差；溶解、淡入淡出、模糊和缩放转场又可能让相邻帧变化很小。因此需要同时观察边界前、边界中和边界后的时间上下文。</p>
+<figure><button class="image-button" aria-label="放大shotchange"><img src="assets/shotchange.gif" alt="shotchange"></button><figcaption>shotchange · 点击放大</figcaption></figure>
+<h2>2. 使用的模型与基本流程</h2>
+<p>本项目使用 OmniShotCut，一种基于 Shot Query Transformer 的通用镜头边界检测模型。它不是逐帧比较像素差，而是把一段视频作为一个时间窗口整体建模。</p>
+<pre><code>视频解码与预处理
+    ↓
+按重叠时间窗口输入模型
+    ↓
+ResNet 提取每帧空间视觉特征
+    ↓
+Transformer Encoder 建模前后帧的时空关系
+    ↓
+Shot Query 查询窗口内可能存在的镜头区间
+    ↓
+预测镜头终点、镜头内部形式和镜头间关系
+    ↓
+解码为连续镜头区间并合并重叠窗口结果</code></pre>
+<p>ResNet 负责提取人物、背景和画面构图等视觉特征；Transformer 负责判断这些特征在时间上是连续变化，还是发生硬切、渐变转场或突然跳变；Shot Query 直接给出候选镜头的结束位置，并辅助判断普通镜头、硬切和转场关系。</p>
+<h2>3. 输出与使用方式</h2>
+<p>模型将窗口预测转换成 <code>pred_ranges</code>。例如：</p>
+<pre><code>[[0, 2], [2, 26], [26, 251]]</code></pre>
+<p>表示第 2 帧和第 26 帧附近出现镜头边界；如果输出只有 <code>[[0, 251]]</code>，表示没有检测到有效 ShotChange。长视频的多个窗口结果会映射回原始帧号、排序并去重，得到全视频边界。</p>
+<figure><button class="image-button" aria-label="放大ShotChange检测示意图"><img src="assets/ShotChange检测示意图.png" alt="ShotChange检测示意图"></button><figcaption>ShotChange检测示意图 · 点击放大</figcaption></figure>
+<p>确认边界后，先在边界处分割，再对各子段分别运行 HMR 和原子周期检测，禁止跨镜头寻找一个“完整周期”。</p>
+<h2>4. 方法边界</h2>
+<p>OmniShotCut 对一般硬切和多帧转场有效，但对中央主体和语义基本不变、变化集中在外围的弱虚化可能漏检。因此四周虚化需要作为独立专项检测通道，与通用镜头边界结果进行融合。</p></div><footer class="page-navigation" aria-label="翻页"><a href="multi-person.html"><small>← 上一页</small><span>多人检测</span></a><a class="next" href="blur.html"><small>下一页 →</small><span>四周虚化</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-11-02 第 03 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

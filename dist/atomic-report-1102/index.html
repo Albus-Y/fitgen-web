@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>问题回顾与总体链路 · FitGen</title><meta name="description" content="FitGen 2026-11-02 原子动作切分第三次汇报">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 03</div><div class="sidebar-title">原子动作切分<br>第三次汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item active" aria-current="page"><span class="nav-number">01</span><span>问题回顾与链路</span><span class="nav-arrow">↗</span></a><a href="multi-person.html" class="nav-item " ><span class="nav-number">02</span><span>多人检测</span><span class="nav-arrow">↗</span></a><a href="shotchange.html" class="nav-item " ><span class="nav-number">03</span><span>ShotChange</span><span class="nav-arrow">↗</span></a><a href="blur.html" class="nav-item " ><span class="nav-number">04</span><span>四周虚化</span><span class="nav-arrow">↗</span></a><a href="atomic-cycle.html" class="nav-item " ><span class="nav-number">05</span><span>原子周期切分</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 数据构建 <span>/</span> <b>问题回顾与链路</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-1" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">01 <span>/ 5</span></div><h1>问题回顾与总体链路</h1><div class="title-rule"></div>
+<div class="prose"><h2>1. 先回顾上周的三类输入问题</h2>
+<p>上周原子动作切分暴露出的主要问题并不完全来自周期算法本身，而是来自视频质量和人体轨迹输入。三类问题都会直接破坏 HMR 和后续周期分析，因此处理顺序应是先做质量控制，再重跑 HMR，最后寻找完整动作周期。</p>
+<div class="table-wrap"><table><thead><tr><th>问题类型</th><th>典型现象</th><th>对原子动作切分的影响</th><th>处理原则</th></tr></thead><tbody><tr><td>双人/多人</td><td>两个人同时出现，或单人平躺、侧身、遮挡后被检测成两个候选人体</td><td>单人 HMR 可能跟错人，骨架跳变，周期被截断或错误拼接</td><td>先确认真实人数；多人保留独立人体序列，并做重复轨迹去重</td></tr><tr><td>ShotChange</td><td>同一视频段内发生硬切、渐进转场或视角突变</td><td>不同镜头的人体框和关键点被拼进同一轨迹，周期边界失真</td><td>先检测并切开镜头，各子段分别运行 HMR，不跨镜头找周期</td></tr><tr><td>中央画面边界虚化/缩小预告</td><td>完整人物变为中央小画面，外围虚化，随后才进入完整动作</td><td>人体尺度、清晰度和关键点分布突然改变，容易产生错误 HMR 或错误周期</td><td>标记并排除预告区间，保留后续正常画面重新分析</td></tr></tbody></table></div>
+<p>共同问题是：它们会制造“看起来像动作变化、实际上是输入状态变化”的假周期。质量控制不能只依赖单帧人体框，也不能把所有异常都归咎于原子动作算法。</p>
+<h2>2. 本次汇报的统一处理链路</h2>
+<pre><code>视频筛选与质量标记
+    ↓
+倒计时切成 exercise segment
+    ↓
+多人、镜头边界、四周虚化专项检测
+    ↓
+按质量标签选择 GVHMR 或 PromptHMR，异常片段必要时重跑
+    ↓
+GLB 解析为 52 关节轨迹
+    ↓
+HumanTOMATO 623 维表示
+    ↓
+基础周期 P 检测 + 复合周期 K×P 搜索
+    ↓
+选择完整、稳定、可重复的原子动作周期
+    ↓
+导出 Tomato、AMASS/SMPL-X、Blender 关节动画和诊断结果</code></pre>
+<p>需要区分两个层次：视频切片是把长视频拆成 exercise segment；原子动作是 segment 内进一步找到一个完整、稳定、可解释的运动周期。一个 30 秒左右的 segment 不自动等于一个原子动作。</p>
+<h2>3. 本次进展</h2>
+<ul><li>多人检测已串联 Detectron2、SAM2、ViTPose 和 PromptHMR/PRHMR-Vid；</li><li>ShotChange 使用带时间上下文的 OmniShotCut；</li><li>四周虚化增加独立专项检测，补回通用镜头模型容易漏掉的视觉段落；</li><li>16 个动作片段完成 52 关节、623 维 Tomato、复合周期和 AMASS/Blender 输出；</li><li>原子周期定义从固定基础周期 <code>P</code> 升级为最小重复复合周期 <code>K×P</code>。</li></ul></div><footer class="page-navigation" aria-label="翻页"><span></span><a class="next" href="multi-person.html"><small>下一页 →</small><span>多人检测</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-11-02 第 03 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

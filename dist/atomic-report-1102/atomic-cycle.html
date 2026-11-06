@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原子动作周期切分 · FitGen</title><meta name="description" content="FitGen 2026-11-02 原子动作切分第三次汇报">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 03</div><div class="sidebar-title">原子动作切分<br>第三次汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>问题回顾与链路</span><span class="nav-arrow">↗</span></a><a href="multi-person.html" class="nav-item " ><span class="nav-number">02</span><span>多人检测</span><span class="nav-arrow">↗</span></a><a href="shotchange.html" class="nav-item " ><span class="nav-number">03</span><span>ShotChange</span><span class="nav-arrow">↗</span></a><a href="blur.html" class="nav-item " ><span class="nav-number">04</span><span>四周虚化</span><span class="nav-arrow">↗</span></a><a href="atomic-cycle.html" class="nav-item active" aria-current="page"><span class="nav-number">05</span><span>原子周期切分</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 数据构建 <span>/</span> <b>原子周期切分</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-5" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">05 <span>/ 5</span></div><h1>原子动作周期切分</h1><div class="title-rule"></div>
+<div class="prose"><h2>1. GLB 到 52 关节</h2>
+<p>动作周期分析的输入是 <code>world4d.glb</code> 和对应的 <code>results.pkl</code>，不是原始视频像素。GLB 解析器读取 glTF 节点名称、父子骨骼层级和逐帧 translation/rotation/scale 动画通道，计算每个关节的世界坐标。</p>
+<p>部分 SMPL 文件只有 22 个身体关节，因此优先使用包含身体和手部层级的 GLB，统一得到 52 个关节：22 个身体关节，加左右手各 15 个关节。输出 <code>joints_52.npy</code>，形状为 <code>[T,52,3]</code>，坐标采用 GLB 世界坐标、Y-up。周期分析随后使用相对于骨盆的局部运动，减少人物整体平移的影响。</p>
+<h2>2. 623 维 Tomato 表示</h2>
+<p>使用 HumanTOMATO 原始 <code>process_file()</code> 做尺度统一、地面校正、根节点归一化、朝向归一化、逆运动学和特征拼接：</p>
+<div class="table-wrap"><table><thead><tr><th>子特征</th><th>维度</th><th>含义</th></tr></thead><tbody><tr><td>根节点运动</td><td>4</td><td>根旋转速度、XZ 平移速度、根高度</td></tr><tr><td>局部关节位置</td><td>153</td><td>51 个非根关节的局部位置</td></tr><tr><td>连续 6D 旋转</td><td>306</td><td>51 个非根关节的连续旋转</td></tr><tr><td>局部速度</td><td>156</td><td>52 个关节的三维速度</td></tr><tr><td>脚部接触</td><td>4</td><td>左右脚接触特征</td></tr><tr><td>合计</td><td><strong>623</strong></td><td><code>4+153+306+156+4</code></td></tr></tbody></table></div>
+<p>由于速度按相邻帧差分，<code>T</code> 个关节帧对应 <code>T-1</code> 行 Tomato 特征，保存为 <code>tomato_623.npy</code>。</p>
+<h2>3. 基础周期 P</h2>
+<p>周期检测选取左右膝、左右脚、左右肘、左右手腕，共 8 个关节、24 个 XYZ 信号。先计算骨盆相对位置：</p>
+<div class="math-block">$$
+r_j(t)=p_j(t)-p_{pelvis}(t)
+$$</div>
+<p>再做轻微平滑和一阶差分：</p>
+<div class="math-block">$$
+d_j(t)=r_j(t)-r_j(t-1)
+$$</div>
+<p>每个信号去均值并做 L2 归一化，避免单个大幅度关节支配结果。对延迟 <code>τ</code>，单个信号的自相关为：</p>
+<div class="math-block">$$
+C_m(\tau)=\sum_t \hat{x}_m(t)\hat{x}_m(t+\tau)
+$$</div>
+<p>对 24 个信号求平均：</p>
+<div class="math-block">$$
+C(\tau)=\frac{1}{24}\sum_{m=1}^{24}C_m(\tau)
+$$</div>
+<p>平均自相关峰值给出基础周期 <code>P</code>。它表示最短重复节拍，不一定是完整左右动作周期。例如左右交替动作可能每 72 帧出现一次基础节拍，但要经过多个基础块才回到同一左右结构。</p>
+<h2>4. 复合周期 K×P</h2>
+<p>基础周期不能直接等于原子动作，因此增加第二层复合周期搜索：</p>
+<ol start="1"><li>固定视频第 0 帧为候选起点；</li><li>按 <code>P</code> 将视频划分为动作块 <code>B_0,B_1,...</code>；</li><li>为动作块提取相对骨盆位置、速度、左右关节和镜像描述；</li><li>测试 <code>K=1,2,3,...</code> 的候选周期 <code>L=K×P</code>；</li><li>比较相隔 <code>K</code> 个基础块的重复误差和阶段顺序；</li><li>检查周期首尾是否回到相近状态，避免边界落在动作半程；</li><li>检查左右结构是否完整，保留原始左右顺序；</li><li>选择重复误差较小、闭合较好且结构完整的最小 <code>K</code>，按 <code>0:L:2L:3L...</code> 切分。</li></ol>
+<p>例如基础块序列 <code>A A B C A A B C</code> 的完整原子周期可能是 <code>4P</code>；<code>A A B A A B</code> 可能是 <code>3P</code>。单侧重复只能作为子周期证据，不能把左侧或右侧局部重复直接输出为完整原子动作。这里的 <code>A/B/C</code> 是运动学模式，不是“抬腿”“挥臂”等语义类别。</p>
+<h2>5. 周期诊断与限制</h2>
+<p>每个片段保存 <code>period_diagnostic.png</code>，包含关节运动曲线、基础周期内部边界、最终复合周期边界、多关节平均自相关曲线，以及不同 <code>K</code> 的动作块重复误差。算法还会过滤运动幅度很低的静止重复尾帧，并记录基础周期、复合倍数、起止帧和候选误差。</p>
+<figure><button class="image-button" aria-label="放大屏幕录制 2026-11-02 114529"><img src="assets/%E5%B1%8F%E5%B9%95%E5%BD%95%E5%88%B6%202026-11-02%20114529.gif" alt="屏幕录制 2026-11-02 114529"></button><figcaption>屏幕录制 2026-11-02 114529 · 点击放大</figcaption></figure>
+<figure><button class="image-button" aria-label="放大skeleton-ezgif.com-video-to-gif-converter"><img src="assets/skeleton-ezgif.com-video-to-gif-converter.gif" alt="skeleton-ezgif.com-video-to-gif-converter"></button><figcaption>skeleton-ezgif.com-video-to-gif-converter · 点击放大</figcaption></figure>
+<figure><button class="image-button" aria-label="放大skeleton1-ezgif.com-video-to-gif-converter"><img src="assets/skeleton1-ezgif.com-video-to-gif-converter.gif" alt="skeleton1-ezgif.com-video-to-gif-converter"></button><figcaption>skeleton1-ezgif.com-video-to-gif-converter · 点击放大</figcaption></figure>
+<figure><button class="image-button" aria-label="放大屏幕录制 2026-11-02 114604"><img src="assets/%E5%B1%8F%E5%B9%95%E5%BD%95%E5%88%B6%202026-11-02%20114604.gif" alt="屏幕录制 2026-11-02 114604"></button><figcaption>屏幕录制 2026-11-02 114604 · 点击放大</figcaption></figure>
+<p><code>clip_002</code> 的基础周期为 <code>P=72</code> 帧，最终复合周期为 <code>288</code> 帧，即 <code>K=4</code>。如果直接按 72 帧切分，可能把左右动作或多阶段动作拆开；288 帧覆盖了完整基础块组合。</p>
+<p>只有一次完整左右组合、缺少第二次重复证据的短视频，应保留候选并标记为需要复核，不能把一次观察结果伪装成高置信度周期。</p></div><footer class="page-navigation" aria-label="翻页"><a href="blur.html"><small>← 上一页</small><span>四周虚化</span></a><a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-11-02 第 03 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

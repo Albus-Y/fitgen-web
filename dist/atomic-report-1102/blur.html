@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>四周虚化专项检测 · FitGen</title><meta name="description" content="FitGen 2026-11-02 原子动作切分第三次汇报">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 03</div><div class="sidebar-title">原子动作切分<br>第三次汇报</div>
+<nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>问题回顾与链路</span><span class="nav-arrow">↗</span></a><a href="multi-person.html" class="nav-item " ><span class="nav-number">02</span><span>多人检测</span><span class="nav-arrow">↗</span></a><a href="shotchange.html" class="nav-item " ><span class="nav-number">03</span><span>ShotChange</span><span class="nav-arrow">↗</span></a><a href="blur.html" class="nav-item active" aria-current="page"><span class="nav-number">04</span><span>四周虚化</span><span class="nav-arrow">↗</span></a><a href="atomic-cycle.html" class="nav-item " ><span class="nav-number">05</span><span>原子周期切分</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 数据构建 <span>/</span> <b>四周虚化</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-4" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
+<div class="page-number">04 <span>/ 5</span></div><h1>四周虚化专项检测</h1><div class="title-rule"></div>
+<div class="prose"><h2>1. 为什么增加专项检测</h2>
+<figure><button class="image-button" aria-label="放大虚化"><img src="assets/%E8%99%9A%E5%8C%96.gif" alt="虚化"></button><figcaption>虚化 · 点击放大</figcaption></figure>
+<p>四周虚化通常表现为“中央主体仍清晰，左右和底部被明显平滑”，有时还伴随中央画面缩小。它可能持续很多帧，但人物和背景语义变化不大，所以通用 ShotChange 模型不一定生成新的镜头区间。专项检测直接检查这种空间结构。</p>
+<h2>2. 区域划分与指标</h2>
+<p>每帧先忽略顶部四分之一，减少倒计时、标题和字幕影响；下方四分之三区域划分为中央主体、左右边框和底部边框。中央宽度约 50%，左右边框各约 18%，底部边框约占下方区域的 22%。计算前将画面等比例缩放至宽度 320 像素。</p>
+<p>对灰度图计算拉普拉斯清晰度：</p>
+<pre><code>L_center = Var(Laplacian(center))
+L_border = 左、右、底部区域拉普拉斯方差的面积加权平均
+R_lap = L_border / L_center</code></pre>
+<p>清晰区域包含更多高频细节，拉普拉斯方差较高；外围虚化后方差降低。当前要求 <code>R_lap &lt;= 0.08</code>。</p>
+<p>再计算 Canny 边缘密度：</p>
+<pre><code>E_center = 中央区域边缘像素比例
+E_border = 边框区域边缘密度的面积加权平均
+R_edge = E_border / E_center</code></pre>
+<p>当前要求 <code>R_edge &lt;= 0.15</code>，并要求中央清晰度 <code>L_center &gt;= 100</code>，避免把全画面失焦、黑场或纯色画面判断成四周虚化。</p>
+<figure><button class="image-button" aria-label="放大四周虚化检测_区域划分图"><img src="assets/%E5%9B%9B%E5%91%A8%E8%99%9A%E5%8C%96%E6%A3%80%E6%B5%8B_%E5%8C%BA%E5%9F%9F%E5%88%92%E5%88%86%E5%9B%BE.jpg" alt="四周虚化检测_区域划分图"></button><figcaption>四周虚化检测_区域划分图 · 点击放大</figcaption></figure>
+<figure><button class="image-button" aria-label="放大四周虚化检测_清晰度与边缘响应图"><img src="assets/%E5%9B%9B%E5%91%A8%E8%99%9A%E5%8C%96%E6%A3%80%E6%B5%8B_%E6%B8%85%E6%99%B0%E5%BA%A6%E4%B8%8E%E8%BE%B9%E7%BC%98%E5%93%8D%E5%BA%94%E5%9B%BE.jpg" alt="四周虚化检测_清晰度与边缘响应图"></button><figcaption>四周虚化检测_清晰度与边缘响应图 · 点击放大</figcaption></figure>
+<h2>3. 时间合并与输出</h2>
+<p>一帧只有同时满足以下条件才判为阳性：</p>
+<pre><code>R_lap &lt;= 0.08
+且 R_edge &lt;= 0.15
+且 L_center &gt;= 100</code></pre>
+<p>全量任务每 5 帧采样一次。阳性采样点按时间顺序合并，中间允许缺失一个采样点，以避免短暂遮挡或噪声拆断连续区间；持续时间小于 0.40 秒的片段被过滤。最终输出半开区间 <code>[start_frame, end_frame)</code>、<code>blur_score</code>、阳性采样数、采样总数、FPS 和阈值版本。</p>
+<h2>4. 回归结果与融合</h2>
+<p>在 <code>MmNbGJS57U8</code> 中，原先 OmniShotCut 不稳定识别的 <code>_003、_005、_007、_009</code> 全部检出，虚化区间均为 <code>[23,228)</code>，25 FPS 下约为 0.92–9.12 秒，<code>blur_score=0.8039</code>；相邻普通全画面片段未被误报。</p>
+<p>全量扫描范围为 9,430 个视频。文档生成阶段已处理 452 个、输出 11 个阳性，仍是阶段性进度。结果文件只写入阳性视频，不能用 JSONL 行数代表全量处理进度。</p>
+<p>最终保留 OmniShotCut 的通用边界和虚化检测的 <code>blur_segments</code>，按帧号合并相近候选、去重并抽样复核。专项检测可能受到中央区域偏移、边框字幕、天然低纹理背景和过短虚化片段影响，因此它判断的是视觉结构，不单独证明发生了摄像机位姿变化。</p></div><footer class="page-navigation" aria-label="翻页"><a href="shotchange.html"><small>← 上一页</small><span>ShotChange</span></a><a class="next" href="atomic-cycle.html"><small>下一页 →</small><span>原子周期切分</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-11-02 第 03 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

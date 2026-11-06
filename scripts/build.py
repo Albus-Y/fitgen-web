@@ -11,6 +11,8 @@ CONTENT = REPO / 'content' / 'opensim-note'
 ROOT = REPO / 'dist' / 'opensim-note'
 SECOND_CONTENT = REPO / 'content' / 'pamela-kyrapro' / 'index.md'
 SECOND_ROOT = REPO / 'dist' / 'pamela-kyrapro-report'
+ATOMIC_CONTENT = REPO / 'content' / 'atomic-report-1102'
+ATOMIC_ROOT = REPO / 'dist' / 'atomic-report-1102'
 image_files = json.loads((CONTENT / 'images.json').read_text(encoding='utf-8'))
 
 def inline(text):
@@ -90,6 +92,47 @@ def render_markdown(md, image_prefix='assets/'):
         i += 1
     return '\n'.join(out)
 
+def build_atomic_report():
+    """生成 2026-11-02 原子动作切分第二次汇报的多页报告。"""
+    ATOMIC_ROOT.mkdir(parents=True, exist_ok=True)
+    template = (REPO / 'templates' / 'atomic-report-1102.html').read_text(encoding='utf-8')
+    metadata = json.loads((ATOMIC_CONTENT / 'pages.json').read_text(encoding='utf-8'))
+    pages = []
+    for page in metadata:
+        raw = (ATOMIC_CONTENT / page['source']).read_text(encoding='utf-8')
+        heading, _, body = raw.partition('\n')
+        if not heading.startswith('# '):
+            raise ValueError('页面必须以一级标题开头：' + page['source'])
+        pages.append((page['filename'], page['short'], heading[2:], body.strip()))
+
+    total_pages = len(pages)
+    for index, (filename, short, title, md) in enumerate(pages):
+        links = []
+        for n, page in enumerate(pages):
+            current = 'aria-current="page"' if n == index else ''
+            active = 'active' if n == index else ''
+            links.append('<a href="{}" class="nav-item {}" {}><span class="nav-number">0{}</span><span>{}</span><span class="nav-arrow">↗</span></a>'.format(page[0], active, current, n + 1, html.escape(page[1])))
+        prev = '<a href="{}"><small>← 上一页</small><span>{}</span></a>'.format(pages[index - 1][0], html.escape(pages[index - 1][1])) if index else '<span></span>'
+        nxt = '<a class="next" href="{}"><small>下一页 →</small><span>{}</span></a>'.format(pages[index + 1][0], html.escape(pages[index + 1][1])) if index < len(pages) - 1 else '<a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a>'
+        values = {
+            'body': render_markdown(md, image_prefix=''),
+            'page_number': str(index + 1),
+            'total_pages': str(total_pages),
+            'title': html.escape(title),
+            'short': html.escape(short),
+            'nav': ''.join(links),
+            'prev': prev,
+            'next': nxt,
+        }
+        document = re.sub(r'\{\{([a-z_]+)\}\}', lambda m: values[m[1]], template)
+        (ATOMIC_ROOT / filename).write_text(document, encoding='utf-8')
+        print('已生成 dist/atomic-report-1102/' + filename)
+    shutil.copyfile(ATOMIC_CONTENT / '原文.md', ATOMIC_ROOT / '原文.md')
+    assets_source = ATOMIC_CONTENT / 'assets'
+    assets_target = ATOMIC_ROOT / 'assets'
+    if assets_source.is_dir():
+        shutil.copytree(assets_source, assets_target, dirs_exist_ok=True)
+
 def main():
     ROOT.mkdir(parents=True, exist_ok=True)
     template = (REPO / 'templates' / 'opensim-note.html').read_text(encoding='utf-8')
@@ -116,6 +159,7 @@ def main():
         print('已生成 dist/opensim-note/' + filename)
     shutil.copyfile(CONTENT / '原文.md', ROOT / '原文.md')
     build_second_report()
+    build_atomic_report()
 
 def build_second_report():
     """Build the independent 2026-10-26 report, one page per major heading."""

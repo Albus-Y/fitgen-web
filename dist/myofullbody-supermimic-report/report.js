@@ -1,10 +1,11 @@
 'use strict';
 
-// 本地 HTML 直接读取完整视频；HTTP 访问继续使用现有分片加载器。
+// 本地 HTML 读取仓库 local-media 中的完整视频；HTTP 访问使用现有分片。
 // 浏览器禁止 file: 页面通过 fetch 读取分片，因此不能走同一加载路径。
 function attachTrainingVideo(video) {
   if (window.location.protocol === 'file:') {
-    video.src = video.dataset.media;
+    const filename = video.dataset.media.split('/').pop();
+    video.src = new URL('../../local-media/myofullbody-supermimic-report/' + filename, document.baseURI).href;
     video.preload = 'metadata';
     video.load();
   } else {

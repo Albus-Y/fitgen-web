@@ -190,8 +190,6 @@ def build_second_report():
     if not heading.startswith('# '):
         raise ValueError('第二次汇报必须以一级标题开头：' + str(SECOND_CONTENT))
     SECOND_ROOT.mkdir(parents=True, exist_ok=True)
-    for old in SECOND_ROOT.glob('*.html'):
-        old.unlink()
     template = (REPO / 'templates' / 'pamela-report.html').read_text(encoding='utf-8')
     assets_source = SECOND_CONTENT.parent / 'assets'
     assets_target = SECOND_ROOT / 'assets'
@@ -232,6 +230,10 @@ def build_second_report():
         document = re.sub(r'\{\{([a-z_]+)\}\}', lambda m: values[m[1]], template)
         (SECOND_ROOT / filename).write_text(document, encoding='utf-8')
         print('已生成 dist/pamela-kyrapro-report/' + filename)
+    # 仅清理已经退出目录的旧章节，现有页面直接重写。
+    for old in SECOND_ROOT.glob('[0-9][0-9].html'):
+        if old.name not in names:
+            old.unlink()
     shutil.copyfile(SECOND_CONTENT, SECOND_ROOT / '原文.md')
 
 if __name__ == '__main__':

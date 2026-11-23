@@ -37,14 +37,47 @@ function moduleContent(module) {
     '</div></div>';
   if (!module.overviewSections?.length) return summaryContent + detailedContent(module);
   const overview = detailedContent({ ...module, detailMeta: module.overviewMeta, detailSections: module.overviewSections });
-  const demo = module.demoUrl ? '<div class="module-demo"><div><strong>' + escapeHTML(module.demoTitle || '音乐分析 Demo') + '</strong><p>' + escapeHTML(module.demoDescription || '播放 4 首音乐，查看节拍、段落与八拍网格。') + '</p></div><a href="' + escapeHTML(module.demoUrl) + '" target="_blank" rel="noopener noreferrer">进入 Demo 展示 ↗</a></div>' : '';
-  if (!module.detailSections?.length) return overview + demo;
-  return overview + demo + '<details class="advanced-details"><summary><span><span class="when-closed">深入技术细节</span><span class="when-open">收起技术细节</span> <small>' + (module.detailSections?.length || 0) + ' 节 · 参数、字段、代码与评测</small></span>' + chevron + '</summary>' +
+  if (!module.detailSections?.length) return overview;
+  return overview + '<details class="advanced-details"><summary><span><span class="when-closed">深入技术细节</span><span class="when-open">收起技术细节</span> <small>' + module.detailSections.length + ' 节 · 参数、字段、代码与评测</small></span>' + chevron + '</summary>' +
     summaryContent + detailedContent(module) + collapseAction('收起技术细节') + '</details>';
 }
-document.querySelector('#modules').innerHTML = modules.map(m => '<article class="module-card ' + (m.id >= 7 ? 'foundation' : '') + '" id="module-' + m.id + '"><div class="module-top"><div class="module-number">' + number(m.id) + '</div><div class="module-title"><div class="module-eyebrow">' + escapeHTML(m.english) + '</div><h3>' + escapeHTML(m.title) + '</h3><span class="module-status">' + escapeHTML(m.status || (m.implementation.length || m.technicalDetails.length ? '已补充' : m.overviewSections?.length ? '职责已梳理' : '待补充')) + '</span><p>' + escapeHTML(m.description) + '</p>' +
-  (m.designUrl ? '<a class="design-tab" href="' + escapeHTML(m.designUrl) + '" target="_blank" rel="noopener" aria-label="在新标签页阅读设计全文">设计全文</a>' : '') +
-  '</div><span class="module-type">' + (m.id === 7 ? '数据基础' : m.id === 8 ? '能耗计算' : '生成流水线') + '</span></div><div class="io-grid"><div><h4><span>↘</span> 输入</h4><ul>' + m.input.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div><h4><span>↗</span> 输出</h4><ul>' + m.output.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div class="handoff"><h4>数据流向</h4><p>' + escapeHTML(m.next) + '</p></div></div><details class="module-disclosure"><summary><span><span class="when-closed">查看方案与实现</span><span class="when-open">收起方案与实现</span></span>' + chevron + '</summary>' + moduleContent(m) + collapseAction('收起本模块') + '</details></article>').join('');
+
+function renderModule(module) {
+  const { id, title, english, description, input, output, next } = module;
+  const type = id === 7 ? '数据基础' : id === 8 ? '能耗计算' : '生成流水线';
+  const status = module.status || (module.implementation.length || module.technicalDetails.length ?
+    '已补充' : module.overviewSections?.length ? '职责已梳理' : '待补充');
+  const design = module.designUrl ? `<a class="design-tab" href="${escapeHTML(module.designUrl)}">设计全文</a>` : '';
+  const demo = module.demoUrl ? `
+    <div class="module-demo">
+      <div><strong>${escapeHTML(module.demoTitle || '音乐分析 Demo')}</strong>
+      <p>${escapeHTML(module.demoDescription || '播放 4 首音乐，查看节拍、段落与八拍网格。')}</p></div>
+      <a href="${escapeHTML(module.demoUrl)}">进入 Demo 展示</a>
+    </div>` : '';
+  const list = items => items.map(value => `<li>${escapeHTML(value)}</li>`).join('');
+  return `<article class="module-card" id="module-${id}">
+    <div class="module-top">
+      <div class="module-number">${number(id)}</div>
+      <div class="module-title"><div class="module-eyebrow">${escapeHTML(english)}</div>
+        <h3>${escapeHTML(title)}</h3><span class="module-status">${escapeHTML(status)}</span>
+        <p>${escapeHTML(description)}</p>${design}
+      </div>
+      <span class="module-type">${type}</span>
+    </div>
+    <div class="io-grid">
+      <div><h4><span>↘</span> 输入</h4><ul>${list(input)}</ul></div>
+      <div><h4><span>↗</span> 输出</h4><ul>${list(output)}</ul></div>
+      <div class="handoff"><h4>数据流向</h4><p>${escapeHTML(next)}</p></div>
+    </div>
+    ${demo}
+    <details class="module-disclosure">
+      <summary><span><span class="when-closed">查看方案与实现</span><span class="when-open">收起方案与实现</span></span>${chevron}</summary>
+      ${moduleContent(module)}${collapseAction('收起本模块')}
+    </details>
+  </article>`;
+}
+document.querySelector('#modules').innerHTML = modules.map(renderModule).join('');
+
 // 旧路线图的候选筛选链接继续定位到合并后的编排模块。
 function resolveLegacyModule() {
   if (location.hash !== '#module-3') return;
@@ -55,59 +88,25 @@ window.addEventListener('hashchange', resolveLegacyModule);
 resolveLegacyModule();
 
 const toggle = document.querySelector('#toggle-all');
+const closeOpen = document.querySelector('#close-open');
+const disclosures = Array.from(document.querySelectorAll('.module-disclosure'));
 function updateToggle() {
-  const allOpen = [...document.querySelectorAll('.module-card > details')].every(d => d.open);
-  toggle.innerHTML = allOpen ? '收起全部细节 <span>−</span>' : '展开全部细节 <span>＋</span>';
+  const count = disclosures.filter(detail => detail.open).length;
+  toggle.textContent = count === disclosures.length ? '收起全部细节' : '展开全部细节';
+  closeOpen.hidden = count === 0 || count === disclosures.length;
 }
-toggle.addEventListener('click', () => {
-  const open = ![...document.querySelectorAll('.module-card > details')].every(d => d.open);
-  document.querySelectorAll('.module-card > details').forEach(d => d.open = open);
+function setDisclosures(open) {
+  disclosures.forEach(detail => { detail.open = open; });
+  if (!open) document.querySelectorAll('.advanced-details[open]').forEach(detail => { detail.open = false; });
   updateToggle();
-});
-document.querySelectorAll('.module-card > details').forEach(d => d.addEventListener('toggle', updateToggle));
-const observer = new IntersectionObserver(entries => {
-  const visible = entries.filter(e => e.isIntersecting).sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top);
-  if (!visible.length) return;
-  document.querySelectorAll('#module-nav a').forEach(a => a.classList.toggle('active', a.hash === '#' + visible[0].target.id));
-}, {rootMargin: '-10% 0px -55% 0px', threshold: 0});
-document.querySelectorAll('.module-card').forEach(card => observer.observe(card));
+}
+toggle.addEventListener('click', () => setDisclosures(disclosures.some(detail => !detail.open)));
+closeOpen.addEventListener('click', () => setDisclosures(false));
+disclosures.forEach(detail => detail.addEventListener('toggle', updateToggle));
+updateToggle();
 
 // TeX 原文以 $ / $$ 保存；代码示例和来源路径保持代码格式。
 renderMathInElement(document.querySelector("main"), {
   delimiters: [{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],
   throwOnError: false, trust: false,
 });
-
-// 长内容提供底部入口，并在滚动越过标题后显示当前模块的收起按钮。
-const floatingCollapse = document.createElement('button');
-floatingCollapse.type = 'button';
-floatingCollapse.className = 'floating-collapse';
-floatingCollapse.hidden = true;
-document.body.append(floatingCollapse);
-let currentDisclosure = null;
-function collapseAndReturn(detail) {
-  detail.open = false;
-  const target = detail.classList.contains('module-disclosure') ? detail.closest('.module-card') : detail;
-  target.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block:'start'});
-  detail.querySelector(':scope > summary').focus({preventScroll:true});
-  updateFloatingCollapse();
-}
-function updateFloatingCollapse() {
-  currentDisclosure = [...document.querySelectorAll('.module-disclosure[open]')].find(detail => {
-    const summary = detail.querySelector(':scope > summary').getBoundingClientRect();
-    const bounds = detail.getBoundingClientRect();
-    return summary.bottom < 0 && bounds.bottom > 100;
-  });
-  floatingCollapse.hidden = !currentDisclosure;
-  if (currentDisclosure) {
-    const card = currentDisclosure.closest('.module-card');
-    floatingCollapse.textContent = '收起 ' + card.querySelector('.module-number').textContent + ' · ' + card.querySelector('h3').textContent + ' ↑';
-  }
-}
-document.querySelectorAll('[data-collapse]').forEach(button => button.addEventListener('click', () => collapseAndReturn(button.closest('details'))));
-floatingCollapse.addEventListener('click', () => { if (currentDisclosure) collapseAndReturn(currentDisclosure); });
-let collapseFrame = false;
-window.addEventListener('scroll', () => {
-  if (!collapseFrame) { collapseFrame = true; requestAnimationFrame(() => {updateFloatingCollapse(); collapseFrame = false;}); }
-}, {passive:true});
-document.querySelectorAll('.module-card details').forEach(detail => detail.addEventListener('toggle', updateFloatingCollapse));

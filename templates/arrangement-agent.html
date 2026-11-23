@@ -4,30 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{title}}</title>
-  <link rel="stylesheet" href="../vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="../workspace.css">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
   <link rel="stylesheet" href="../opensim-note/style.css">
   <link rel="stylesheet" href="../code-styles.css">
   <script defer src="../highlight-json.js"></script>
-  <style>
-    .sidebar { overflow-y: auto; }
-    .sidebar nav { margin-top: .5rem; }
-    .nav-item { line-height: 1.6; }
-    .page { max-width: 1000px; padding-bottom: 4rem; }
-    .prose h2 { scroll-margin-top: 1.5rem; }
-    .prose { font-size: 1rem; }
-    .prose pre code { font-size: .9375rem; }
-    @media (max-width: 760px) {
-      .sidebar nav { display: flex; overflow-x: auto; gap: .5rem; padding-bottom: .25rem; }
-      .nav-item { flex: none; padding: .4rem .65rem; font-size: .875rem; }
-      .home-link { margin: .75rem 0; }
-    }
-  </style>
-</head>
+<script defer src="../navigation.js"></script></head>
 <body>
   <a class="skip-link" href="#content">跳至正文</a>
-  <aside class="sidebar">
-    <a class="brand" href="../index.html">FitGen<span class="brand-dot"></span></a>
-    <a class="home-link" href="../index.html#module-2">返回模块 2 · 团操编排 Agent</a>
+  <header class="reader-mast"><a class="brand" href="../index.html" aria-label="FitGen 首页"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FitGen</a><a class="return-link" href="../index.html#module-2" data-return aria-label="返回模块 2 · 团操编排 Agent">返回模块 2</a><button type="button" class="reader-menu" aria-expanded="false" aria-controls="reader-index" hidden>目录</button></header>
+<aside class="sidebar" id="reader-index" aria-label="目录">
     <div class="sidebar-label">本文目录</div>
     <nav aria-label="本文目录">{{nav}}</nav>
   </aside>

@@ -5,51 +5,57 @@
 <title>FitGen</title>
 <meta name="description" content="FitGen 项目主页：项目路线图、实现进展与研究汇报。">
 <link rel="stylesheet" href="vendor/katex/katex.min.css">
-<link rel="stylesheet" href="styles.css?v=20261123">
+<link rel="stylesheet" href="workspace.css">
+<link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="code-styles.css">
 <script defer src="highlight-json.js"></script>
 </head>
-<body>
-<aside class="sidebar">
-<a class="brand" href="#top"><span class="brand-icon">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
-<div class="workspace-label">PROJECT WORKSPACE</div>
-<a class="nav-report" href="#reports"><span>▤</span> 汇报 <span class="nav-count">04</span></a>
-<a class="nav-main" href="#overview-title"><span>◈</span> 项目路线图 <span class="nav-count">07</span></a>
-<div class="nav-label">生成流水线</div>
-<nav id="module-nav" aria-label="模块导航"></nav>
-<div class="sidebar-bottom"><span class="green-dot"></span> 架构蓝图 <small>实现细节持续补充</small></div>
-</aside>
-<main id="top">
-<header><span>项目工作台 <span class="slash">/</span> <b>FitGen</b></span><span class="header-tag">FITGEN / V 0.1</span></header>
-<section class="intro">
-<div><div class="eyebrow"><span></span> MUSIC → MOVEMENT</div><h1>从音乐出发，<br>让运动有迹可循<span>。</span></h1><p>FitGen 项目主页 · 音乐驱动的健身动作生成</p></div>
-<div class="intro-note"><span class="note-line"></span><p>编排 Agent 按音乐八拍选定徒手动作，<br>交给下游变速、拼接并渲染为健身视频。</p><div><b>05</b> 生成模块 <i></i> <b>01</b> 数据基础 <i></i> <b>01</b> 能耗计算</div></div>
+<body class="workspace" id="top">
+<a class="skip-link" href="#main-content">跳至正文</a>
+<header class="mast"><div class="mast-inner">
+  <a class="brand" href="#top" aria-label="FitGen 首页"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FitGen</a>
+  <nav class="mast-nav" aria-label="首页导航"><a href="#reports">汇报</a><a href="#overview-title">项目路线图</a><a href="#modules-title">模块详情</a></nav>
+  <span class="mast-version">FITGEN / V 0.1</span>
+</div></header>
+<main id="main-content">
+<section class="intro" aria-labelledby="intro-title">
+  <div class="intro-copy"><p class="kicker" lang="en">MUSIC → MOVEMENT</p><h1 id="intro-title">从音乐出发，<br>让运动有迹可循。</h1>
+    <p class="intro-subtitle">FitGen 项目主页 · 音乐驱动的健身动作生成</p>
+    <p class="intro-description">编排 Agent 按音乐八拍选定徒手动作，交给下游变速、拼接并渲染为健身视频。</p>
+    <div class="hero-actions"><a class="primary-action" href="#overview-title">查看项目路线图</a><a class="quiet-action" href="#reports">浏览汇报</a></div>
+  </div>
+  <a class="motion-study" href="myofullbody-supermimic-report/index.html#supermimic" aria-label="查看 SuperMimic 训练汇报">
+    <div class="study-caption"><strong>SuperMimic</strong><span>动作跟踪</span></div>
+    <img src="visuals/supermimic-sequence.webp" width="960" height="430" alt="同一段跟练动作中，肌骨模型依次站立、移步、抬膝。">
+    <div class="time-strip" aria-label="片段内时间"><span>00:00.48</span><span>00:03.48</span><span>00:04.48</span></div>
+  </a>
 </section>
+<div class="workspace-strip"><span>项目工作台 <b>/</b> 架构蓝图</span><div><span><strong>05</strong> 生成模块</span><span><strong>01</strong> 数据基础</span><span><strong>01</strong> 能耗计算</span></div></div>
 <section class="reports-section" id="reports" aria-labelledby="reports-title">
 <div class="section-heading"><div><h2 id="reports-title">汇报</h2><span class="pill">04 份</span></div><span class="muted">项目进展与研究记录</span></div>
 <a class="report-entry" href="opensim-note/index.html">
 <div class="report-date"><time datetime="2026-10-19">2026-10-19</time><span>第 01 次汇报</span></div>
 <div class="report-copy"><span class="report-category">能量消耗计算</span><h3>OpenSim 模型与代谢能耗</h3><p>完整链路 · 骨骼与肌肉模型 · 求解过程 · 实现问题</p></div>
-<span class="report-open">查看汇报 <span aria-hidden="true">↗</span></span>
+<span class="report-open">查看汇报</span>
 </a>
 <a class="report-entry" href="pamela-kyrapro-report/index.html">
 <div class="report-date"><time datetime="2026-10-26">2026-10-26</time><span>第 02 次汇报</span></div>
 <div class="report-copy"><span class="report-category">数据构建与动作质量控制</span><h3>Pamela 与 KyraPro 原子动作切分</h3><p>三类视频问题 · ViTPose 多人识别 · shot change · 预告画面处理</p></div>
-<span class="report-open">查看汇报 <span aria-hidden="true">↗</span></span>
+<span class="report-open">查看汇报</span>
 </a>
 <a class="report-entry" href="myofullbody-supermimic-report/index.html">
 <div class="report-date"><time datetime="2026-11-02">2026-11-02</time><span>第 03 次汇报</span></div>
 <div class="report-copy"><span class="report-category">能量计算与动作训练</span><h3>MyoFullBody能量计算+Supermimic训练</h3><p>MyoFullBody 能量计算 · Supermimic 训练</p></div>
-<span class="report-open">查看汇报 <span aria-hidden="true">↗</span></span>
+<span class="report-open">查看汇报</span>
 </a>
 <a class="report-entry" href="atomic-report-1102/index.html">
 <div class="report-date"><time datetime="2026-11-02">2026-11-02</time><span>第 03 次汇报</span></div>
 <div class="report-copy"><span class="report-category">数据构建与动作质量控制</span><h3>原子动作切分与输入质量控制</h3><p>问题回顾 · 多人检测 · ShotChange · 四周虚化 · 复合周期切分</p></div>
-<span class="report-open">查看汇报 <span aria-hidden="true">↗</span></span>
+<span class="report-open">查看汇报</span>
 </a>
 </section>
 <section class="overview" aria-labelledby="overview-title">
-<div class="section-heading"><div><span class="section-no">01 /</span><h2 id="overview-title">架构总览</h2></div><span class="muted">点击方框，查看模块详情 ↗</span></div>
+<div class="section-heading"><div><h2 id="overview-title">架构总览</h2></div><span class="muted">点击方框，查看模块详情</span></div>
 <div class="architecture-scroll" tabindex="0" role="region" aria-label="项目架构图，小屏幕可横向滚动">
 <svg class="architecture-diagram" viewBox="0 0 1200 470" role="group" aria-labelledby="diagram-title diagram-description">
 <title id="diagram-title">FitGen 团操编排与执行流程</title>
@@ -119,11 +125,12 @@
 </div>
 </section>
 <section class="modules-section" aria-labelledby="modules-title">
-<div class="section-heading"><div><span class="section-no">02 /</span><h2 id="modules-title">模块详情</h2><span class="pill">7 个模块</span></div><button id="toggle-all" type="button">展开全部细节 <span>＋</span></button></div>
+<div class="section-heading"><div><h2 id="modules-title">模块详情</h2><span class="pill">7 个模块</span></div><div class="bulk-controls"><button type="button" id="close-open" hidden>收起已展开</button><button id="toggle-all" type="button">展开全部细节 <span>＋</span></button></div></div>
 <p class="section-description">展开团操编排 Agent 可查看选动作的依据、动作库关系和逐八拍 IR 示例。</p>
-<div id="modules"></div>
+<div class="modules-layout"><aside class="module-index" aria-label="模块索引"><div class="index-label">生成流水线</div><nav id="module-nav" aria-label="模块导航"></nav><small>架构蓝图 · 实现细节持续补充</small></aside><div id="modules"></div></div>
 </section>
 <footer><span><b>FitGen</b> / 项目架构蓝图</span><span>音乐 × 运动 × 生成</span><a href="#top">回到顶部 ↑</a></footer>
 </main>
-<script src="vendor/katex/katex.min.js"></script><script src="vendor/katex/contrib/auto-render.min.js"></script><script src="modules.js"></script><script src="module1-details.js"></script><script src="module2-details.js"></script><script src="module4-details.js"></script><script src="module8-details.js"></script><script src="app.js?v=20261123"></script>
+<script src="vendor/katex/katex.min.js"></script><script src="vendor/katex/contrib/auto-render.min.js"></script><script src="modules.js"></script><script src="module1-details.js"></script><script src="module2-details.js"></script><script src="module4-details.js"></script><script src="module8-details.js"></script><script src="app.js"></script>
+<script src="navigation.js"></script>
 </body></html>

@@ -1,13 +1,14 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>实现过程中遇到的问题 · FitGen</title><meta name="description" content="FitGen OpenSim 模型与代谢能耗计算笔记">
+<link rel="stylesheet" href="../workspace.css">
 <link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="style.css">
-<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="app.js"></script></head>
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="app.js"></script><script defer src="../navigation.js"></script></head>
 <body><a class="skip-link" href="#content">跳至正文</a>
-<aside class="sidebar"><a href="index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
-<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 01</div><div class="sidebar-title">数据构建与模型<br>阶段性汇报</div>
+<header class="reader-mast"><a class="brand" href="../index.html" aria-label="FitGen 首页"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FitGen</a><a class="return-link" href="../index.html#reports" data-return>返回 FitGen 主页</a><button type="button" class="reader-menu" aria-expanded="false" aria-controls="reader-index" hidden>目录</button></header>
+<aside class="sidebar" id="reader-index" aria-label="目录"><div class="sidebar-label">研究汇报 <span>/</span> 01</div><div class="sidebar-title">数据构建与模型<br>阶段性汇报</div>
 <nav aria-label="页面目录"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>完整链路</span><span class="nav-arrow">↗</span></a><a href="model.html" class="nav-item " ><span class="nav-number">02</span><span>模型与肌肉</span><span class="nav-arrow">↗</span></a><a href="pipeline.html" class="nav-item " ><span class="nav-number">03</span><span>求解过程</span><span class="nav-arrow">↗</span></a><a href="issues.html" class="nav-item active" aria-current="page"><span class="nav-number">04</span><span>实现问题</span><span class="nav-arrow">↗</span></a><a href="hmr-data.html" class="nav-item " ><span class="nav-number">05</span><span>视频筛选与切分</span><span class="nav-arrow">↗</span></a><a href="hmr-model.html" class="nav-item " ><span class="nav-number">06</span><span>HMR 优化与选型</span><span class="nav-arrow">↗</span></a><a href="hmr-progress.html" class="nav-item " ><span class="nav-number">07</span><span>进展与成对数据库</span><span class="nav-arrow">↗</span></a><a href="pamela-kyrapro.html" class="nav-item " ><span class="nav-number">08</span><span>Pamela 与 KyraPro 原子动作</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 能量消耗计算</div></aside>
-<main><header><div>FitGen <span>/</span> 能量消耗计算 <span>/</span> <b>实现问题</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<main><header class="document-bar"><div>FitGen <span>/</span> 能量消耗计算 <span>/</span> <b>实现问题</b></div><div class="header-actions"><a href="原文.md" download>下载原文 ↓</a><button id="print-button" type="button">打印</button></div></header>
 <article class="page page-4" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT</div>
 <div class="page-number">04 <span>/ 8</span></div><h1>实现过程中遇到的问题</h1><div class="title-rule"></div>
 <div class="prose"><h2>3.1 retarget问题</h2>

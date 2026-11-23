@@ -808,7 +808,7 @@ function updateUrl() {
   }
   params.set("mode", state.mode);
   params.set("window", String(state.windowSeconds));
-  try { history.replaceState(null, "", `${location.pathname}?${params}`); } catch (_) { /* 本地文件打开时仍可正常播放和查看。 */ }
+  try { history.replaceState(history.state, "", `${location.pathname}?${params}`); } catch (_) { /* 本地文件打开时仍可正常播放和查看。 */ }
 }
 
 function setStatus(message, type = "") {

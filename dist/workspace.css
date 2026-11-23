@@ -1,0 +1,74 @@
+:root {
+  color-scheme: dark;
+  --canvas: #15151c;
+  --surface: #1e1e27;
+  --inset: #191921;
+  --raised: #2b2934;
+  --ink: #f4f0ec;
+  --copy: #d6d0d2;
+  --muted: #b4aeb7;
+  --line: #3b3844;
+  --accent: #ffb196;
+  --lavender: #c1b3f1;
+  --bar: 64px;
+  --font: "DM Sans", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: var(--font);
+  background: var(--canvas);
+  color: var(--ink);
+  scroll-padding-top: calc(var(--bar) + 16px);
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--ink); font: 1rem/1.65 var(--font); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button, input, select { font: inherit; }
+button, summary { cursor: pointer; }
+button { color: inherit; }
+button[hidden], [hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+/* 行内长公式在自己的可视宽度内滚动，保留整页的阅读位置。 */
+:is(p, li) > span:has(> .katex) {
+  display: inline-block; max-width: 100%; overflow-x: auto;
+  vertical-align: middle; padding-block: 2px;
+}
+::selection { background: #77544c; color: white; }
+.skip-link { position: fixed; z-index: 100; inset: 8px auto auto 8px; transform: translateY(-160%); background: var(--ink); color: var(--canvas); padding: 8px 16px; border-radius: 5px; }
+.skip-link:focus { transform: none; }
+.brand { display: inline-flex; gap: 10px; align-items: center; width: fit-content; font: 700 27px/1 var(--font); letter-spacing: -1.7px; }
+.brand-symbol { display: inline-flex; align-items: center; justify-content: center; gap: 3px; width: 30px; height: 31px; transform: skewX(-13deg); }
+.brand-symbol i { width: 4px; height: 11px; background: var(--accent); border-radius: 3px; }
+.brand-symbol i:nth-child(2) { height: 22px; }
+.brand-symbol i:nth-child(3) { height: 30px; }
+.brand-symbol i:nth-child(4) { height: 16px; }
+.mast, .reader-mast {
+  position: sticky; z-index: 12; top: 0;
+  background: var(--canvas); border-bottom: 1px solid var(--line);
+}
+.mast-inner { max-width: 1440px; margin: auto; padding-inline: var(--gutter); display: flex; align-items: center; gap: 44px; height: var(--bar); }
+.mast-nav { display: flex; align-items: stretch; gap: 26px; height: 100%; }
+.mast-nav a { display: grid; align-items: center; border-block: 2px solid transparent; color: var(--muted); font-size: 14px; }
+.mast-nav a:hover, .mast-nav a[aria-current] { color: var(--ink); border-bottom-color: var(--accent); }
+.mast-version { color: var(--muted); margin-left: auto; font: 12px/1 var(--mono); }
+.reader-mast { min-height: var(--bar); padding: 8px clamp(16px, 5vw, 72px); display: flex; align-items: center; gap: 24px; }
+.reader-mast .return-link { margin-left: auto; }
+.return-link, .reader-menu { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; color: var(--accent); font-size: 14px; }
+.return-link::before { content: ""; width: 8px; height: 8px; border: solid currentColor; border-width: 0 0 1.5px 1.5px; transform: rotate(45deg); }
+.reader-menu { display: none; flex-shrink: 0; white-space: nowrap; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 0 12px; }
+.collapse-tools { position: fixed; z-index: 9; right: max(18px, 3vw); bottom: max(18px, env(safe-area-inset-bottom)); display: flex; align-items: center; padding: 4px; border: 1px solid #685552; border-radius: 9px; background: #332a2c; box-shadow: 0 8px 28px #0005; }
+.collapse-tools button { min-height: 39px; padding: 6px 14px; color: #ffcfbc; background: transparent; border: 0; border-radius: 5px; font-size: 14px; }
+.collapse-tools button + button { border-left: 1px solid #685552; }
+.collapse-tools button:hover { background: #4d3939; }
+@media (max-width: 700px) {
+  :root { --bar: 56px; }
+  .mast-inner, .reader-mast { gap: 14px; }
+  .mast-nav { gap: clamp(10px, 3.6vw, 22px); margin-left: auto; }
+  .mast-version { display: none; }
+  .reader-mast { padding-block: 7px; }
+  .brand { font-size: 23px; gap: 6px; }
+  .brand-symbol { transform: scale(.85) skewX(-13deg); }
+  .reader-menu { display: inline-flex; }
+}
+@media print {
+  :root { color-scheme: light; --canvas: white; --ink: #111; --copy: #222; --muted: #444; --surface: white; --inset: #fafafa; --raised: #eee; --accent: #333; --lavender: #333; --line: #bbb; }
+  .mast, .reader-mast, .collapse-tools, .skip-link { display: none !important; }
+}

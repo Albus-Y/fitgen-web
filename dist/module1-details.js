@@ -26,7 +26,7 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 1), {
         "① 分析音乐。原版先用 HTDemucs 分离四轨，再提取 100 FPS 频谱并运行多任务模型；DBN 解码出节拍、强拍和小节位置，段落后处理给出边界与标签。",
         "② 导出分析结果。服务器 fork 保留原版秒级 JSON，并额外输出 30 FPS 的任务感知 activation。节拍和段落的依据始终是秒级事件。",
         "③ 组装八拍。后处理先校验节拍与 4/4 小节，将段落边界在安全范围内对齐到拍点，然后把两个连续可靠小节组成八拍；第 1、5 拍是强拍。不足八拍或无可靠节拍的部分也保留下来。",
-        "④ 写出网格。将秒边界映射到 30 FPS 帧索引，生成 .eight.json，并另写诊断文件。每块带类型、所属段落、拍数以及秒 / 帧边界，供模块 2 规划课程。"
+        "④ 写出网格。将秒边界映射到 30 FPS 帧索引，生成 .eight.json，并另写诊断文件。每块带类型、所属段落、拍数以及秒 / 帧边界，供模块 2 编排动作、核对时间边界。"
       ],
       links: [{ label: "GitHub 原版：音频分析流程", url: "https://github.com/mir-aidj/all-in-one/blob/main/src/allin1/analyze.py" }, { label: "GitHub 原版：节拍与强拍解码", url: "https://github.com/mir-aidj/all-in-one/blob/main/src/allin1/postprocessing/metrical.py" }]
     },
@@ -160,7 +160,7 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 1), {
           ["主输出约束", "不含 energy_curve；不写动态生成时间戳；相同输入、来源和参数产生稳定 JSON"]
         ]
       },
-      paragraphs: ["模块 2 可消费 sections 和 eight_count_grid 规划课程。BPM、Beat、强拍与段落信息也保留在输出中；诊断旁路文件用于追踪质量和来源。", "纯后处理 CLI 支持单个 JSON 或目录批处理，提供 --check-only、--fail-on-warning、--overwrite 和参数覆盖。以下示例仅展示调用方式："],
+      paragraphs: ["模块 2 沿 eight_count_grid[].section_ids 读取 sections 中的 section_label，写入 IR 的 music_sections，并沿用每块的 ID 和时间边界。BPM、Beat、强拍与段落信息也保留在输出中；诊断旁路文件用于追踪质量和来源。", "纯后处理 CLI 支持单个 JSON 或目录批处理，提供 --check-only、--fail-on-warning、--overwrite 和参数覆盖。以下示例仅展示调用方式："],
       code: "python -m eight_count_postprocessing.cli song.json --activation song.activ.30fps.npz --audio song.wav --check-only",
       sources: ["eight_count_postprocessing/eight_count_grid.py:1053", "eight_count_postprocessing/io.py:43"]
     },

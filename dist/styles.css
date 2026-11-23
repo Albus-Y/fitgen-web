@@ -35,3 +35,7 @@
 @media(max-width:1000px){.report-entry{gap:19px;padding:23px}.report-date{padding-right:19px}.report-copy h3{font-size:17px}.report-open{gap:10px}}
 @media(max-width:650px){.report-entry{flex-wrap:wrap;gap:15px;padding:21px}.report-date{width:100%;flex-direction:row;align-items:center;justify-content:space-between;border:0;padding:0 0 13px;border-bottom:1px solid #dce7df}.report-date time{font-size:16px}.report-copy{min-width:70%;flex:1}.report-copy h3{font-size:17px;line-height:1.6}.report-open{margin-left:auto}.report-open>span{font-size:18px}}
 @media(prefers-reduced-motion:reduce){.report-entry{transition:none}}
+
+.architecture-diagram .diagram-caption,
+.architecture-diagram .diagram-edges text { font-size: 14px; font-weight: 500; fill: #46695b; }
+.architecture-diagram .diagram-edges text { fill: #385b4e; }

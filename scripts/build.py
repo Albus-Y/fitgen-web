@@ -133,6 +133,27 @@ def build_atomic_report():
     if assets_source.is_dir():
         shutil.copytree(assets_source, assets_target, dirs_exist_ok=True)
 
+def build_arrangement_design():
+    source = REPO / 'content' / 'arrangement-agent' / 'index.md'
+    heading, _, markdown = source.read_text(encoding='utf-8').partition('\n')
+    if not heading.startswith('# '):
+        raise ValueError('编排设计稿必须以一级标题开头')
+    toc = []
+
+    def section_anchor(match):
+        section_id = f'section-{len(toc) + 1}'
+        label = match[1]
+        toc.append(f'<a class="nav-item" href="#{section_id}">{label}</a>')
+        return f'<h2 id="{section_id}">{label}</h2>'
+
+    body = re.sub(r'<h2>(.*?)</h2>', section_anchor, render_markdown(markdown))
+    values = {'title': html.escape(heading[2:]), 'body': body, 'nav': '\n'.join(toc)}
+    template = (REPO / 'templates' / 'arrangement-agent.html').read_text(encoding='utf-8')
+    target = REPO / 'dist' / 'arrangement-agent' / 'index.html'
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(re.sub(r'\{\{(title|body|nav)\}\}', lambda m: values[m[1]], template), encoding='utf-8')
+    print('已生成 dist/arrangement-agent/index.html')
+
 def main():
     ROOT.mkdir(parents=True, exist_ok=True)
     template = (REPO / 'templates' / 'opensim-note.html').read_text(encoding='utf-8')
@@ -160,6 +181,7 @@ def main():
     shutil.copyfile(CONTENT / '原文.md', ROOT / '原文.md')
     build_second_report()
     build_atomic_report()
+    build_arrangement_design()
 
 def build_second_report():
     """Build the independent 2026-10-26 report, one page per major heading."""

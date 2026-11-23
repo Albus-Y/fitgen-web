@@ -1,6 +1,7 @@
 // 两个连续八拍，取自 FitGen 编排设计稿 v0.6 的局部示例。
 Object.assign(window.FITGEN_MODULES.find(module => module.id === 2), {
-  overviewMeta: "接口设计 · fitgen-arrangement-v1",
+  designUrl: "arrangement-agent/index.html",
+  overviewMeta: "接口设计 · `fitgen-arrangement-v1`",
   overviewSections: [
     {
       title: "从整曲安排到单个八拍",
@@ -14,19 +15,19 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 2), {
       table: {
         headers: ["素材字段", "编排用途"],
         rows: [
-          ["clip_id、smplx_ref", "用唯一 ID 选择一次完整播放，并定位其 SMPL-X 序列。"],
-          ["action_name、description", "读出动作语义、复合动作顺序和这段素材实际完成的动作。"],
-          ["source_duration_sec、rate_range", "判断完整周期能否在允许倍率内放入目标时段。"],
-          ["primary_muscles、energy_kj", "结合目标肌群和整段素材的原速能耗选动作。标签来自模块 8。"],
-          ["impact、coordination", "按冲击程度和协调难度组织引入、加强与恢复。"]
+          ["`clip_id`、`smplx_ref`", "用唯一 ID 选择一次完整播放，并定位其 SMPL-X 序列。"],
+          ["`action_name`、`description`", "读出动作语义、复合动作顺序和这段素材实际完成的动作。"],
+          ["`source_duration_sec`、`rate_range`", "判断完整周期能否在允许倍率内放入目标时段。"],
+          ["`primary_muscles`、`energy_kj`", "结合目标肌群和整段素材的原速能耗选动作。标签来自模块 8。"],
+          ["`impact`、`coordination`", "按冲击程度和协调难度组织引入、加强与恢复。"]
         ]
       },
-      paragraphs: ["关系图中，mirror_id 将右侧提膝与对应的左侧素材配对。variation_of 从变式指向基础动作。要给已教的提膝加双臂上举，可从基础素材反查这个变式。"]
+      paragraphs: ["关系图中，`mirror_id` 将右侧提膝与对应的左侧素材配对。`variation_of` 从变式指向基础动作。要给已教的提膝加双臂上举，可从基础素材反查这个变式。"]
     },
     {
       title: "何时为过渡腾出时间",
       paragraphs: [
-        "MotionGraph 比较前段末尾和后段开头的 SMPL-X 序列，也检查相邻八拍之间的接缝。能平滑衔接时直接安排动作；如果仍要保留一对差距明显的动作，Agent 在块内写入带时长的 transition_request。",
+        "MotionGraph 比较前段末尾和后段开头的 SMPL-X 序列，也检查相邻八拍之间的接缝。能平滑衔接时直接安排动作；如果仍要保留一对差距明显的动作，Agent 在块内写入带时长的 `transition_request`。",
         "定稿后，下游按 IR 取素材、拍点和条目时长，调用模块 4 做单段变速。模块 5 依播放顺序平滑接缝，在预留窗口根据前后骨架生成过渡。速度或过渡时长无法满足时，将受影响的八拍交回 Agent 改排。"
       ]
     },
@@ -36,17 +37,17 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 2), {
       table: {
         headers: ["八拍与教学意图", "播放区间（秒）", "条目"],
         rows: [
-          ["block_004 · teach", "[12, 14)", "预留过渡：由站姿进入双手俯撑。"],
-          ["block_004 · teach", "[14, 16)", "完整播放一次交替点肩。"],
-          ["block_005 · repeat", "[16, 18)、[18, 20)", "依次播放两次同一素材，每次 2 秒。"]
+          ["`block_004` · `teach`", "[12, 14)", "预留过渡：由站姿进入双手俯撑。"],
+          ["`block_004` · `teach`", "[14, 16)", "完整播放一次交替点肩。"],
+          ["`block_005` · `repeat`", "[16, 18)、[18, 20)", "依次播放两次同一素材，每次 2 秒。"]
         ]
       }
     },
     {
       title: "交给下游的逐八拍 IR",
       paragraphs: [
-        "music_grid_ref 与 block_id 用于回查模块 1 的逐拍拍点和块类型。music_sections 按上游 section_ids 的顺序保留每个段落的 ID 和标签。partial_head、partial_tail、gap 均沿用上游实际边界。",
-        "teaching_role 按本块的教学目的取 teach、repeat 或 null。首次教新动作或新配合用 teach，复练用 repeat，没有明确教学意图时用 null。下游从 start_sec 起依次累加所有条目的正时长，恰好到达 end_sec。"
+        "`music_grid_ref` 与 `block_id` 用于回查模块 1 的逐拍拍点和块类型。`music_sections` 按上游 `section_ids` 的顺序保留每个段落的 ID 和标签。`partial_head`、`partial_tail`、`gap` 均沿用上游实际边界。",
+        "`teaching_role` 按本块的教学目的取 `teach`、`repeat` 或 `null`。首次教新动作或新配合用 `teach`，复练用 `repeat`，没有明确教学意图时用 `null`。下游从 `start_sec` 起依次累加所有条目的正时长，恰好到达 `end_sec`。"
       ],
       code: `{
   "schema_version": "fitgen-arrangement-v1",

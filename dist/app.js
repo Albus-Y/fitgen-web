@@ -7,16 +7,19 @@ document.querySelector('#module-nav').innerHTML = modules.map(m => '<a href="#mo
 function paragraphs(items, placeholder) {
   return items.length ? items.map(p => '<p>' + escapeHTML(p) + '</p>').join('') : '<p class="placeholder">' + placeholder + '</p>';
 }
+function inlineCode(value) {
+  return escapeHTML(value).replace(/`([^`\n]+)`/g, '<code>$1</code>');
+}
 function detailedContent(module) {
   if (!module.detailSections?.length) return '';
-  return '<div class="technical-document"><p class="detail-meta">' + escapeHTML(module.detailMeta || '') + '</p>' +
+  return '<div class="technical-document"><p class="detail-meta">' + inlineCode(module.detailMeta || '') + '</p>' +
     module.detailSections.map(section => {
       const table = section.table ? '<div class="technical-table-scroll"><table><thead><tr>' +
         section.table.headers.map(header => '<th scope="col">' + escapeHTML(header) + '</th>').join('') +
         '</tr></thead><tbody>' + section.table.rows.map(row => '<tr>' +
-          row.map(cell => '<td>' + escapeHTML(cell) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>' : '';
+          row.map(cell => '<td>' + inlineCode(cell) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>' : '';
       return '<section class="technical-section"><h4>' + escapeHTML(section.title) + '</h4>' +
-        (section.paragraphs || []).map(p => '<p>' + escapeHTML(p) + '</p>').join('') + table +
+        (section.paragraphs || []).map(p => '<p>' + inlineCode(p) + '</p>').join('') + table +
         (section.math ? '<div class="math-display">$$' + escapeHTML(section.math) + '$$</div>' : '') +
         (section.code ? '<pre><code>' + escapeHTML(section.code) + '</code></pre>' : '') +
         (section.links?.length ? '<div class="technical-links">' +
@@ -39,7 +42,9 @@ function moduleContent(module) {
   return overview + demo + '<details class="advanced-details"><summary><span><span class="when-closed">深入技术细节</span><span class="when-open">收起技术细节</span> <small>' + (module.detailSections?.length || 0) + ' 节 · 参数、字段、代码与评测</small></span>' + chevron + '</summary>' +
     summaryContent + detailedContent(module) + collapseAction('收起技术细节') + '</details>';
 }
-document.querySelector('#modules').innerHTML = modules.map(m => '<article class="module-card ' + (m.id >= 7 ? 'foundation' : '') + '" id="module-' + m.id + '"><div class="module-top"><div class="module-number">' + number(m.id) + '</div><div class="module-title"><div class="module-eyebrow">' + escapeHTML(m.english) + '</div><h3>' + escapeHTML(m.title) + '</h3><span class="module-status">' + escapeHTML(m.status || (m.implementation.length || m.technicalDetails.length ? '已补充' : m.overviewSections?.length ? '职责已梳理' : '待补充')) + '</span><p>' + escapeHTML(m.description) + '</p></div><span class="module-type">' + (m.id === 7 ? '数据基础' : m.id === 8 ? '能耗计算' : '生成流水线') + '</span></div><div class="io-grid"><div><h4><span>↘</span> 输入</h4><ul>' + m.input.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div><h4><span>↗</span> 输出</h4><ul>' + m.output.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div class="handoff"><h4>数据流向</h4><p>' + escapeHTML(m.next) + '</p></div></div><details class="module-disclosure"><summary><span><span class="when-closed">查看方案与实现</span><span class="when-open">收起方案与实现</span></span>' + chevron + '</summary>' + moduleContent(m) + collapseAction('收起本模块') + '</details></article>').join('');
+document.querySelector('#modules').innerHTML = modules.map(m => '<article class="module-card ' + (m.id >= 7 ? 'foundation' : '') + '" id="module-' + m.id + '"><div class="module-top"><div class="module-number">' + number(m.id) + '</div><div class="module-title"><div class="module-eyebrow">' + escapeHTML(m.english) + '</div><h3>' + escapeHTML(m.title) + '</h3><span class="module-status">' + escapeHTML(m.status || (m.implementation.length || m.technicalDetails.length ? '已补充' : m.overviewSections?.length ? '职责已梳理' : '待补充')) + '</span><p>' + escapeHTML(m.description) + '</p>' +
+  (m.designUrl ? '<a class="design-tab" href="' + escapeHTML(m.designUrl) + '" target="_blank" rel="noopener" aria-label="在新标签页阅读设计全文">设计全文</a>' : '') +
+  '</div><span class="module-type">' + (m.id === 7 ? '数据基础' : m.id === 8 ? '能耗计算' : '生成流水线') + '</span></div><div class="io-grid"><div><h4><span>↘</span> 输入</h4><ul>' + m.input.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div><h4><span>↗</span> 输出</h4><ul>' + m.output.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div class="handoff"><h4>数据流向</h4><p>' + escapeHTML(m.next) + '</p></div></div><details class="module-disclosure"><summary><span><span class="when-closed">查看方案与实现</span><span class="when-open">收起方案与实现</span></span>' + chevron + '</summary>' + moduleContent(m) + collapseAction('收起本模块') + '</details></article>').join('');
 // 旧路线图的候选筛选链接继续定位到合并后的编排模块。
 function resolveLegacyModule() {
   if (location.hash !== '#module-3') return;

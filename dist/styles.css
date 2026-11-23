@@ -39,3 +39,16 @@
 .architecture-diagram .diagram-caption,
 .architecture-diagram .diagram-edges text { font-size: 14px; font-weight: 500; fill: #46695b; }
 .architecture-diagram .diagram-edges text { fill: #385b4e; }
+
+.design-tab {
+  display: inline-block;
+  margin-top: .65rem;
+  padding: .4rem .85rem;
+  border: 1px solid #a5cabb;
+  border-radius: .4rem;
+  background: #edf6f1;
+  color: #235d48;
+  font-size: .9rem;
+  font-weight: 600;
+}
+.design-tab:hover, .design-tab:focus-visible { background: #dcefe4; }

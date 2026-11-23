@@ -1,0 +1,19 @@
+#module-2 :not(pre) > code, .prose :not(pre) > code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: .94em;
+  font-weight: 550;
+  padding: .08em .32em;
+  border-radius: .25rem;
+  color: #59388a;
+  background: #f0eafa;
+  overflow-wrap: anywhere;
+}
+#module-2 .technical-section p, #module-2 .technical-section td { font-size: .9375rem; }
+.json-example {
+  font: .9rem/1.7 ui-monospace, Consolas, monospace;
+  color: #364250;
+}
+.json-key { color: #184f9b; font-weight: 650; }
+.json-string { color: #08724e; }
+.json-number { color: #9f3f0d; }
+.json-literal { color: #84297a; }

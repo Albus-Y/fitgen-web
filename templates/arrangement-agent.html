@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="../vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="../opensim-note/style.css">
+  <link rel="stylesheet" href="../code-styles.css">
+  <script defer src="../highlight-json.js"></script>
+  <style>
+    .sidebar { overflow-y: auto; }
+    .sidebar nav { margin-top: .5rem; }
+    .nav-item { line-height: 1.6; }
+    .page { max-width: 1000px; padding-bottom: 4rem; }
+    .prose h2 { scroll-margin-top: 1.5rem; }
+    .prose { font-size: 1rem; }
+    .prose pre code { font-size: .9375rem; }
+    @media (max-width: 760px) {
+      .sidebar nav { display: flex; overflow-x: auto; gap: .5rem; padding-bottom: .25rem; }
+      .nav-item { flex: none; padding: .4rem .65rem; font-size: .875rem; }
+      .home-link { margin: .75rem 0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">跳至正文</a>
+  <aside class="sidebar">
+    <a class="brand" href="../index.html">FitGen<span class="brand-dot"></span></a>
+    <a class="home-link" href="../index.html#module-2">返回模块 2 · 团操编排 Agent</a>
+    <div class="sidebar-label">本文目录</div>
+    <nav aria-label="本文目录">{{nav}}</nav>
+  </aside>
+  <main>
+    <article class="page" id="content">
+      <h1>{{title}}</h1>
+      <div class="title-rule"></div>
+      <div class="prose">{{body}}</div>
+    </article>
+  </main>
+  <script src="../vendor/katex/katex.min.js"></script>
+  <script src="../vendor/katex/contrib/auto-render.min.js"></script>
+  <script>
+    renderMathInElement(document.querySelector('.prose'), {
+      delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}],
+      throwOnError: false
+    });
+  </script>
+</body>
+</html>

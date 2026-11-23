@@ -39,7 +39,16 @@ function moduleContent(module) {
   return overview + demo + '<details class="advanced-details"><summary><span><span class="when-closed">深入技术细节</span><span class="when-open">收起技术细节</span> <small>' + (module.detailSections?.length || 0) + ' 节 · 参数、字段、代码与评测</small></span>' + chevron + '</summary>' +
     summaryContent + detailedContent(module) + collapseAction('收起技术细节') + '</details>';
 }
-document.querySelector('#modules').innerHTML = modules.map(m => '<article class="module-card ' + (m.id >= 7 ? 'foundation' : '') + '" id="module-' + m.id + '"><div class="module-top"><div class="module-number">' + number(m.id) + '</div><div class="module-title"><div class="module-eyebrow">' + escapeHTML(m.english) + '</div><h3>' + escapeHTML(m.title) + '</h3><span class="module-status">' + (m.implementation.length || m.technicalDetails.length ? '已补充' : m.overviewSections?.length ? '职责已梳理' : '待补充') + '</span><p>' + escapeHTML(m.description) + '</p></div><span class="module-type">' + (m.id === 7 ? '数据基础' : m.id === 8 ? '能耗计算' : '生成流水线') + '</span></div><div class="io-grid"><div><h4><span>↘</span> 输入</h4><ul>' + m.input.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div><h4><span>↗</span> 输出</h4><ul>' + m.output.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div class="handoff"><h4>数据流向</h4><p>' + escapeHTML(m.next) + '</p></div></div><details class="module-disclosure"><summary><span><span class="when-closed">查看方案与实现</span><span class="when-open">收起方案与实现</span></span>' + chevron + '</summary>' + moduleContent(m) + collapseAction('收起本模块') + '</details></article>').join('');
+document.querySelector('#modules').innerHTML = modules.map(m => '<article class="module-card ' + (m.id >= 7 ? 'foundation' : '') + '" id="module-' + m.id + '"><div class="module-top"><div class="module-number">' + number(m.id) + '</div><div class="module-title"><div class="module-eyebrow">' + escapeHTML(m.english) + '</div><h3>' + escapeHTML(m.title) + '</h3><span class="module-status">' + escapeHTML(m.status || (m.implementation.length || m.technicalDetails.length ? '已补充' : m.overviewSections?.length ? '职责已梳理' : '待补充')) + '</span><p>' + escapeHTML(m.description) + '</p></div><span class="module-type">' + (m.id === 7 ? '数据基础' : m.id === 8 ? '能耗计算' : '生成流水线') + '</span></div><div class="io-grid"><div><h4><span>↘</span> 输入</h4><ul>' + m.input.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div><h4><span>↗</span> 输出</h4><ul>' + m.output.map(v => '<li>' + escapeHTML(v) + '</li>').join('') + '</ul></div><div class="handoff"><h4>数据流向</h4><p>' + escapeHTML(m.next) + '</p></div></div><details class="module-disclosure"><summary><span><span class="when-closed">查看方案与实现</span><span class="when-open">收起方案与实现</span></span>' + chevron + '</summary>' + moduleContent(m) + collapseAction('收起本模块') + '</details></article>').join('');
+// 旧路线图的候选筛选链接继续定位到合并后的编排模块。
+function resolveLegacyModule() {
+  if (location.hash !== '#module-3') return;
+  history.replaceState(history.state, '', '#module-2');
+  document.getElementById('module-2').scrollIntoView();
+}
+window.addEventListener('hashchange', resolveLegacyModule);
+resolveLegacyModule();
+
 const toggle = document.querySelector('#toggle-all');
 function updateToggle() {
   const allOpen = [...document.querySelectorAll('.module-card > details')].every(d => d.open);

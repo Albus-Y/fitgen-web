@@ -1,0 +1,162 @@
+{
+  "model": [
+    "model.0.bin"
+  ],
+  "clips": [
+    {
+      "id": "squat",
+      "label": "反复深蹲",
+      "clip": "breath-by-breath__zy_HIIT_x_back_0040-0050",
+      "reference": [
+        "squat-ref.0.bin"
+      ],
+      "results": [
+        {
+          "id": "equal_50000",
+          "label": "纯 CLIP 加宽 · 等权约束 · 50,000 轮",
+          "files": [
+            "squat-equal.0.bin"
+          ]
+        },
+        {
+          "id": "mass_93000",
+          "label": "纯 CLIP 加宽 · 质量加权 · 93,000 轮",
+          "files": [
+            "squat-pure.0.bin"
+          ]
+        },
+        {
+          "id": "mixed_29000",
+          "label": "混合加宽 · 质量加权 · 29,000 轮",
+          "files": [
+            "squat-wide.0.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "high-knees",
+      "label": "高抬腿",
+      "clip": "mixing-chamber__jl_HIIT_x_front_0030-0040",
+      "reference": [
+        "high-knees-ref.0.bin"
+      ],
+      "results": [
+        {
+          "id": "equal_50000",
+          "label": "纯 CLIP 加宽 · 等权约束 · 50,000 轮",
+          "files": [
+            "high-knees-equal.0.bin"
+          ]
+        },
+        {
+          "id": "mass_93000",
+          "label": "纯 CLIP 加宽 · 质量加权 · 93,000 轮",
+          "files": [
+            "high-knees-pure.0.bin"
+          ]
+        },
+        {
+          "id": "mixed_29000",
+          "label": "混合加宽 · 质量加权 · 29,000 轮",
+          "files": [
+            "high-knees-wide.0.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "split-squat",
+      "label": "前后分腿屈膝",
+      "clip": "breath-by-breath__zy_HIIT_x_right_0940-0950",
+      "reference": [
+        "split-squat-ref.0.bin"
+      ],
+      "results": [
+        {
+          "id": "equal_50000",
+          "label": "纯 CLIP 加宽 · 等权约束 · 50,000 轮",
+          "files": [
+            "split-squat-equal.0.bin"
+          ]
+        },
+        {
+          "id": "mass_93000",
+          "label": "纯 CLIP 加宽 · 质量加权 · 93,000 轮",
+          "files": [
+            "split-squat-pure.0.bin"
+          ]
+        },
+        {
+          "id": "mixed_29000",
+          "label": "混合加宽 · 质量加权 · 29,000 轮",
+          "files": [
+            "split-squat-wide.0.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arm-swings",
+      "label": "站姿摆臂",
+      "clip": "mixing-chamber__jl_HIIT_x_front_1400-1410",
+      "reference": [
+        "arm-swings-ref.0.bin"
+      ],
+      "results": [
+        {
+          "id": "equal_50000",
+          "label": "纯 CLIP 加宽 · 等权约束 · 50,000 轮",
+          "files": [
+            "arm-swings-equal.0.bin"
+          ]
+        },
+        {
+          "id": "mass_93000",
+          "label": "纯 CLIP 加宽 · 质量加权 · 93,000 轮",
+          "files": [
+            "arm-swings-pure.0.bin"
+          ]
+        },
+        {
+          "id": "mixed_29000",
+          "label": "混合加宽 · 质量加权 · 29,000 轮",
+          "files": [
+            "arm-swings-wide.0.bin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "floor-transition",
+      "label": "低姿俯撑转换",
+      "clip": "breath-by-breath__zy_HIIT_x_right_1120-1130",
+      "reference": [
+        "floor-transition-ref.0.bin"
+      ],
+      "results": [
+        {
+          "id": "equal_50000",
+          "label": "纯 CLIP 加宽 · 等权约束 · 50,000 轮",
+          "files": [
+            "floor-transition-equal.0.bin"
+          ]
+        },
+        {
+          "id": "mass_93000",
+          "label": "纯 CLIP 加宽 · 质量加权 · 93,000 轮",
+          "files": [
+            "floor-transition-pure.0.bin"
+          ]
+        },
+        {
+          "id": "mixed_29000",
+          "label": "混合加宽 · 质量加权 · 29,000 轮",
+          "files": [
+            "floor-transition-wide.0.bin"
+          ]
+        }
+      ]
+    }
+  ]
+}

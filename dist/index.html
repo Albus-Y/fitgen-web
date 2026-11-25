@@ -6,7 +6,7 @@
 <meta name="description" content="FitGen 项目主页：项目路线图、实现进展与研究汇报。">
 <link rel="stylesheet" href="vendor/katex/katex.min.css">
 <link rel="stylesheet" href="workspace.css">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=9bf88bfde4">
 <link rel="stylesheet" href="code-styles.css">
 <script defer src="highlight-json.js"></script>
 </head>
@@ -32,7 +32,7 @@
 </section>
 <div class="workspace-strip"><span>项目工作台 <b>/</b> 架构蓝图</span><div><span><strong>05</strong> 生成模块</span><span><strong>01</strong> 数据基础</span><span><strong>01</strong> 能耗计算</span></div></div>
 <section class="reports-section" id="reports" aria-labelledby="reports-title">
-<div class="section-heading"><div><h2 id="reports-title">汇报</h2><span class="pill">04 份</span></div><span class="muted">项目进展与研究记录</span></div>
+<div class="section-heading"><div><h2 id="reports-title">汇报</h2><span class="pill">05 份</span></div><span class="muted">项目进展与研究记录</span></div>
 <a class="report-entry" href="opensim-note/index.html">
 <div class="report-date"><time datetime="2026-10-19">2026-10-19</time><span>第 01 次汇报</span></div>
 <div class="report-copy"><span class="report-category">能量消耗计算</span><h3>OpenSim 模型与代谢能耗</h3><p>完整链路 · 骨骼与肌肉模型 · 求解过程 · 实现问题</p></div>
@@ -53,13 +53,18 @@
 <div class="report-copy"><span class="report-category">数据构建与动作质量控制</span><h3>原子动作切分与输入质量控制</h3><p>问题回顾 · 多人检测 · ShotChange · 四周虚化 · 复合周期切分</p></div>
 <span class="report-open">查看汇报</span>
 </a>
+<a class="report-entry" href="supermimic-six-experiments/index.html">
+<div class="report-date"><time datetime="2026-11-23">2026-11-23</time><span>第 04 次汇报</span></div>
+<div class="report-copy"><span class="report-category">动作跟踪与能耗评估</span><h3>SuperMimic 六组实验</h3><p>跨库泛化、网络加宽、深蹲肌束激活与手环能耗对照</p></div>
+<span class="report-open">播放汇报</span>
+</a>
 </section>
 <section class="overview" aria-labelledby="overview-title">
 <div class="section-heading"><div><h2 id="overview-title">架构总览</h2></div><span class="muted">点击方框，查看模块详情</span></div>
 <div class="architecture-scroll" tabindex="0" role="region" aria-label="项目架构图，小屏幕可横向滚动">
 <svg class="architecture-diagram" viewBox="0 0 1200 470" role="group" aria-labelledby="diagram-title diagram-description">
 <title id="diagram-title">FitGen 团操编排与执行流程</title>
-<desc id="diagram-description">模块 1 输出八拍网格和拍点。模块 2 根据用户需求和动作库选定动作并生成逐八拍 IR。模块 4 按条目变速，模块 5 按 IR 拼接和生成预留过渡，模块 6 渲染。模块 7 提供原子动作，模块 8 为素材计算标签，也评估完整团操。</desc>
+<desc id="diagram-description">模块 1 输出八拍网格和拍点。模块 2 根据用户需求和动作库选定动作并生成逐八拍 IR。模块 4 按条目变速，模块 5 按 IR 拼接和生成预留过渡，模块 6 渲染。模块 7 提供原子动作，模块 8 为素材和完整团操估计能耗并识别主要锻炼肌群。</desc>
 <defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#267e70"/></marker></defs>
 <g class="architecture-wires" fill="none" stroke="#267e70" stroke-width="2" stroke-linejoin="round" marker-end="url(#architecture-arrow)">
   <path d="M84 111V152"/><path d="M168 152V32H693V152"/>
@@ -108,13 +113,13 @@
   <text x="100" y="359">数据集构建</text>
 </a>
 <g class="database-resource"><rect x="270" y="309" width="206" height="74" rx="10"/><text x="373" y="342">原子动作库</text><text class="diagram-caption" x="373" y="366">SMPL-X 素材与关系图</text></g>
-<a class="implemented-module" href="#module-8" aria-label="模块 8：能量消耗计算，已补充实现">
+<a class="implemented-module" href="#module-8" aria-label="模块 8：能耗与锻炼肌群">
   <rect class="module-box" x="821" y="309" width="174" height="81" rx="10"/>
   <text class="diagram-number" x="908" y="332">模块 8</text>
-  <text x="908" y="359">能量消耗计算</text>
+  <text x="908" y="359">能耗与锻炼肌群</text>
   <text class="diagram-caption" x="908" y="382">已补充实现</text>
 </a>
-<g class="energy-result"><rect x="1030" y="316" width="156" height="57" rx="10"/><text x="1108" y="351">团操能耗结果</text></g>
+<g class="energy-result"><rect x="1030" y="316" width="156" height="57" rx="10"/><text x="1108" y="351">能耗与锻炼肌群</text></g>
 <g class="diagram-edges">
   <text x="462" y="23">音乐拍点</text><text x="228" y="185">八拍网格</text><text x="541" y="184">逐八拍 IR</text>
   <text x="318" y="278">查库选动作</text><text x="553" y="318">素材骨架</text><text x="958" y="277">完整团操</text>
@@ -131,6 +136,6 @@
 </section>
 <footer><span><b>FitGen</b> / 项目架构蓝图</span><span>音乐 × 运动 × 生成</span><a href="#top">回到顶部 ↑</a></footer>
 </main>
-<script src="vendor/katex/katex.min.js"></script><script src="vendor/katex/contrib/auto-render.min.js"></script><script src="modules.js"></script><script src="module1-details.js"></script><script src="module2-details.js"></script><script src="module4-details.js"></script><script src="module8-details.js"></script><script src="app.js"></script>
+<script src="vendor/katex/katex.min.js"></script><script src="vendor/katex/contrib/auto-render.min.js"></script><script src="modules.js?v=5b9e0807b7"></script><script src="module1-details.js"></script><script src="module2-details.js"></script><script src="module4-details.js"></script><script src="module8-details.js?v=fcaac06a66"></script><script src="app.js?v=a938eaeba6"></script>
 <script src="navigation.js"></script>
 </body></html>

@@ -19,6 +19,8 @@ function detailedContent(module) {
         '</tr></thead><tbody>' + section.table.rows.map(row => '<tr>' +
           row.map(cell => '<td>' + inlineCode(cell) + '</td>').join('') + '</tr>').join('') + '</tbody></table></div>' : '';
       return '<section class="technical-section"><h4>' + escapeHTML(section.title) + '</h4>' +
+        (section.steps?.length ? '<ol class="pipeline-steps">' +
+          section.steps.map(step => '<li>' + escapeHTML(step) + '</li>').join('') + '</ol>' : '') +
         (section.paragraphs || []).map(p => '<p>' + inlineCode(p) + '</p>').join('') + table +
         (section.math ? '<div class="math-display">$$' + escapeHTML(section.math) + '$$</div>' : '') +
         (section.code ? '<pre><code>' + escapeHTML(section.code) + '</code></pre>' : '') +

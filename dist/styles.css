@@ -94,6 +94,9 @@ details[open] > summary .when-open { display: inline; }
 .technical-section table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
 .technical-section td, .technical-section th { border: 1px solid var(--line); padding: 9px 12px; vertical-align: top; }
 .technical-section th { background: var(--raised); }
+.pipeline-steps { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 0 0 10px; padding: 0; list-style: none; }
+.pipeline-steps li { color: var(--lavender); font-weight: 600; }
+.pipeline-steps li:not(:last-child)::after { content: '→' / ''; margin-left: 12px; color: var(--muted); }
 .technical-section pre { font: 14px/1.75 var(--mono); padding: 16px; border-radius: 5px; background: var(--inset); }
 .technical-sources, .technical-links { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-block: 12px; overflow-wrap: anywhere; }
 .technical-sources code { max-width: 100%; }

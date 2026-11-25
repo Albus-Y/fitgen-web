@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2c2d33"><title>MyoFullBody Studio · 模块 8 回放</title>
+<link rel="stylesheet" href="studio.css"><script type="module" src="studio.js"></script></head>
+<body>
+<header><b><span class="logo">M</span> MyoFullBody <span class="muted">Studio</span></b><span class="hint">空格 播放 / 暂停　 ·　 ← → 逐帧</span><a href="../index.html#module-8">返回模块 8</a></header>
+<div class="playbackbar"><span class="playbacktitle">播放内容</span><div class="segment" aria-label="回放模式"><button id="refMode" aria-pressed="false">参考动作</button><button id="simMode" aria-pressed="true">Tracking 结果</button></div><select id="resultSelect" aria-label="选择已保存的 checkpoint"></select></div>
+<main><section class="viewport" aria-label="MyoFullBody 三维视窗"><canvas id="scene" tabindex="0" aria-label="三维肌骨模型，拖动旋转，滚轮或双指缩放"></canvas>
+<div class="viewlabel"><span class="dot"></span><span id="modeLabel">载入深蹲回放…</span></div><div class="overlay" id="message" role="status">正在载入三维模型…</div>
+<details id="activationCard" class="activation-card" open><summary><span class="activation-live"></span><span id="activationTitle">主要激活肌肉 · Top 5</span><span id="activationTime"></span></summary><div class="activation-body">
+<label for="muscleDisplay">显示方式</label><select id="muscleDisplay"><option value="activation">全身激活</option><option value="lower_force">臀腿发力</option></select>
+<label class="check"><input type="checkbox" id="highlightTop5"> 在模型上将 Top 5 标蓝</label>
+<p class="small muted" id="activationHint"></p><ol id="activationList"></ol><p id="activationNote" class="small muted"></p></div></details>
+<div class="camera-tools"><span>拖动旋转 · 滚轮缩放</span><button id="resetView">复位视角</button></div></section>
+<aside><details class="segment-score-card" open><summary><span class="integral">∫</span>整段锻炼得分 · Top 5</summary><div class="score-body"><p id="scoreStatus" class="small muted"></p><ol id="segmentScoreList"></ol><p id="scoreNote" class="small muted">按肌束累计相对主动张力，单位 s</p></div></details>
+<section class="section"><h2><label for="motion">选择参考动作</label></h2><select id="motion" aria-label="选择参考动作"></select><p id="clipId" class="filename"></p><p id="outcome" class="badge"></p></section>
+<section class="section options"><label class="check"><input type="checkbox" id="showref" checked> 叠加参考骨架</label><label class="check"><input type="checkbox" id="muscles" checked> 显示肌肉</label></section>
+</aside></main>
+<footer><div class="transport"><button id="start" title="回到起点" aria-label="回到起点">|◀</button><button id="prev" title="上一帧" aria-label="上一帧">◀|</button><button id="play" title="播放 / 暂停" aria-label="播放">▶</button><button id="next" title="下一帧" aria-label="下一帧">|▶</button><span id="clock">—</span><span id="metric"></span><label class="speed">速度 <select id="speed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label></div>
+<div class="ruler" id="ruler"></div><input type="range" id="timeline" min="0" max="0" value="0" step="1" aria-label="回放时间轴"><div class="statusbar"><span id="status" role="status">准备回放</span><span id="frameNumber"></span></div></footer></body></html>

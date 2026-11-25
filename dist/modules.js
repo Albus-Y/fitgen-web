@@ -15,8 +15,12 @@ window.FITGEN_MODULES = [
   { id: 5, title: "动作拼接与过渡", short: "拼接与过渡", english: "MOTION ASSEMBLY", description: "按整曲 IR 排列变速后的片段，平滑常规接缝，在预留时段调用过渡动作生成工具。", input: ["模块 2 的条目顺序与过渡请求", "模块 4 的变速骨架片段及相邻动作端点"], output: ["整曲连续的动作序列"], next: "完整动作序列交给模块 6 渲染，同时可送入模块 8 评估整课能耗。", implementation: [], technicalDetails: [] },
   { id: 6, title: "Retarget 和数字人渲染", short: "数字人渲染", english: "RETARGET & RENDER", description: "根据 motion sequence 完成动作重定向与数字人渲染。", input: ["模块 5 的 motion sequence"], output: ["渲染好的视频"], next: "最终产出 · 数字人健身视频", implementation: [], technicalDetails: [] },
   { id: 7, title: "数据集构建", short: "数据集构建", english: "DATASET FOUNDATION", description: "从健身视频提取完整的原子动作周期，为徒手团操建立可检索的 SMPL-X 素材库。", input: ["公开健身、跳操视频"], output: ["配对的音乐与动作序列", "原子动作素材、语义描述与镜像或变式关系"], next: "素材库调用模块 8 补充能耗和肌群标签，供模块 2 选动作。下游按选定的 clip_id 读取骨架。", implementation: [], technicalDetails: [] },
-  { id: 8, title: "能量消耗计算", short: "能量消耗计算", english: "ENERGY EXPENDITURE", description: "为动作数据库提供能耗和主要锻炼肌群标签，并对生成的完整团操计算总能量消耗及各肌群能量消耗。", input: ["原子动作的 SMPL-X 序列", "生成的完整团操动作序列"], output: ["单段动作的原速能耗与主要锻炼肌群", "完整团操总能量消耗", "各肌群能量消耗"], next: "素材标签供模块 2 查库选动作，整课评估供课程结果展示。", implementation: [], technicalDetails: [], overviewMeta: "模块职责 · 两种调用场景；具体算法与技术实现待补充", overviewSections: [
-    { title: "单段动作的训练标签", paragraphs: ["模块 8 为素材提供原速能耗和主要锻炼肌群。模块 2 结合训练目标、动作语义与时长选定具体素材。"] },
-    { title: "02 · 计算完整团操的能量消耗", paragraphs: ["整个团操生成后，将最终动作序列交给模块 8，输出整节课程的总能量消耗和各肌群能量消耗。", "这里使用生成后的完整动作序列作为计算对象；具体计算方法、参数、计量单位与验证方式留待后续补充。"], code: "生成的完整团操 → 模块 8：能量消耗计算\n                      ├→ 总能量消耗\n                      └→ 各肌群能量消耗" }
-  ] }
+  {
+    id: 8, title: "能耗与锻炼肌群", short: "能耗与肌群", english: "ENERGY & MUSCLE GROUPS",
+    description: "在 MuJoCo 中用肌肉驱动模型跟踪动作，从同一段仿真记录估计能量消耗并识别主要锻炼肌群。",
+    input: ["单段原子动作或完整团操的 SMPL-X 序列"],
+    output: ["动作时段内的能量消耗估计", "主要锻炼肌群"],
+    next: "单段结果写入动作库，供模块 2 选动作；完整团操的结果用于课程评估。",
+    status: "当前版本", implementation: [], technicalDetails: []
+  }
 ];

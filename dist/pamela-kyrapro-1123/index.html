@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一、Pamela 结果 · FitGen</title><meta name="description" content="FitGen 2026年11月23日第四次汇报：Pamela 结果与 KyraPro 原子动作切分方法">
+<link rel="stylesheet" href="../workspace.css">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css"><link rel="stylesheet" href="report.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script><script defer src="../navigation.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<header class="reader-mast"><a class="brand" href="../index.html" aria-label="FitGen 首页"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FitGen</a><a class="return-link" href="../index.html#reports" data-return>返回 FitGen 主页</a><button type="button" class="reader-menu" aria-expanded="false" aria-controls="reader-index" hidden>目录</button></header>
+<aside class="sidebar" id="reader-index" aria-label="目录"><div class="sidebar-label">研究汇报 <span>/</span> 04</div><div class="sidebar-title">Pamela 与 KyraPro<br>原子动作切分</div>
+<nav aria-label="三大汇报模块"><a href="index.html" class="nav-item active" aria-current="page"><span class="nav-number">01</span><span>一、Pamela 结果</span><span class="nav-arrow">↗</span></a><a href="02.html" class="nav-item " ><span class="nav-number">02</span><span>二、KyraPro 旧版提取方法与问题</span><span class="nav-arrow">↗</span></a><a href="03.html" class="nav-item " ><span class="nav-number">03</span><span>三、KyraPro 新版方案</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header class="document-bar"><div>FitGen <span>/</span> 第四次汇报 <span>/</span> <b>一、Pamela 结果</b></div><div class="header-actions"><a href="原文.md" download>下载报告 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-1" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT · 2026.11.23</div>
+<div class="page-number">01 <span>/ 3</span></div><h1>一、Pamela 结果</h1><div class="title-rule"></div>
+<div class="prose"><p>日期：2026年11月23日</p>
+<p>主题：Pamela 合集处理与质检流程，以及 KyraPro 原子动作切分方法更新</p>
+<h3>汇报摘要</h3>
+<p>本次工作主要包括两部分：</p>
+<ol start="1"><li>完成 Pamela 合集的 segment 提取，并依次进行时长复核、异常 segment 重切、GVHMR 提取和 atom 数量检查；</li><li>分离并更新 KyraPro 专用原子动作切分脚本，解决局部重复、动作中间切分和周期过早结束等问题。</li></ol>
+<p>需要特别说明：Pamela 和 KyraPro 当前使用分开的原子动作切分脚本，两部分按各自的数据特点进行处理和检查。</p>
+<h3>Pamela 合集处理结果</h3>
+<h3>2.1 最终统计</h3>
+<p>目前 Pamela 合集主体处理已经完成。最终扫描结果如下：</p>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>数量</th></tr></thead><tbody><tr><td>集中归档的 Break/Rest segment</td><td>231 个</td></tr><tr><td>总 segment</td><td>6268 个</td></tr><tr><td>总 atom</td><td>6464 个</td></tr><tr><td>最终导出 preview.mp4</td><td>6464 个</td></tr><tr><td>最终导出 motion.glb</td><td>6464 个</td></tr></tbody></table></div>
+<p>汇报时可以这样概括：</p>
+<blockquote><p>Pamela 合集共处理 6268 个 segment，得到 6464 个 atom。Break/Rest 片段没有删除，而是统一移动到各自视频文件夹下的专用文件夹中集中保存，避免与正常动作片段混放。最终导出的 atom 均包含 preview.mp4 和 motion.glb 文件。</p></blockquote>
+<p>Break/Rest 片段只改变了存放位置，并未从数据中删除。后续如需复查，可以直接在对应视频文件夹下找到这些片段。</p>
+<h3>Pamela 遇到的问题和解决方案</h3>
+<h3>3.1 整体处理与质检顺序</h3>
+<p>Pamela 的处理不是直接对初次切出的 segment 运行人体运动提取，而是按以下顺序完成：</p>
+<ol start="1"><li>从原视频中提取 segment；</li><li>先检查每个 segment 的视频时长是否正确；</li><li>对时长不正确的 segment 回到原视频重新切分；</li><li>时长复核通过后，再进行 GVHMR 提取；</li><li>GVHMR 提取完成后，检查每个 segment 目录下生成的 atom 数量；</li><li>根据 atom 数量为 0、1、2、3、4、5 的不同情况进行进一步人工复核。</li></ol>
+<p>这里要强调的是，视频时长检查在 GVHMR 提取之前完成。这样可以避免把切分错误或异常过长的视频直接送入 GVHMR，并减少后续无效结果。</p>
+<h3>3.2 先按时长检查 segment，异常片段重新切分</h3>
+<p>Pamela 的单个动作 segment 大多在 40 秒以内，因此初步先通过视频时长判断切分结果是否合理。对于少数较长的 segment，不能只因为超过 40 秒就直接判错，而是进一步使用 OCR 识别画面中的倒计时，核对该动作是否确实持续了这么长时间。</p>
+<p>具体检查逻辑如下：</p>
+<ol start="1"><li>大多数 40 秒以内的 segment 按正常片段进入后续流程；</li><li>对较长的 segment 使用 OCR 读取倒计时，确认显示时长是否与 segment 实际时长一致；</li><li>如果时长不一致，说明原切分边界有问题，需要回到原视频重切；</li><li>重切后再次检查时长；</li><li>只有时长确认正确后，才进行 GVHMR 提取和后续 atom 切分。</li></ol>
+<p>相关脚本包括：</p>
+<pre><code>build_pamela_long_segment_resplit_plan.py
+resplit_pamela_long_overlay_segments.py
+build_pamela_over35_countdown_plan.py
+apply_pamela_over35_pipeline.py</code></pre>
+<p>OCR 在这里主要用于复核较长 segment 的倒计时和实际持续时间是否一致。最终仍需结合原视频确认边界，不能仅凭 OCR 结果判断。</p>
+<h3>3.3 BREAK 和 REST 片段的归档</h3>
+<p>部分 Pamela 视频在训练过程中包含 BREAK、REST、准备动作、镜头转场和动作结束停顿。这里没有删除这些视频 segment，而是将它们统一集中到每个视频文件夹下面的专用文件夹中，和正常动作 segment 分开存放。</p>
+<figure><button class="image-button" aria-label="放大image-20261123141113907"><img src="assets/image-20261123141113907.png" alt="image-20261123141113907"></button><figcaption>image-20261123141113907 · 点击放大</figcaption></figure>
+<p>明确处理过的典型视频包括：</p>
+<ol start="1"><li><code>Abs &amp; Core/034 - 15 MIN SIXPACK WORKOUT... [WuYv-5oTUhw]</code></li><li><code>Abs &amp; Core/041 - 10 MIN LOWER AB WORKOUT... [WJcA-yAvgP8]</code></li><li><code>Beginner Friendly/001 - 10 MIN BEGINNER AB WORKOUT... [1f8yoFFdkcY]</code></li></ol>
+<p>处理原则是区分真正的训练动作、休息段和转场段。Break/Rest 片段仍然保留，集中归档只是为了避免与正式动作混放，同时保留后续复查所需的原始证据。</p>
+<h3>3.4 GVHMR 提取后按 atom 数量复核</h3>
+<p>GVHMR 提取完成后，逐一检查每个 segment 目录下是否生成 atom。正常情况下，每个 segment 应该对应一个 atom，但实际检查发现 atom 数量出现 0、1、2、3、4、5 等不同情况，因此不能只按“有无输出”做判断。</p>
+<ul><li>atom=1：通常符合一个 segment 对应一个动作的预期；</li><li>atom=3：逐一检查；atom=2：抽选部分片段检查，确认是否是动作变化导致的合理切分；</li><li>atom=4 或 atom=5：数量较少，逐一检查后发现这些内容都是教学视频，不是带倒计时的跳操动作，因此清除；</li><li>atom=0：逐一检查并按具体原因归类，见下节。</li></ul>
+<p>对 atom=3 的 segment 做了逐一检查，并抽选 atom=2 的 segment 进行复核。检查发现切分器对动作变化比较敏锐，即使属于同一种动作，微小变化也可能触发再次切分。这类结果经过检查后是合理的，因此予以保留。</p>
+<h3>3.5 atom=0 的原因分类</h3>
+<p>有些动作本身是保持一个姿势，例如平板支撑、静态腹部收紧、保持抬腿和瑜伽保持动作。这类动作没有明显的“做完一次，再做一次”的重复过程，传统周期检测可能给出 atom=0。</p>
+<figure><button class="image-button" aria-label="放大image-20261123141417661"><img src="assets/image-20261123141417661.png" alt="image-20261123141417661"></button><figcaption>image-20261123141417661 · 点击放大</figcaption></figure>
+<p>典型例子：</p>
+<pre><code>Abs &amp; Core/001 ... [l2AHpn2i7_Y]/segment_009</code></pre>
+<p>Pamela 中 atom=0 的片段经检查主要属于以下几类：</p>
+<ol start="1"><li><strong>虚化没有扫完</strong>：视频中的虚化/遮挡处理尚未完整覆盖，导致有效动作信息不足；</li><li><strong>静态 hold 动作</strong>：动作是保持姿势，找不到可重复的周期；</li><li><strong>OCR 没有切分出来</strong>：倒计时未被 OCR 识别，导致多个动作连成过长视频，视频过长后无法提取出对应的 GVHMR/atom。</li></ol>
+<p>因此，atom=0 不能简单理解为“没有动作”，而要结合视频切分、画面质量和动作类型判断具体原因。对于因 OCR 漏切导致过长的片段，优先回到原视频重新切分；对于静态 hold，则按其动作特征单独评估；对于虚化未扫完的片段，则记录为预处理质量问题。</p>
+<h3>3.6 躯干不动，但四肢有规律运动</h3>
+<p>旧逻辑比较重视躯干、骨盆和整体姿态。如果躯干基本不动，但手臂或腿部在规律运动，就可能被错误判断成没有重复动作。</p>
+<figure><button class="image-button" aria-label="放大image-20261123141609749"><img src="assets/image-20261123141609749.png" alt="image-20261123141609749"></button><figcaption>image-20261123141609749 · 点击放大</figcaption></figure>
+<p>典型视频：</p>
+<pre><code>Abs &amp; Core/006 - 10 MIN SOCKS WORKOUT ... [Dxf_Pv7t7Dk]</code></pre>
+<p>用户确认 segment_002、003、004 都存在持续重复的四肢动作，但旧脚本没有正确切出。</p>
+<p>解决方法：</p>
+<ul><li>提高对手、脚、脚掌等关节的权重；</li><li>不只比较躯干；</li><li>支持 upper_body、lower_body 等局部身体范围；</li><li>如果全身变化不明显，但有效身体部位重复明显，则按局部身体范围恢复完整周期。</li></ul>
+<p>因此，“身体不动”不能只看躯干。对四肢训练，真正有规律的可能是手臂或腿部。</p>
+<h3>3.7 Pamela 部分总结</h3>
+<p>Pamela 的关键流程是：segment 提取完成后，先检查视频时长；大多数片段应在 40 秒以内，较长片段使用 OCR 识别倒计时并复核实际时长；时长不正确的先重切，确认无误后再做 GVHMR 提取；提取完成后，再检查每个 segment 目录下的 atom 数量。</p>
+<p>正常情况是一个 segment 对应一个 atom。对少量 atom=4 或 5 的片段逐一检查后，确认其为教学内容而不是带倒计时的跳操，因此清除；atom=3 的片段逐一检查、atom=2 的片段抽样检查后，发现切分器会对同类动作中的细微变化作出较敏锐的切分，这些结果予以保留；atom=0 则主要来自虚化未扫完、静态 hold 找不到周期，以及 OCR 漏切造成视频过长并进一步导致 GVHMR/atom 无法提取。Break/Rest segment 没有删除，而是集中归档到每个视频文件夹下的专用文件夹中。</p></div><footer class="page-navigation" aria-label="翻页"><span></span><a class="next" href="02.html"><small>下一页 →</small><span>二、KyraPro 旧版提取方法与问题</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-11-23 第 04 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

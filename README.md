@@ -1,8 +1,10 @@
 # FitGen
 
-FitGen 项目主页、模块路线图与研究汇报。该仓库用于 GitHub 私有协作，确认修改后由站点所有者发布到现有 Sites。
+FitGen 项目主页、模块路线图与研究汇报。通过 GitHub 协作，合并到 `main` 后自动构建、检查并发布到 GitHub Pages。
 
-线上地址：[FitGen](https://fitgen-roadmap.fafafalalaa1.chatgpt.site)
+GitHub Pages：[FitGen](https://albus-y.github.io/fitgen-web/)
+
+现有 Sites 地址：[FitGen Sites](https://fitgen-roadmap.fafafalalaa1.chatgpt.site)
 
 ## 本地浏览与检查
 
@@ -21,7 +23,7 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist
 ## 项目结构
 
 ```text
-dist/                         网站文件，也是 Sites 的静态发布目录
+dist/                         网站文件，也是 GitHub Pages 与 Sites 的静态发布目录
   index.html                  主页、路线图与汇报入口
   modules.js                  模块职责、输入、输出与流向
   module1-details.js          音乐分析说明
@@ -38,6 +40,7 @@ templates/opensim-note.html   四页汇报共用的页面模板
 scripts/build.py             从 Markdown 与模板生成汇报 HTML
 scripts/check.py             检查本地链接和媒体分片
 scripts/export_muscle_demo.py 从已有仿真归档导出肌骨回放
+.github/workflows/pages.yml   构建检查与 GitHub Pages 自动发布
 .openai/hosting.json          现有 FitGen Site 的项目绑定
 AGENTS.md                    面向协作者与编码助手的约定
 ```
@@ -53,9 +56,17 @@ AGENTS.md                    面向协作者与编码助手的约定
 1. 从 GitHub 拉取最新 `main`，为本次修改创建独立分支。
 2. 修改内容，运行生成与检查命令，进行本地预览。
 3. 提交修改并发起 Pull Request，由另一位协作者检查后合并。
-4. 发布负责人同步最新 `main`，通过 Sites 发布到现有网址。
+4. 合并到 `main` 后，GitHub Actions 自动检查并发布到 GitHub Pages；如需同步现有 Sites，由发布负责人单独操作。
 
 所有正式修改都先进入 GitHub，包括通过 ChatGPT 或 Codex 完成的修改。合作者可以使用自己的账号修改本地代码，无需获得原 Site 的编辑权限。
+
+## 发布到 GitHub Pages
+
+仓库的 Settings → Pages → Build and deployment → Source 使用 `GitHub Actions`。
+
+`.github/workflows/pages.yml` 在 Pull Request 中运行构建与资源检查；推送到 `main` 后，检查通过即上传 `dist/` 并发布。也可从 Actions 页面手动运行，只有 `main` 分支会执行发布。
+
+网站完全使用静态资源：音乐 Demo 展示预先分析的四首音乐，肌骨回放读取预先导出的数据，DTW 当前为制作中占位页。网页运行不需要后端接口或计算服务器。
 
 ## 发布到现有 Sites
 
@@ -65,7 +76,7 @@ AGENTS.md                    面向协作者与编码助手的约定
 
 > 将这个仓库最新 main 的内容发布到现有 FitGen Site。先核对 GitHub 与 Sites 源码历史，运行本地生成和检查，保留原 project_id、网址和访问设置。
 
-Sites 的发布流程包括同步到 Sites 自带的源码仓库、打包、保存版本和部署。仅推送到 GitHub不会自动更新线上页面。若 Sites 源码发生了独立修改，应先合并回 GitHub，再继续发布；不使用强制推送覆盖另一边的修改。
+Sites 的发布流程包括同步到 Sites 自带的源码仓库、打包、保存版本和部署。推送到 GitHub 会自动更新 GitHub Pages，但不会自动更新 Sites 地址。若 Sites 源码发生了独立修改，应先合并回 GitHub，再继续发布；不使用强制推送覆盖另一边的修改。
 
 发布过程如果产生新的源码提交，也应同步回 GitHub，使两边的历史能继续合并。发布工具由 Sites 插件提供，本仓库不包含其短期凭证。
 
@@ -75,7 +86,7 @@ Sites 的发布流程包括同步到 Sites 自带的源码仓库、打包、保�
 
 当前项目包含网站展示、交互代码、笔记与静态资源。页面描述的音乐分析、DTW、物理仿真等服务器算法源码不在这个网站仓库内。
 
-保留已有第三方资源的许可证。仓库拟用于私有协作，没有在本次整理中新增开源授权。
+保留已有第三方资源的许可证。仓库公开展示不代表新增开源授权。
 
 ## 肌骨回放数据更新
 

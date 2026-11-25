@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>三、KyraPro 新版方案 · FitGen</title><meta name="description" content="FitGen 2026年11月23日第四次汇报：Pamela 结果与 KyraPro 原子动作切分方法">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css"><link rel="stylesheet" href="report.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 04</div><div class="sidebar-title">Pamela 与 KyraPro<br>原子动作切分</div>
+<nav aria-label="三大汇报模块"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>一、Pamela 结果</span><span class="nav-arrow">↗</span></a><a href="02.html" class="nav-item " ><span class="nav-number">02</span><span>二、KyraPro 旧版提取方法与问题</span><span class="nav-arrow">↗</span></a><a href="03.html" class="nav-item active" aria-current="page"><span class="nav-number">03</span><span>三、KyraPro 新版方案</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 第四次汇报 <span>/</span> <b>三、KyraPro 新版方案</b></div><div class="header-actions"><a href="原文.md" download>下载报告 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-3" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT · 2026.11.23</div>
+<div class="page-number">03 <span>/ 3</span></div><h1>三、KyraPro 新版方案</h1><div class="title-rule"></div>
+<div class="module-kicker">MODULE 03</div><div class="prose"><h3>5.1 核心思想</h3>
+<p>新版的核心原则是：</p>
+<blockquote><p>局部重复只能作为内部阶段证据，不能直接决定最终 atom。</p></blockquote>
+<p>具体来说：</p>
+<ul><li>局部重复可以帮助发现候选周期；</li><li>最终必须检查整个动作是否完整；</li><li>KyraPro 预切 segment 默认最多输出一个完整 atom；</li><li>不再因为两个局部重复就递归导出两个不完整 atom；</li><li>只有相邻短块确实属于不同动作阶段时，才允许合并成长周期。</li></ul>
+<h3>5.2 新版特征构造</h3>
+<p>新版从 GLB 中恢复：</p>
+<ol start="1"><li>每个关节的世界坐标；</li><li>相对于骨盆的局部位置；</li><li>每个关节的旋转方向；</li><li>关节速度；</li><li>骨盆位置；</li><li>骨盆三轴速度。</li></ol>
+<p>为了让不同视频可以比较：</p>
+<ul><li>去掉绝对世界位置；</li><li>保留人体相对于骨盆的姿态；</li><li>保留骨盆上下、前后、左右运动；</li><li>对动作做轻微平滑；</li><li>对手、脚和脚掌增加权重。</li></ul>
+<p>这样，如果两个人所在房间位置不同，程序不会因为绝对坐标不同就认为动作完全不同；但如果动作方向、骨盆路径和四肢运动不同，程序仍然能够区分。</p>
+<h3>5.3 新版周期判断步骤</h3>
+<h4>第一步：寻找候选重复间隔</h4>
+<p>测试大约 1 到 16 秒范围内的不同时间间隔，观察：</p>
+<ul><li>姿态是否相似；</li><li>速度方向是否相似；</li><li>骨盆运动是否相似；</li><li>手脚动作是否相似。</li></ul>
+<h4>第二步：局部重复只作为候选</h4>
+<p>发现局部相似后，先记录为候选，不立即导出 atom。</p>
+<h4>第三步：检查动作阶段是否完整</h4>
+<p>检查候选周期是否经过完整阶段，例如：</p>
+<pre><code>准备 → 开始运动 → 中间阶段 → 动作完成 → 下一轮起点</code></pre>
+<p>如果只有“动作进行—中间姿态—动作进行”，就不能确认是完整周期。</p>
+<h4>第四步：检查边界前后的运动方向</h4>
+<p>边界不再只看两帧姿态是否相似，还要看：</p>
+<ul><li>边界前是否正在完成上一轮最后阶段；</li><li>边界后是否进入下一轮第一阶段；</li><li>运动方向是否连续；</li><li>速度是否与下一周期开头一致；</li><li>骨盆是否完成下蹲—起身等完整路径。</li></ul>
+<h4>第五步：DTW 作为辅助评分</h4>
+<p>DTW 用于处理动作速度不同，而不是单独决定周期边界。现在综合考虑：</p>
+<ul><li>周期是否完整；</li><li>动作阶段顺序是否完整；</li><li>边界方向是否正确；</li><li>骨盆路径是否闭合；</li><li>DTW 质量是否达标；</li><li>候选长度是否合理。</li></ul>
+<p>如果多个候选的 DTW 质量接近，优先选择阶段更完整、边界更合理的候选，而不是简单选择最短或最早结束的候选。</p></div><footer class="page-navigation" aria-label="翻页"><a href="02.html"><small>← 上一页</small><span>二、KyraPro 旧版提取方法与问题</span></a><a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-11-23 第 04 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

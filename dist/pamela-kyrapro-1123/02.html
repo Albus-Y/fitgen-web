@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>二、KyraPro 旧版提取方法与问题 · FitGen</title><meta name="description" content="FitGen 2026年11月23日第四次汇报：Pamela 结果与 KyraPro 原子动作切分方法">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css"><link rel="stylesheet" href="../opensim-note/style.css"><link rel="stylesheet" href="report.css">
+<script defer src="../vendor/katex/katex.min.js"></script><script defer src="../vendor/katex/contrib/auto-render.min.js"></script><script defer src="../opensim-note/app.js"></script></head>
+<body><a class="skip-link" href="#content">跳至正文</a>
+<aside class="sidebar"><a href="../index.html" class="brand"><span class="brand-mark">F<span>↗</span></span>FitGen<span class="brand-dot"></span></a>
+<a class="home-link" href="../index.html#reports">← 返回 FitGen 主页</a><div class="sidebar-label">研究汇报 <span>/</span> 04</div><div class="sidebar-title">Pamela 与 KyraPro<br>原子动作切分</div>
+<nav aria-label="三大汇报模块"><a href="index.html" class="nav-item " ><span class="nav-number">01</span><span>一、Pamela 结果</span><span class="nav-arrow">↗</span></a><a href="02.html" class="nav-item active" aria-current="page"><span class="nav-number">02</span><span>二、KyraPro 旧版提取方法与问题</span><span class="nav-arrow">↗</span></a><a href="03.html" class="nav-item " ><span class="nav-number">03</span><span>三、KyraPro 新版方案</span><span class="nav-arrow">↗</span></a></nav><div class="sidebar-bottom"><span class="status-dot"></span> 数据构建与动作质量控制</div></aside>
+<main><header><div>FitGen <span>/</span> 第四次汇报 <span>/</span> <b>二、KyraPro 旧版提取方法与问题</b></div><div class="header-actions"><a href="原文.md" download>下载报告 ↓</a><button id="print-button" type="button">打印</button></div></header>
+<article class="page page-2" id="content"><div class="eyebrow"><span></span> FITGEN <i>/</i> RESEARCH REPORT · 2026.11.23</div>
+<div class="page-number">02 <span>/ 3</span></div><h1>二、KyraPro 旧版提取方法与问题</h1><div class="title-rule"></div>
+<div class="module-kicker">MODULE 02</div><div class="prose"><h3>4.1 流程目标</h3>
+<p>旧版 KyraPro 的核心任务不是简单比较两个视频画面是否相似，而是先把每个视频 <code>segment</code> 转换成随时间变化的三维人体运动轨迹，再从运动轨迹中寻找重复出现的完整动作单元，并将这些动作单元导出为 <code>atom</code>。</p>
+<p>整个流程可以概括为：</p>
+<pre><code>segment 视频及其 GLB
+        ↓
+恢复逐帧三维人体骨骼
+        ↓
+位置、尺度和朝向标准化
+        ↓
+构造逐帧动作特征
+        ↓
+计算姿态相似度和时间重复关系
+        ↓
+使用 DTW 验证变速情况下的重复动作
+        ↓
+确定动作周期和切分边界
+        ↓
+导出 atom
+        ↓
+通过 catalog 跨视频聚类、合并和去重</code></pre>
+<h3>4.2 读取每个 segment 对应的 GLB</h3>
+<p>每个视频 <code>segment</code> 通常对应一个 GLB 人体动画文件。视频提供可视画面，GLB 则提供随时间变化的三维人体骨骼信息。</p>
+<p>程序首先从 GLB 中读取：</p>
+<ul><li>骨骼节点名称；</li><li>骨骼之间的父子层级；</li><li>每个节点的局部平移、旋转和缩放；</li><li>动画通道及关键帧；</li><li>动画时间戳、帧率和总时长；</li><li>根节点、骨盆、脊柱、四肢等关键骨骼的映射关系。</li></ul>
+<p>GLB 一般不会直接保存所有关节在世界坐标系中的最终位置，而是保存每个骨骼相对于父骨骼的局部变换。例如：</p>
+<pre><code>root
+├── pelvis
+│   ├── spine
+│   │   ├── neck
+│   │   │   └── head
+│   │   ├── left_shoulder
+│   │   │   └── left_elbow
+│   │   │       └── left_wrist
+│   │   └── right_shoulder
+│   ├── left_hip
+│   │   └── left_knee
+│   │       └── left_ankle
+│   └── right_hip</code></pre>
+<p>因此，要得到某一帧中手腕的世界坐标，不能只读取手腕自身的局部变换，而要沿着骨骼层级依次累积：</p>
+<pre><code>root 世界变换
+× pelvis 局部变换
+× spine 局部变换
+× shoulder 局部变换
+× elbow 局部变换
+× wrist 局部变换</code></pre>
+<p>对于第 <code>t</code> 帧和关节 <code>j</code>，最终恢复出三维坐标：</p>
+<pre><code>P(t, j) = (x, y, z)</code></pre>
+<p>整个 segment 随后被表示成一段三维骨骼时间序列：</p>
+<pre><code>第 1 帧：所有关节的三维位置
+第 2 帧：所有关节的三维位置
+……
+第 N 帧：所有关节的三维位置</code></pre>
+<p>这一步把原本依赖外观、背景和服装的视频，转换成主要描述人体运动的结构化数据。</p>
+<h3>4.3 骨骼标准化与数据清理</h3>
+<h4>4.3.1 消除整体平移</h4>
+<p>通常以骨盆或根节点为相对坐标原点，将每个关节的位置减去同一帧的骨盆位置：</p>
+<pre><code>P_relative(t, j) = P(t, j) - P(t, pelvis)</code></pre>
+<p>这样比较的是人物身体内部各关节之间的相对关系，而不是人物站在房间的哪个位置。</p>
+<p>在部分需要保留全身位移信息的动作中，例如侧向移动或跳跃，还可以将“身体局部姿态”和“根节点运动”分开保存：局部姿态用于判断动作结构，根节点轨迹用于判断整体移动方式。</p>
+<h3>4.4 将骨骼序列转换为动作特征</h3>
+<p>单独比较关节位置并不足以完整描述动作。很多动作的关键在于“姿态如何随时间变化”，而不只是某一帧处于什么姿势。</p>
+<p>因此，KyraPro 会把每一帧转换成一个综合动作特征向量。</p>
+<h4>4.4.1 关节相对位置</h4>
+<p>记录标准化后<strong>各关节相对于骨盆或身体中心的位置，用来描述当前人体姿态</strong>。</p>
+<h4>4.4.2 相邻帧位移和速度</h4>
+<p>对每个关节计算相邻帧之间的位移：</p>
+<pre><code>ΔP(t, j) = P(t, j) - P(t-1, j)</code></pre>
+<p>进一步除以时间间隔，可以得到近似速度：</p>
+<pre><code>V(t, j) = ΔP(t, j) / Δt</code></pre>
+<p><strong>速度方向可以判断手脚正在抬起还是落下；速度大小可以区分明显运动、短暂停顿和静态保持。</strong></p>
+<h4>4.4.3 关节角度</h4>
+<p>位置容易受整体尺度和视角影响，<strong>关节角度更适合描述局部动作结构</strong>，例如：</p>
+<ul><li>膝关节弯曲程度；</li><li>肘关节弯曲程度；</li><li>髋关节屈伸或外展；</li><li>躯干与大腿之间的夹角；</li><li>上臂与躯干之间的夹角；</li><li>肩部、骨盆和躯干的旋转程度。</li></ul>
+<p>对于由三个关节 <code>A-B-C</code> 构成的关节角，可以通过向量 <code>BA</code> 和 <code>BC</code> 的夹角计算。</p>
+<h4>4.4.4 身体部位的局部运动特征</h4>
+<p>为了避免与目标动作无关的局部运动干扰周期判断，可以把骨骼划分为：</p>
+<ul><li>头部和颈部；</li><li>躯干；</li><li>左臂和右臂；</li><li>左腿和右腿；</li><li>骨盆和核心区域。</li></ul>
+<p>程序可以分别计算各个身体部位的运动能量（是用骨骼关节在一段时间内移动了多少来衡量某个身体部位的活跃程度）、幅度和周期强度。例如，开合腿动作主要关注双腿开闭，上肢即使存在不规则摆动，也不应该完全破坏腿部周期的识别。</p>
+<h4>4.4.5 帧级动作向量</h4>
+<p>最终，第 <code>t</code> 帧可以表示为：</p>
+<pre><code>F(t) = [
+  关节相对位置，
+  关节速度和运动方向，
+  关键关节角度，
+  各身体部位的运动幅度，
+  根节点运动，
+  其他姿态或质量特征
+]</code></pre>
+<p>整个 segment 由此变成高维动作时间序列：</p>
+<pre><code>F(1), F(2), F(3), …, F(N)</code></pre>
+<h3>4.5 分析动作变化趋势</h3>
+<p>周期动作通常会经历一组有顺序的阶段。例如，一个深蹲周期大致是：</p>
+<pre><code>站立
+→ 身体下降
+→ 到达最低点
+→ 身体上升
+→ 回到站立</code></pre>
+<p>程序会观察以下变化：</p>
+<ul><li><strong>关节位移和速度的大小；</strong></li><li><strong>运动方向何时发生反转；</strong></li><li><strong>关节角度处于增大还是减小；</strong></li><li><strong>左右肢体是否同步或交替；</strong></li><li><strong>身体是否回到与周期开始时相似的状态；</strong></li><li><strong>某个身体部位是否持续承担主要运动。</strong></li></ul>
+<p>可以把相邻帧的特征变化写成：</p>
+<pre><code>M(t) = F(t) - F(t-1)</code></pre>
+<p>这类<strong>动态信息</strong>有助于区分以下内容：</p>
+<ul><li>正式、稳定的重复动作；</li><li>进入动作前的一次性准备；</li><li>动作结束后的放松；</li><li>两个动作之间的过渡；</li><li>骨骼重建产生的小幅抖动。</li></ul>
+<p>两个时间点即使姿态相似，如果一个正在向下运动、另一个正在向上运动，它们在动作阶段上也不完全相同。因此，可靠的周期判断通常需要同时比较静态姿态和动态方向。</p>
+<h3>4.6 构造姿态相似度矩阵</h3>
+<p>得到整段动作特征后，程序<strong>会比较任意两个时间点之间的姿态或动作状态是否相似。</strong></p>
+<p>设第 <code>i</code> 帧和第 <code>j</code> 帧的特征分别为 <code>F(i)</code> 和 <code>F(j)</code>，可以定义加权距离：</p>
+<pre><code>D(i, j) = distance(F(i), F(j))</code></pre>
+<p>距离可以综合关节位置差、角度差、速度差和不同身体部位的权重。距离越小，表示两个时间点的动作状态越接近。</p>
+<p>也可以把距离转换成相似度：</p>
+<pre><code>S(i, j) = exp(-D(i, j) / σ)</code></pre>
+<p>由此得到二维自相似矩阵：</p>
+<pre><code>              时间 j →
+时间 i ↓   S(i, j)</code></pre>
+<p><strong>矩阵主对角线表示每一帧与自身比较，必然高度相似。</strong>真正有价值的是远离主对角线的高相似区域：它们说明动作在之后的某个时间再次经过了相似状态。</p>
+<p>如果动作具有稳定周期，相似度矩阵中通常会出现与主对角线平行的斜线结构。例如：</p>
+<pre><code>第 100 帧附近的一段动作 ≈ 第 180 帧附近的一段动作
+第 180 帧附近的一段动作 ≈ 第 260 帧附近的一段动作</code></pre>
+<p>这说明动作大约每 80 帧重复一次。观察连续斜线比只比较两个孤立帧更可靠，因为连续斜线代表一整段动作过程都能够相互对应。</p>
+<h3>4.7 根据时间间隔寻找候选周期</h3>
+<p>对于某个候选时间间隔 <code>τ</code>，程序将动作序列与其向后平移 <code>τ</code> 后的序列进行比较：</p>
+<pre><code>F(t) 与 F(t+τ)</code></pre>
+<p>如果在较长区间内，大量时间点都满足二者相似，那么 <code>τ</code> 可能对应一个动作周期。</p>
+<p>程序可以为每个时间间隔计算重复得分：</p>
+<pre><code>recurrence(τ)</code></pre>
+<p>其含义是：将动作整体错开 <code>τ</code> 秒之后，前后两段在多大程度上仍能对齐。</p>
+<p>候选周期不能只取最高峰，因为还存在以下歧义：</p>
+<ul><li>两个周期的长度也会产生高相似度；</li><li>半周期姿态可能相似，但运动方向相反；</li><li>左右交替动作可能需要两个局部重复才回到完全相同的状态；</li><li>静态片段会让多个时间间隔都显得高度相似；</li><li>动作速度逐渐变化时，固定间隔的相似得分会下降。</li></ul>
+<p>因此，这一阶段通常会保留多个候选周期，再交给后面的局部序列对齐和完整性检查。</p>
+<h3>4.8 使用 DTW 处理动作速度变化</h3>
+<p>DTW 是 Dynamic Time Warping，即动态时间规整。它解决的是“动作结构相同，但执行速度不完全一致”的问题。</p>
+<p>例如同一个人连续做三次深蹲：</p>
+<pre><code>第 1 次：3.8 秒
+第 2 次：4.2 秒
+第 3 次：4.0 秒</code></pre>
+<p>如果强制逐帧比较，第一个周期的第 20 帧不一定和第二个周期的第 20 帧处于相同动作阶段。DTW 允许在时间轴上局部拉伸或压缩，使得：</p>
+<pre><code>第一段第 10 帧 ↔ 第二段第 12 帧
+第一段第 11 帧 ↔ 第二段第 13 帧
+第一段第 12 帧 ↔ 第二段第 13 或 14 帧</code></pre>
+<p>给定两个候选动作序列：</p>
+<pre><code>A = A1, A2, …, An
+B = B1, B2, …, Bm</code></pre>
+<p>DTW 会先计算任意 <code>Ai</code> 和 <code>Bj</code> 之间的局部代价，然后寻找一条从矩阵左上角到右下角的累计代价最小路径。路径可以执行：</p>
+<ul><li>两个序列同时向前推进；</li><li>第一段推进而第二段暂时停留；</li><li>第二段推进而第一段暂时停留。</li></ul>
+<p>这样可以容忍某个动作阶段稍快、某个阶段稍慢，但仍要求整体动作阶段以相同顺序出现。</p>
+<p>在 KyraPro 中，DTW 主要用于：</p>
+<ol start="1"><li>验证两个候选区间是否具有相同的动作结构；</li><li>在动作速度变化时优化周期边界；</li><li>排除只有个别相似姿态、但完整过程不同的假周期；</li><li>比较不同视频中的同类动作实例。</li></ol>
+<p>DTW 距离较低表示两段动作经过时间规整后比较相似，但不能单独作为最终结论。还需要结合动作幅度、重复次数、身体部位和区间完整性进行判断。</p>
+<h3>4.9 生成并验证动作周期候选</h3>
+<p>综合姿态相似度、时间间隔得分和 DTW 对齐结果后，程序会生成一个或多个候选周期。每个候选通常包含：</p>
+<ul><li>开始帧和结束帧；</li><li>开始时间和结束时间；</li><li>估计周期长度；</li><li>可匹配的重复次数；</li><li>平均姿态相似度；</li><li>DTW 距离；</li><li>主要运动身体部位；</li><li>动作幅度；</li><li>候选置信度。</li></ul>
+<p>例如：</p>
+<pre><code>开始时间：25.0 秒
+结束时间：29.1 秒
+周期长度：4.1 秒
+可重复匹配次数：4
+主要运动部位：躯干、髋部
+DTW 距离：低
+候选置信度：高</code></pre>
+<p>程序还会执行以下检查：</p>
+<ul><li>周期长度是否处于合理范围；</li><li>是否存在至少两次或更多次稳定重复；</li><li>周期开始和结束是否处于相似动作阶段；</li><li>多个周期的动作顺序是否一致；</li><li>主要身体部位是否具有足够运动幅度；</li><li>候选是否只是短时噪声或关节抖动；</li><li>边界是否落在动作中间；</li><li>区间是否混入休息、转身或动作切换。</li></ul>
+<h4>4.9.1 准备动作和过渡动作</h4>
+<p>视频开头常包含进入动作姿势的准备过程。准备动作通常只发生一次，无法与后续多个周期稳定对应。因此可以从视频后部较稳定的重复区间向前反推周期，避免把开头的准备过程当作 atom 主体。</p>
+<h4>4.9.2 左右交替动作</h4>
+<p>对于左右交替动作，需要明确“半周期”和“完整周期”的定义。例如右腿一次、左腿一次可能共同构成完整周期；也可能根据动作语义分别作为两个镜像单元。判断时需要结合运动对称性、动作名称和后续 catalog 规则。</p>
+<h4>4.9.3 静态保持动作</h4>
+<p>静态保持没有明显的往复周期，但仍可能是有效动作，例如平板支撑或某些拉伸姿势。此时可以寻找中间姿态稳定、骨骼质量较高的连续区间，从中截取代表性的一到两秒，或按项目规则保留整段稳定动作。</p>
+<p>静态保持需要与以下情况区分：</p>
+<ul><li>无规律的准备过程；</li><li>动作之间的休息；</li><li>人物离场或重建失败；</li><li>只有背景、文字或模糊画面的无效段。</li></ul>
+<h3>4.10 确定边界并导出 atom</h3>
+<p>通过验证的动作周期或稳定保持区间会被导出为 <code>atom</code>。atom 是一个尽量完整、可独立理解和复用的最小动作单元。</p>
+<p>每个 atom 可以包含：</p>
+<ul><li>对应的视频片段；</li><li>对应的 GLB 骨骼片段或逐帧姿态序列；</li><li>来源视频和来源 segment；</li><li>起止帧、起止时间和持续时长；</li><li>周期长度及重复关系；</li><li>动作置信度和质量分数；</li><li>主要运动身体部位；</li><li>OCR 识别出的动作名称；</li><li>倒计时、Break 等辅助标注。</li></ul>
+<p>目录形式可能表现为：</p>
+<pre><code>segment_017/
+├── atom_001/
+├── atom_002/
+└── atom_003/</code></pre>
+<p>边界选择应尽量满足：</p>
+<ul><li>周期动作从一个明确姿态开始，并在相同动作阶段结束；</li><li>不把完成一半的动作截断；</li><li>不把较长的准备、休息和过渡过程并入 atom；</li><li>对静态动作选择中间稳定且骨骼质量较高的区间；</li><li>避免文字切换、视频虚化和人物重建失败的画面；</li><li>必要时保留少量边界余量，防止动作首尾信息丢失。</li></ul>
+<p>如果 segment 中连续重复的是同一种动作，可以导出多个重复实例，也可以按照数据集目标只选择一个质量最高的标准周期。前者可以增加样本数量，后者可以减少重复数据。</p>
+<h3>4.11 catalog：跨视频动作合并与去重</h3>
+<p>前面的步骤解决的是“在单个 segment 中找出动作单元”。catalog 解决的是“不同视频里的 atom 是否属于同一种动作”。</p>
+<p>同一种动作在不同视频里可能具有以下差异：</p>
+<ul><li>执行速度不同；</li><li>动作幅度不同；</li><li>人物朝向不同；</li><li>左右方向相反；</li></ul>
+<p>catalog 会为每个 atom 保存统一索引，例如：</p>
+<pre><code>atom_id
+source_video
+source_segment
+source_time_range
+motion_features 或 motion_embedding
+body_part
+action_label</code></pre>
+<p>随后综合以下证据比较不同 atom：</p>
+<ul><li>标准化后的三维骨骼轨迹；</li><li>关键关节角度变化；</li><li>主要身体部位的运动模式；</li><li>DTW 对齐距离；</li><li>动作方向和左右对称关系；</li></ul>
+<p>如果多个 atom 的运动结构足够接近，就可以归入同一动作类别：</p>
+<pre><code>Bicycle Crunch
+├── 视频 A / segment_004 / atom_001
+├── 视频 B / segment_017 / atom_002
+└── 视频 C / segment_009 / atom_001</code></pre>
+<p>“合并和去重”不一定意味着删除所有重复文件。更准确地说，它包括：</p>
+<ol start="1"><li>为同类动作建立统一类别；</li><li>将不同视频实例关联到同一动作条目；</li><li>去掉完全重复或明显低质量的样本；</li><li>保留速度、难度、方向和幅度不同的有效变体；</li><li>防止只因准备姿势相似而错误合并两个不同动作；</li><li>为动作检索、训练和生成建立标准化索引。</li></ol>
+<p>因此，单 segment 周期检测回答“这个视频片段里重复了什么”，catalog 则回答“整个数据集中哪些 atom 本质上是同一种动作”。</p>
+<h3>4.12 常见误检及其原因</h3>
+<p>把准备动作识别为周期</p>
+<p>原因是开头姿态与后续某个姿态偶然相似。解决思路是要求候选至少稳定重复多次，并优先从后部稳定区间反向确定边界。</p>
+<p>把半周期当作完整周期</p>
+<p>左右肢体交替或动作上下行阶段可能产生相似姿态。应同时比较运动方向，并明确动作语义上的完整单元。</p>
+<p>上肢不规则运动干扰腿部周期</p>
+<p>如果所有关节使用相同权重，局部无关运动可能降低整体相似度。可以按身体部位分别检测周期，再识别主要运动区域。</p>
+<p>静态保持被判断为没有动作</p>
+<p>静态动作的速度很低，无法依靠周期峰值识别。需要单独检测姿态稳定区间。</p>
+<p>动作速度变化导致漏检</p>
+<p>固定帧差比较无法适应每次重复时长不同。DTW 可以容忍局部时间拉伸，但仍需限制过度扭曲，防止把不同动作强行对齐。</p></div><footer class="page-navigation" aria-label="翻页"><a href="index.html"><small>← 上一页</small><span>一、Pamela 结果</span></a><a class="next" href="03.html"><small>下一页 →</small><span>三、KyraPro 新版方案</span></a></footer></article>
+<div class="document-footer">FITGEN <span>·</span> 2026-11-23 第 04 次汇报</div></main>
+<dialog id="image-dialog" aria-label="图片放大预览"><button id="close-dialog" aria-label="关闭图片预览">关闭 ×</button><img alt=""></dialog></body></html>

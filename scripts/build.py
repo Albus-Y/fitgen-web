@@ -11,6 +11,8 @@ CONTENT = REPO / 'content' / 'opensim-note'
 ROOT = REPO / 'dist' / 'opensim-note'
 SECOND_CONTENT = REPO / 'content' / 'pamela-kyrapro' / 'index.md'
 SECOND_ROOT = REPO / 'dist' / 'pamela-kyrapro-report'
+FOURTH_CONTENT = REPO / 'content' / 'pamela-kyrapro-1123' / 'index.md'
+FOURTH_ROOT = REPO / 'dist' / 'pamela-kyrapro-1123'
 ATOMIC_CONTENT = REPO / 'content' / 'atomic-report-1102'
 ATOMIC_ROOT = REPO / 'dist' / 'atomic-report-1102'
 image_files = json.loads((CONTENT / 'images.json').read_text(encoding='utf-8'))
@@ -66,6 +68,13 @@ def render_markdown(md, image_prefix='assets/'):
             # 源文第三级标题在独立页面内仍保留层级。
             level = len(match[1])
             out.append(f'<h{level}>{inline(match[2])}</h{level}>')
+        elif line.startswith('>'):
+            quotes = []
+            while i < len(lines) and lines[i].strip().startswith('>'):
+                quotes.append(re.sub(r'^>\s?', '', lines[i].strip()))
+                i += 1
+            out.append('<blockquote><p>' + inline(' '.join(quotes)) + '</p></blockquote>')
+            continue
         elif line.startswith('|'):
             rows = []
             while i < len(lines) and lines[i].strip().startswith('|'):
@@ -159,6 +168,7 @@ def main():
         print('已生成 dist/opensim-note/' + filename)
     shutil.copyfile(CONTENT / '原文.md', ROOT / '原文.md')
     build_second_report()
+    build_fourth_report()
     build_atomic_report()
 
 def build_second_report():
@@ -211,6 +221,60 @@ def build_second_report():
         (SECOND_ROOT / filename).write_text(document, encoding='utf-8')
         print('已生成 dist/pamela-kyrapro-report/' + filename)
     shutil.copyfile(SECOND_CONTENT, SECOND_ROOT / '原文.md')
+
+def build_fourth_report():
+    """Build the 2026-11-23 three-module Pamela/KyraPro report."""
+    raw = FOURTH_CONTENT.read_text(encoding='utf-8')
+    heading, _, body = raw.partition('\n')
+    if not heading.startswith('# '):
+        raise ValueError('第四次汇报必须以一级标题开头：' + str(FOURTH_CONTENT))
+    FOURTH_ROOT.mkdir(parents=True, exist_ok=True)
+    for old in FOURTH_ROOT.glob('*.html'):
+        old.unlink()
+    template = (REPO / 'templates' / 'pamela-kyrapro-1123.html').read_text(encoding='utf-8')
+    sections = []
+    current_title = None
+    current_lines = []
+    for line in body.splitlines():
+        match = re.match(r'^##\s+(.+)$', line.strip())
+        if match:
+            if current_title is not None:
+                sections.append((current_title, '\n'.join(current_lines).strip()))
+            current_title = match[1].strip()
+            current_lines = []
+        elif current_title is not None:
+            current_lines.append(line)
+    if current_title is not None:
+        sections.append((current_title, '\n'.join(current_lines).strip()))
+    if len(sections) != 3:
+        raise ValueError('第四次汇报必须包含三个模块，当前为 {}'.format(len(sections)))
+    names = ['index.html', '02.html', '03.html']
+    report_pages = list(zip(names, sections))
+    for index, (filename, (section_title, section_body)) in enumerate(report_pages):
+        nav = []
+        for nav_index, (nav_filename, (nav_title, _)) in enumerate(report_pages):
+            active = 'active' if nav_index == index else ''
+            current = 'aria-current="page"' if nav_index == index else ''
+            nav.append('<a href="{}" class="nav-item {}" {}><span class="nav-number">{:02d}</span><span>{}</span><span class="nav-arrow">↗</span></a>'.format(nav_filename, active, current, nav_index + 1, html.escape(nav_title)))
+        previous = '<a href="{}"><small>← 上一页</small><span>{}</span></a>'.format(report_pages[index - 1][0], html.escape(report_pages[index - 1][1][0])) if index else '<span></span>'
+        following = '<a class="next" href="{}"><small>下一页 →</small><span>{}</span></a>'.format(report_pages[index + 1][0], html.escape(report_pages[index + 1][1][0])) if index < len(report_pages) - 1 else '<a class="next" href="../index.html#reports"><small>返回首页 ↗</small><span>项目汇报</span></a>'
+        values = {
+            'title': html.escape(section_title), 'body': render_markdown(section_body, 'assets/'),
+            'page_number': str(index + 1), 'page_number_padded': f'{index + 1:02d}',
+            'total_pages': str(len(report_pages)), 'nav': ''.join(nav),
+            'prev': previous, 'next': following, 'short': html.escape(section_title),
+        }
+        document = re.sub(r'\{\{([a-z_]+)\}\}', lambda m: values[m[1]], template)
+        (FOURTH_ROOT / filename).write_text(document, encoding='utf-8')
+        print('已生成 dist/pamela-kyrapro-1123/' + filename)
+    shutil.copyfile(FOURTH_CONTENT, FOURTH_ROOT / '原文.md')
+    style_source = FOURTH_CONTENT.parent / 'report.css'
+    if style_source.is_file():
+        shutil.copyfile(style_source, FOURTH_ROOT / 'report.css')
+    assets_source = FOURTH_CONTENT.parent / 'assets'
+    assets_target = FOURTH_ROOT / 'assets'
+    if assets_source.is_dir():
+        shutil.copytree(assets_source, assets_target, dirs_exist_ok=True)
 
 if __name__ == '__main__':
     main()

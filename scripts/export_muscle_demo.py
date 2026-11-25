@@ -14,7 +14,7 @@ import numpy as np
 CLIPS = [
     ("squat", "反复深蹲", "breath-by-breath__zy_HIIT_x_back_0040-0050"),
     ("high-knees", "高抬腿", "mixing-chamber__jl_HIIT_x_front_0030-0040"),
-    ("split-squat", "前后分腿屈膝", "breath-by-breath__zy_HIIT_x_right_0940-0950"),
+    ("split-squat", "前后分腿屈膝", "breath-by-breath__zy_HIIT_x_right_0950-0960"),
     ("arm-swings", "站姿摆臂", "mixing-chamber__jl_HIIT_x_front_1400-1410"),
     ("floor-transition", "低姿俯撑转换", "breath-by-breath__zy_HIIT_x_right_1120-1130"),
 ]
@@ -46,8 +46,9 @@ def pack(folder, name, meta, arrays):
     size = 3 * 1024 * 1024
     for i in range(0, len(raw), size):
         filename = f"{name}.{i // size}.bin"
-        (folder / filename).write_bytes(raw[i:i+size])
-        files.append(filename)
+        chunk = raw[i:i+size]
+        (folder / filename).write_bytes(chunk)
+        files.append(f"{filename}?v={hashlib.sha256(chunk).hexdigest()[:12]}")
     return files
 
 
@@ -141,11 +142,29 @@ def sample(model, bundle, tendon_ids, capacity, lower_ids, body_ids, origin, tra
 
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
-    for key in ("project","archive","capture","output"):
+    for key in ("project","archive","output"):
         cli.add_argument("--"+key,type=Path,required=True)
+    cli.add_argument("--capture",type=Path,action="append",required=True,
+                     help="可重复指定采集来源；传 evaluations/attempt_XX 定位执行批次，实验根目录兼容旧 attempt_03")
+    cli.add_argument("--clip",action="append",choices=[c[0] for c in CLIPS],
+                     help="仅更新指定动作，并保留输出目录 catalog.json 中的其他条目")
     args=cli.parse_args()
     folder=args.output.resolve()
     folder.mkdir(parents=True,exist_ok=True)
+    selected=[c for c in CLIPS if not args.clip or c[0] in args.clip]
+    captures={}
+    for capture in args.capture:
+        attempt=capture if capture.parent.name=="evaluations" else capture/"evaluations/attempt_03"
+        experiment=attempt.parent.parent
+        cfg=json.loads((experiment/"experiment_config.json").read_text())
+        for selection in cfg["clips"]:
+            captures[selection["id"]]=(experiment,attempt,cfg,selection)
+    missing=[clip for _,_,clip in selected if clip not in captures]
+    if missing:
+        cli.error("采集来源缺少动作："+", ".join(missing))
+    index=json.loads((folder/"catalog.json").read_text(encoding="utf-8")) if args.clip else None
+    if index and not set(args.clip).issubset({row["id"] for row in index["clips"]}):
+        cli.error("局部更新要求 catalog.json 已包含指定动作")
     src=args.project/"experiments/energy_evaluation/clip_energy_hiit_wsl_20261109_v1"
     sys.path.insert(0,str(args.project/"local_viewer/code"))
     from reference_preview import build_preview
@@ -165,14 +184,14 @@ def main():
         muscles.append(dict(name=name.removeprefix("robot/"),zh=chinese_muscle_name(name),lower=bool(i in lower_ids),
                             capacity=caps[-1],radius=float(model.tendon_width[t])))
     model_info=dict(muscles=muscles,bodies=model.nbody,sha256=MODEL_SHA)
-    index=dict(model=pack(folder,"model",model_info,model_mesh(model)),clips=[])
-    cfg=json.loads((args.capture/"experiment_config.json").read_text())
-    attempt=args.capture/"evaluations/attempt_03"
-    identity=json.loads((attempt/"identities.json").read_text())
-    assert identity["model_sha256"]==MODEL_SHA
-    assert identity["actuator_names"]==[model.actuator(i).name for i in range(model.nu)]
-    assert identity["activation_addresses"]==model.actuator_actadr.tolist()
-    for slug,label,clip in CLIPS:
+    if index is None:
+        index=dict(model=pack(folder,"model",model_info,model_mesh(model)),clips=[])
+    for slug,label,clip in selected:
+        experiment,attempt,cfg,selection=captures[clip]
+        identity=json.loads((attempt/"identities.json").read_text())
+        assert identity["model_sha256"]==MODEL_SHA
+        assert identity["actuator_names"]==[model.actuator(i).name for i in range(model.nu)]
+        assert identity["activation_addresses"]==model.actuator_actadr.tolist()
         source=src/"data/motions"/(clip+".npz")
         refsha=digest(source)
         archive_ref=args.archive/"references"/(refsha+".npz")
@@ -184,7 +203,6 @@ def main():
         meta=dict(frames=n,hz=100,referenceSha=refsha)
         data=sample(model,preview,tids,np.array(caps),lower_ids,ids,origin,False)
         row=dict(id=slug,label=label,clip=clip,reference=pack(folder,slug+"-ref",meta,data),results=[])
-        selection=next(c for c in cfg["clips"] if c["id"]==clip)
         assert selection["sha256"]==refsha
         wsl_run=args.archive/selection["previous_wide29000_run"]
         wsl_manifest=json.loads((wsl_run/"manifest.json").read_text())
@@ -216,10 +234,13 @@ def main():
             stats=dict(score=scores["top"],scoreHz=100,fall=evaluation["actual_fall_s"],
                        noFall=evaluation["physical_complete_without_fall"],trackingPass=evaluation["common_tracking_pass"])
             trackmeta=dict(frames=frames,hz=100,start=.01,referenceSha=refsha,**stats,
-                           checkpointSha=cp_sha,sourceSha=record["sha256"],sourceExperiment=args.capture.name,
-                           policy=policy,attempt="attempt_03")
+                           checkpointSha=cp_sha,sourceSha=record["sha256"],sourceExperiment=experiment.name,
+                           policy=policy,attempt=attempt.name)
             row["results"].append(dict(id=policy,label=cp_label,files=pack(folder,slug+"-"+key,trackmeta,data)))
-        index["clips"].append(row)
+        if args.clip:
+            index["clips"]=[row if old["id"]==slug else old for old in index["clips"]]
+        else:
+            index["clips"].append(row)
         print(slug,n,flush=True)
     (folder/"catalog.json").write_text(json.dumps(index,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     import importlib.metadata as metadata

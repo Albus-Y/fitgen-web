@@ -12,7 +12,7 @@ function inlineCode(value) {
 }
 function detailedContent(module) {
   if (!module.detailSections?.length) return '';
-  return '<div class="technical-document"><p class="detail-meta">' + inlineCode(module.detailMeta || '') + '</p>' +
+  return '<div class="technical-document">' + (module.detailMeta ? '<p class="detail-meta">' + inlineCode(module.detailMeta) + '</p>' : '') +
     module.detailSections.map(section => {
       const table = section.table ? '<div class="technical-table-scroll"><table><thead><tr>' +
         section.table.headers.map(header => '<th scope="col">' + escapeHTML(header) + '</th>').join('') +
@@ -33,15 +33,14 @@ function detailedContent(module) {
     }).join('') + '</div>';
 }
 function moduleContent(module) {
+  if (module.overviewSections?.length) {
+    return detailedContent({ ...module, detailMeta: module.overviewMeta, detailSections: module.overviewSections });
+  }
   const summaryContent = '<div class="details-content"><div><h4>具体实现</h4>' +
     paragraphs(module.implementation, '预留实现步骤、关键逻辑与代码说明。') +
     '</div><div><h4>技术细节</h4>' + paragraphs(module.technicalDetails, '预留算法选型、数据格式、接口约定与验证方法。') +
     '</div></div>';
-  if (!module.overviewSections?.length) return summaryContent + detailedContent(module);
-  const overview = detailedContent({ ...module, detailMeta: module.overviewMeta, detailSections: module.overviewSections });
-  if (!module.detailSections?.length) return overview;
-  return overview + '<details class="advanced-details"><summary><span><span class="when-closed">深入技术细节</span><span class="when-open">收起技术细节</span> <small>' + module.detailSections.length + ' 节 · 参数、字段、代码与评测</small></span>' + chevron + '</summary>' +
-    summaryContent + detailedContent(module) + collapseAction('收起技术细节') + '</details>';
+  return summaryContent + detailedContent(module);
 }
 
 function renderModule(module) {
@@ -50,11 +49,11 @@ function renderModule(module) {
   const status = module.status || (module.implementation.length || module.technicalDetails.length ?
     '已补充' : module.overviewSections?.length ? '职责已梳理' : '待补充');
   const design = module.designUrl ? `<a class="design-tab" href="${escapeHTML(module.designUrl)}">设计全文</a>` : '';
-  const demo = module.demoUrl ? `
+  const demo = (module.demoUrl || module.demoStatus) ? `
     <div class="module-demo">
       <div><strong>${escapeHTML(module.demoTitle || '音乐分析 Demo')}</strong>
-      <p>${escapeHTML(module.demoDescription || '播放 4 首音乐，查看节拍、段落与八拍网格。')}</p></div>
-      <a href="${escapeHTML(module.demoUrl)}">进入 Demo 展示</a>
+      <p>${escapeHTML(module.demoStatus || module.demoDescription || '播放 4 首音乐，查看节拍、段落与八拍网格。')}</p></div>
+      ${module.demoUrl ? `<a href="${escapeHTML(module.demoUrl)}">进入 Demo 展示</a>` : ''}
     </div>` : '';
   const list = items => items.map(value => `<li>${escapeHTML(value)}</li>`).join('');
   return `<article class="module-card" id="module-${id}">
@@ -99,7 +98,6 @@ function updateToggle() {
 }
 function setDisclosures(open) {
   disclosures.forEach(detail => { detail.open = open; });
-  if (!open) document.querySelectorAll('.advanced-details[open]').forEach(detail => { detail.open = false; });
   updateToggle();
 }
 toggle.addEventListener('click', () => setDisclosures(disclosures.some(detail => !detail.open)));

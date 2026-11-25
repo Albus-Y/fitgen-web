@@ -200,7 +200,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
 async function start(){
   lockTransport(true);
-  const response=await fetch('data/catalog.json');
+  const response=await fetch('data/catalog.json',{cache:'no-cache'});
   if(!response.ok)throw Error('找不到动作清单。');
   catalog=await response.json();
   const first=catalog.clips[0];

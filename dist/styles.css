@@ -46,6 +46,9 @@ h2 { font-size: clamp(24px, 2.2vw, 33px); letter-spacing: -.035em; line-height: 
 .architecture-diagram .diagram-number, .architecture-diagram .diagram-caption, .diagram-edges text { fill: #cac0d5; font-size: 14px; font-weight: 400; }
 .architecture-modules .implemented-module rect { fill: #392d2e; stroke: #cf8f79; }
 .architecture-modules .implemented-module .diagram-number { fill: var(--accent); }
+.architecture-modules .designed-module { --accent: #b8d7f2; }
+.architecture-modules .designed-module rect { fill: #273440; stroke: #82a6c9; }
+.architecture-modules .designed-module .diagram-number { fill: var(--accent); }
 .architecture-wires { stroke: #ad9eae; }
 #architecture-arrow path { fill: #ad9eae; }
 .database-resource rect { stroke-dasharray: 5 3; }
@@ -78,7 +81,7 @@ h2 { font-size: clamp(24px, 2.2vw, 33px); letter-spacing: -.035em; line-height: 
 .io-grid li, .io-grid p { margin: 1px 0; font-size: 15px; }
 .io-grid li::marker { color: #8e829b; }
 .handoff { grid-column: 1/-1; }
-.module-disclosure > summary, .advanced-details > summary { display: flex; justify-content: space-between; align-items: center; list-style: none; gap: 12px; padding: 13px var(--pad); color: var(--accent); font-size: 15px; border-top: 1px solid var(--line); }
+.module-disclosure > summary { display: flex; justify-content: space-between; align-items: center; list-style: none; gap: 12px; padding: 13px var(--pad); color: var(--accent); font-size: 15px; border-top: 1px solid var(--line); }
 summary::-webkit-details-marker { display: none; }
 .module-card details[open] > summary .disclosure-chevron { transform: rotate(180deg); }
 .disclosure-chevron { flex-shrink: 0; }
@@ -94,15 +97,15 @@ details[open] > summary .when-open { display: inline; }
 .technical-section table { width: 100%; border-collapse: collapse; text-align: left; font-size: 15px; }
 .technical-section td, .technical-section th { border: 1px solid var(--line); padding: 9px 12px; vertical-align: top; }
 .technical-section th { background: var(--raised); }
+/* DTW 的行内符号随正文阅读，长公式仅在独立公式区内滚动。 */
+#module-4 p > span:has(> .katex) { display: inline; overflow: visible; vertical-align: baseline; padding: 0; }
+#module-4 .math-display .katex-display { width: max-content; min-width: 100%; }
 .pipeline-steps { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 0 0 10px; padding: 0; list-style: none; }
 .pipeline-steps li { color: var(--lavender); font-weight: 600; }
 .pipeline-steps li:not(:last-child)::after { content: '→' / ''; margin-left: 12px; color: var(--muted); }
 .technical-section pre { font: 14px/1.75 var(--mono); padding: 16px; border-radius: 5px; background: var(--inset); }
 .technical-sources, .technical-links { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-block: 12px; overflow-wrap: anywhere; }
 .technical-sources code { max-width: 100%; }
-.advanced-details { margin: 12px var(--pad); background: var(--inset); border: 1px solid var(--line); border-radius: 6px; }
-.advanced-details > summary { border: 0; color: var(--lavender); }
-.advanced-details small { color: var(--muted); font-size: 13px; }
 .module-demo { margin: 12px var(--pad); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; border: 1px solid #544954; border-radius: 6px; }
 .module-demo p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 .module-demo a { color: var(--accent); flex-shrink: 0; text-decoration: underline; text-underline-offset: 4px; }
@@ -134,7 +137,5 @@ footer { display: flex; gap: 14px; flex-wrap: wrap; justify-content: space-betwe
   .module-top { gap: 10px; }
   .io-grid, .details-content { grid-template-columns: 1fr; }
   .module-demo { flex-direction: column; align-items: flex-start; }
-  .advanced-details { margin-inline: 9px; }
-  .advanced-details small { display: block; }
   .technical-section td, .technical-section th { min-width: 8em; }
 }

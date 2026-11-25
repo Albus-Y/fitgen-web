@@ -11,7 +11,7 @@ window.FITGEN_MODULES = [
     next: "下游按 IR 取素材与目标时长，调用模块 4 变速，再由模块 5 按顺序拼接并执行预留过渡。",
     implementation: [], technicalDetails: []
   },
-  { id: 4, title: "XTW 动作变速", short: "XTW 变速", english: "MOTION RETIMING", description: "对已有动作进行节拍对齐和受约束变速，输出 30 FPS 骨架动作。", input: ["已有动作三维骨架与源 FPS", "模块 1 的音乐 beats", "音乐片段时长"], output: ["变速骨架、时间映射与诊断"], next: "变速骨架片段 → 模块 5", implementation: [], technicalDetails: [] },
+  { id: 4, title: "DTW 动作变速", short: "DTW 变速", english: "MOTION RETIMING", description: "对已有动作进行节拍对齐和受约束变速，输出 30 FPS 骨架动作。", input: ["已有动作三维骨架与源 FPS", "模块 1 的音乐 beats", "音乐片段时长"], output: ["变速骨架、时间映射与诊断"], next: "变速骨架片段 → 模块 5", implementation: [], technicalDetails: [] },
   { id: 5, title: "动作拼接与过渡", short: "拼接与过渡", english: "MOTION ASSEMBLY", description: "按整曲 IR 排列变速后的片段，平滑常规接缝，在预留时段调用过渡动作生成工具。", input: ["模块 2 的条目顺序与过渡请求", "模块 4 的变速骨架片段及相邻动作端点"], output: ["整曲连续的动作序列"], next: "完整动作序列交给模块 6 渲染，同时可送入模块 8 评估整课能耗。", implementation: [], technicalDetails: [] },
   { id: 6, title: "Retarget 和数字人渲染", short: "数字人渲染", english: "RETARGET & RENDER", description: "根据 motion sequence 完成动作重定向与数字人渲染。", input: ["模块 5 的 motion sequence"], output: ["渲染好的视频"], next: "最终产出 · 数字人健身视频", implementation: [], technicalDetails: [] },
   { id: 7, title: "数据集构建", short: "数据集构建", english: "DATASET FOUNDATION", description: "从健身视频提取完整的原子动作周期，为徒手团操建立可检索的 SMPL-X 素材库。", input: ["公开健身、跳操视频"], output: ["配对的音乐与动作序列", "原子动作素材、语义描述与镜像或变式关系"], next: "素材库调用模块 8 补充能耗和肌群标签，供模块 2 选动作。下游按选定的 clip_id 读取骨架。", implementation: [], technicalDetails: [] },

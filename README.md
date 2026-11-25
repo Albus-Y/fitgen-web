@@ -25,17 +25,19 @@ dist/                         网站文件，也是 Sites 的静态发布目录
   index.html                  主页、路线图与汇报入口
   modules.js                  模块职责、输入、输出与流向
   module1-details.js          音乐分析说明
-  module4-details.js          XTW 动作变速说明
+  module4-details.js          DTW 动作变速说明
   module8-details.js          能耗计算说明
   demo/                       音乐分析 Demo
-  xtw-demo/                   XTW Demo
+  xtw-demo/                   DTW Demo 制作中占位页
   energy-demo/                物理跟踪 Demo
+  muscle-studio/              肌骨回放及带来源校验的静态数据包
   opensim-note/               四页 OpenSim 汇报、样式、脚本和配图
   vendor/katex/               公式排版资源及原许可证
 content/opensim-note/         四页汇报的 Markdown、原始笔记和映射清单
 templates/opensim-note.html   四页汇报共用的页面模板
 scripts/build.py             从 Markdown 与模板生成汇报 HTML
 scripts/check.py             检查本地链接和媒体分片
+scripts/export_muscle_demo.py 从已有仿真归档导出肌骨回放
 .openai/hosting.json          现有 FitGen Site 的项目绑定
 AGENTS.md                    面向协作者与编码助手的约定
 ```
@@ -71,6 +73,21 @@ Sites 的发布流程包括同步到 Sites 自带的源码仓库、打包、保�
 
 仓库保留现有 Demo 所需的音视频分片、加载器和清单，完整运行不依赖上级目录或原作者的 Obsidian 文件。初始网站资源约 193 MB。普通代码修改可增量推送，Sites 的发布包仍可能包含完整媒体资源。
 
-当前项目包含网站展示、交互代码、笔记与静态资源。页面描述的音乐分析、XTW、物理仿真等服务器算法源码不在这个网站仓库内。
+当前项目包含网站展示、交互代码、笔记与静态资源。页面描述的音乐分析、DTW、物理仿真等服务器算法源码不在这个网站仓库内。
 
 保留已有第三方资源的许可证。仓库拟用于私有协作，没有在本次整理中新增开源授权。
+
+## 肌骨回放数据更新
+
+`muscle-studio` 的“前后分腿屈膝”使用 `breath-by-breath__zy_HIIT_x_right_0950-0960`，包含开头的弓步及随后的重复弓步、提膝。三组 Tracking 来自 `fitgen_lunge_0950_capture_20261125_v1/evaluations/attempt_01`；其他四个动作仍来自 `hiit_equal_activation50000_revisit_20261122_v1/evaluations/attempt_03`。数据包记录参考、checkpoint、实际状态文件的 SHA-256，以及采集实验和执行批次。
+
+仅在已有 MyoFullBody 导出环境中运行下面的命令。各路径由调用者提供；网页浏览不依赖该环境。局部导出要求输出目录已有 `catalog.json`，只替换指定动作的参考与三组真实回放，并按实际状态重新计算激活、得分和误差：
+
+```bash
+python scripts/export_muscle_demo.py \
+  --project "$MYOFULLBODY_PROJECT" --archive "$TRACKING_ARCHIVE" \
+  --capture "$LUNGE_CAPTURE/evaluations/attempt_01" \
+  --clip split-squat --output dist/muscle-studio/data
+```
+
+完整导出时省略 `--clip`，并重复传入两组 `--capture` 执行批次路径。后传入的来源覆盖同名片段。静态分片 URL 带内容哈希，目录清单会重新校验缓存，避免替换片段后加载旧回放。

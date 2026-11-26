@@ -1,8 +1,17 @@
 {
-  "schema_version": "fitgen-motion-beat-demo-v1",
+  "schema_version": "fitgen-motion-beat-demo-v2",
   "defaults": {
     "original_music": true,
     "playback_speed": 1
+  },
+  "playback": {
+    "method": "HTMLMediaElement.playbackRate",
+    "supported_rates": [
+      1,
+      0.5
+    ],
+    "preserves_pitch": true,
+    "timeline": "source_seconds"
   },
   "clips": [
     {
@@ -25,9 +34,7 @@
       ],
       "assets": {
         "normal": "beat_review_1x.mp4",
-        "slow": "beat_review_half_speed.mp4",
         "music_normal": "beat_review_music_1x.mp4",
-        "music_slow": "beat_review_music_half_speed.mp4",
         "poster": "poster.jpg",
         "manifest": "manifest.json"
       }
@@ -68,9 +75,7 @@
       ],
       "assets": {
         "normal": "clips/slow_squat/beat_review_1x.mp4",
-        "slow": "clips/slow_squat/beat_review_half_speed.mp4",
         "music_normal": "clips/slow_squat/beat_review_music_1x.mp4",
-        "music_slow": "clips/slow_squat/beat_review_music_half_speed.mp4",
         "poster": "clips/slow_squat/poster.jpg",
         "manifest": "clips/slow_squat/manifest.json"
       }
@@ -123,9 +128,7 @@
       ],
       "assets": {
         "normal": "clips/jumping_jack/beat_review_1x.mp4",
-        "slow": "clips/jumping_jack/beat_review_half_speed.mp4",
         "music_normal": "clips/jumping_jack/beat_review_music_1x.mp4",
-        "music_slow": "clips/jumping_jack/beat_review_music_half_speed.mp4",
         "poster": "clips/jumping_jack/poster.jpg",
         "manifest": "clips/jumping_jack/manifest.json"
       }
@@ -186,9 +189,7 @@
       ],
       "assets": {
         "normal": "clips/reach_down_jump/beat_review_1x.mp4",
-        "slow": "clips/reach_down_jump/beat_review_half_speed.mp4",
         "music_normal": "clips/reach_down_jump/beat_review_music_1x.mp4",
-        "music_slow": "clips/reach_down_jump/beat_review_music_half_speed.mp4",
         "poster": "clips/reach_down_jump/poster.jpg",
         "manifest": "clips/reach_down_jump/manifest.json"
       }

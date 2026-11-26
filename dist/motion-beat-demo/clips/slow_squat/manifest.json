@@ -1,5 +1,5 @@
 {
-  "schema_version": "fitgen-motion-beat-public-result-v1",
+  "schema_version": "fitgen-motion-beat-public-result-v2",
   "clip_id": "slow_squat",
   "title": "SLOW SQUAT",
   "shape": [
@@ -1290,20 +1290,19 @@
       "bytes": 7028232,
       "sha256": "104291647bac0bbcd68c70b3b823cd5d5bad4cd52918ceb90f7b971276dfcd40"
     },
-    "slow": {
-      "file": "clips/slow_squat/beat_review_half_speed.mp4",
-      "bytes": 8512552,
-      "sha256": "1b712a09b4bb8dbca6d7cb77f806f55d8bb008aebbf3a66338039be73c6a88a2"
-    },
     "music_normal": {
       "file": "clips/slow_squat/beat_review_music_1x.mp4",
       "bytes": 7419132,
       "sha256": "d0a3a2e99d87be13504aec1ff370dc898de4f168df4428108a79c1c8c1edbffa"
-    },
-    "music_slow": {
-      "file": "clips/slow_squat/beat_review_music_half_speed.mp4",
-      "bytes": 9841541,
-      "sha256": "b0cb9187bc6e1a684ab938f9b39d6bcbb29d2a7b28b4453772d16357a10934d5"
     }
+  },
+  "playback": {
+    "method": "HTMLMediaElement.playbackRate",
+    "supported_rates": [
+      1,
+      0.5
+    ],
+    "preserves_pitch": true,
+    "timeline": "source_seconds"
   }
 }

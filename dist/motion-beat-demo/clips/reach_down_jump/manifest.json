@@ -1,5 +1,5 @@
 {
-  "schema_version": "fitgen-motion-beat-public-result-v1",
+  "schema_version": "fitgen-motion-beat-public-result-v2",
   "clip_id": "reach_down_jump",
   "title": "REACH DOWN JUMP",
   "shape": [
@@ -1330,20 +1330,19 @@
       "bytes": 9230576,
       "sha256": "6d98ead209dcd46805386c43b6a958b8c8539b23b33a772dc83a68799bf931ea"
     },
-    "slow": {
-      "file": "clips/reach_down_jump/beat_review_half_speed.mp4",
-      "bytes": 11104589,
-      "sha256": "f72b3c12b6e78aa6d42a563f0f3673aa2ddde67278f1de12e0312ee28b7ffad1"
-    },
     "music_normal": {
       "file": "clips/reach_down_jump/beat_review_music_1x.mp4",
       "bytes": 9525200,
       "sha256": "d0ed355db2a78ac3fa28f310a160e12ec926699a38cc884fb32882a909d0e27c"
-    },
-    "music_slow": {
-      "file": "clips/reach_down_jump/beat_review_music_half_speed.mp4",
-      "bytes": 12347147,
-      "sha256": "fb4904d5bd11374558a6cadbc4a49353b778523cb9b93445cfb73b6767342a4f"
     }
+  },
+  "playback": {
+    "method": "HTMLMediaElement.playbackRate",
+    "supported_rates": [
+      1,
+      0.5
+    ],
+    "preserves_pitch": true,
+    "timeline": "source_seconds"
   }
 }

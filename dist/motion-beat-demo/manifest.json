@@ -1,5 +1,5 @@
 {
-  "schema_version": "fitgen-motion-beat-public-result-v1",
+  "schema_version": "fitgen-motion-beat-public-result-v2",
   "clip_id": "plank_jump_squat",
   "title": "PLANK-JUMP + SQUAT",
   "shape": [
@@ -208,20 +208,19 @@
       "bytes": 1286349,
       "sha256": "7dc9db571c035945a1abf1a5856c93284a893a2ff2920a93871f4286d6b985ad"
     },
-    "slow": {
-      "file": "beat_review_half_speed.mp4",
-      "bytes": 1421140,
-      "sha256": "2edcc7ffeb904112db3cddc53e97abc9bd410293427172670cc67a7c77ee9e2c"
-    },
     "music_normal": {
       "file": "beat_review_music_1x.mp4",
       "bytes": 1328301,
       "sha256": "0ee738e433c33776477dd72dbf2bb8d3c2eee20862fb229f30cb064ba229560d"
-    },
-    "music_slow": {
-      "file": "beat_review_music_half_speed.mp4",
-      "bytes": 1607566,
-      "sha256": "284eea1b19a150388c4388438775ed400b14f4e47f98519add1c80b35aa66035"
     }
+  },
+  "playback": {
+    "method": "HTMLMediaElement.playbackRate",
+    "supported_rates": [
+      1,
+      0.5
+    ],
+    "preserves_pitch": true,
+    "timeline": "source_seconds"
   }
 }

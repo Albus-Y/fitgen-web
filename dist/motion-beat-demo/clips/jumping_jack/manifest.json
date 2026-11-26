@@ -1,5 +1,5 @@
 {
-  "schema_version": "fitgen-motion-beat-public-result-v1",
+  "schema_version": "fitgen-motion-beat-public-result-v2",
   "clip_id": "jumping_jack",
   "title": "JUMPING JACK",
   "shape": [
@@ -1314,20 +1314,19 @@
       "bytes": 10545722,
       "sha256": "bc79559a03113106c49e08ed6367b0965cad55371bcae27674d3bd20b46685a7"
     },
-    "slow": {
-      "file": "clips/jumping_jack/beat_review_half_speed.mp4",
-      "bytes": 12679220,
-      "sha256": "b81b656d5f8c2f97f43c472795c34c5e1511c0f303fa77c57dce445b4bdbd675"
-    },
     "music_normal": {
       "file": "clips/jumping_jack/beat_review_music_1x.mp4",
       "bytes": 10794734,
       "sha256": "e748fe83db8d0c514587939c303a13001cf66227403a1f299c9a38c64ee263ce"
-    },
-    "music_slow": {
-      "file": "clips/jumping_jack/beat_review_music_half_speed.mp4",
-      "bytes": 13922569,
-      "sha256": "b411b1a1ea3f41fca78f2e9345bc8635543330ee1aff98c7f7357075fd3826e6"
     }
+  },
+  "playback": {
+    "method": "HTMLMediaElement.playbackRate",
+    "supported_rates": [
+      1,
+      0.5
+    ],
+    "preserves_pitch": true,
+    "timeline": "source_seconds"
   }
 }

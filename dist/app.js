@@ -49,12 +49,17 @@ function renderModule(module) {
   const status = module.status || (module.implementation.length || module.technicalDetails.length ?
     '已补充' : module.overviewSections?.length ? '职责已梳理' : '待补充');
   const design = module.designUrl ? `<a class="design-tab" href="${escapeHTML(module.designUrl)}">设计全文</a>` : '';
-  const demo = (module.demoUrl || module.demoStatus) ? `
+  const demos = module.demos || ((module.demoUrl || module.demoStatus) ? [{
+    title: module.demoTitle || '音乐分析 Demo',
+    description: module.demoStatus || module.demoDescription || '播放 4 首音乐，查看节拍、段落与八拍网格。',
+    url: module.demoUrl
+  }] : []);
+  const demo = demos.map(item => `
     <div class="module-demo">
-      <div><strong>${escapeHTML(module.demoTitle || '音乐分析 Demo')}</strong>
-      <p>${escapeHTML(module.demoStatus || module.demoDescription || '播放 4 首音乐，查看节拍、段落与八拍网格。')}</p></div>
-      ${module.demoUrl ? `<a href="${escapeHTML(module.demoUrl)}">进入 Demo 展示</a>` : ''}
-    </div>` : '';
+      <div><strong>${escapeHTML(item.title)}</strong>
+      <p>${escapeHTML(item.description || '')}</p></div>
+      ${item.url ? `<a href="${escapeHTML(item.url)}" aria-label="进入${escapeHTML(item.title)}">进入 Demo 展示</a>` : ''}
+    </div>`).join('');
   const list = items => items.map(value => `<li>${escapeHTML(value)}</li>`).join('');
   return `<article class="module-card" id="module-${id}">
     <div class="module-top">

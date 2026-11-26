@@ -8,9 +8,18 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 4), {
   input: ["三维骨架动作与源帧率", "音乐拍点与目标片段时长"],
   output: ["30 FPS 变速骨架动作", "时间映射与对齐诊断"],
   next: "变速后的动作片段交给模块 5，按编排顺序拼接。",
-  demoTitle: "动作节拍检测demo",
-  demoDescription: "选择 4 段健身动作，对照真人视频、SMPL-X 骨架与动作节拍，支持原速、半速和原音乐开关。",
-  demoUrl: "motion-beat-demo/index.html",
+  demos: [
+    {
+      title: "动作节拍检测demo",
+      description: "选择 4 段健身动作，对照真人视频、SMPL-X 骨架与动作节拍，支持原速、半速和原音乐开关。",
+      url: "motion-beat-demo/index.html"
+    },
+    {
+      title: "Pamela音乐-动作beat分析demo",
+      description: "对照 3 段 Pamela 动作的原音乐八拍网格与动作 beat，支持独立提示音、拍点定位、倍速和八拍循环。",
+      url: "pamela-beat-demo/index.html"
+    }
+  ],
   overviewSections: [
     {
       title: "把已有动作放到音乐时间轴上",

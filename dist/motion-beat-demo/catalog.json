@@ -1,0 +1,197 @@
+{
+  "schema_version": "fitgen-motion-beat-demo-v1",
+  "defaults": {
+    "original_music": true,
+    "playback_speed": 1
+  },
+  "clips": [
+    {
+      "id": "plank_jump_squat",
+      "title": "PLANK-JUMP + SQUAT",
+      "shape": [
+        75,
+        22,
+        3
+      ],
+      "fps": 20.0,
+      "media_duration": 3.7,
+      "motion_duration": 3.7,
+      "content_frames": 74,
+      "boundary": true,
+      "beats": [
+        0.95,
+        1.75,
+        2.5
+      ],
+      "assets": {
+        "normal": "beat_review_1x.mp4",
+        "slow": "beat_review_half_speed.mp4",
+        "music_normal": "beat_review_music_1x.mp4",
+        "music_slow": "beat_review_music_half_speed.mp4",
+        "poster": "poster.jpg",
+        "manifest": "manifest.json"
+      }
+    },
+    {
+      "id": "slow_squat",
+      "title": "SLOW SQUAT",
+      "shape": [
+        600,
+        22,
+        3
+      ],
+      "fps": 20.0,
+      "media_duration": 30.0,
+      "motion_duration": 29.95,
+      "content_frames": 600,
+      "boundary": false,
+      "beats": [
+        1.5,
+        2.95,
+        4.45,
+        6.0,
+        7.55,
+        9.05,
+        10.55,
+        12.05,
+        13.6,
+        15.1,
+        16.55,
+        18.0,
+        19.45,
+        20.85,
+        22.35,
+        23.85,
+        25.4,
+        26.8,
+        28.35
+      ],
+      "assets": {
+        "normal": "clips/slow_squat/beat_review_1x.mp4",
+        "slow": "clips/slow_squat/beat_review_half_speed.mp4",
+        "music_normal": "clips/slow_squat/beat_review_music_1x.mp4",
+        "music_slow": "clips/slow_squat/beat_review_music_half_speed.mp4",
+        "poster": "clips/slow_squat/poster.jpg",
+        "manifest": "clips/slow_squat/manifest.json"
+      }
+    },
+    {
+      "id": "jumping_jack",
+      "title": "JUMPING JACK",
+      "shape": [
+        600,
+        22,
+        3
+      ],
+      "fps": 20.0,
+      "media_duration": 30.0,
+      "motion_duration": 29.95,
+      "content_frames": 600,
+      "boundary": false,
+      "beats": [
+        2.2,
+        3.1,
+        4.1,
+        4.85,
+        5.7,
+        6.65,
+        7.45,
+        8.45,
+        9.25,
+        10.15,
+        11.1,
+        11.8,
+        12.85,
+        13.7,
+        14.6,
+        15.5,
+        16.35,
+        17.2,
+        18.1,
+        19.0,
+        19.9,
+        20.85,
+        21.65,
+        22.5,
+        23.4,
+        24.25,
+        25.2,
+        26.05,
+        27.05,
+        27.85,
+        28.8
+      ],
+      "assets": {
+        "normal": "clips/jumping_jack/beat_review_1x.mp4",
+        "slow": "clips/jumping_jack/beat_review_half_speed.mp4",
+        "music_normal": "clips/jumping_jack/beat_review_music_1x.mp4",
+        "music_slow": "clips/jumping_jack/beat_review_music_half_speed.mp4",
+        "poster": "clips/jumping_jack/poster.jpg",
+        "manifest": "clips/jumping_jack/manifest.json"
+      }
+    },
+    {
+      "id": "reach_down_jump",
+      "title": "REACH DOWN JUMP",
+      "shape": [
+        600,
+        22,
+        3
+      ],
+      "fps": 20.0,
+      "media_duration": 30.0,
+      "motion_duration": 29.95,
+      "content_frames": 600,
+      "boundary": false,
+      "beats": [
+        0.55,
+        1.6,
+        2.4,
+        3.1,
+        3.85,
+        4.6,
+        5.3,
+        6.05,
+        6.8,
+        7.55,
+        8.25,
+        9.0,
+        9.75,
+        10.45,
+        11.15,
+        11.9,
+        12.65,
+        13.35,
+        14.05,
+        14.8,
+        15.55,
+        16.25,
+        17.0,
+        17.7,
+        18.45,
+        19.2,
+        19.95,
+        20.7,
+        21.5,
+        22.25,
+        23.0,
+        23.75,
+        24.5,
+        25.25,
+        26.0,
+        26.8,
+        27.55,
+        28.35,
+        29.1
+      ],
+      "assets": {
+        "normal": "clips/reach_down_jump/beat_review_1x.mp4",
+        "slow": "clips/reach_down_jump/beat_review_half_speed.mp4",
+        "music_normal": "clips/reach_down_jump/beat_review_music_1x.mp4",
+        "music_slow": "clips/reach_down_jump/beat_review_music_half_speed.mp4",
+        "poster": "clips/reach_down_jump/poster.jpg",
+        "manifest": "clips/reach_down_jump/manifest.json"
+      }
+    }
+  ]
+}

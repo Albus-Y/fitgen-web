@@ -30,6 +30,7 @@ dist/                         网站文件，也是 GitHub Pages 与 Sites 的�
   module4-details.js          DTW 动作变速说明
   module8-details.js          能耗计算说明
   demo/                       音乐分析 Demo
+  motion-beat-demo/            动作节拍检测 Demo，四段动作与原音乐切换
   xtw-demo/                   DTW Demo 制作中占位页
   energy-demo/                物理跟踪 Demo
   muscle-studio/              肌骨回放及带来源校验的静态数据包
@@ -66,7 +67,9 @@ AGENTS.md                    面向协作者与编码助手的约定
 
 `.github/workflows/pages.yml` 在 Pull Request 中运行构建与资源检查；推送到 `main` 后，检查通过即上传 `dist/` 并发布。也可从 Actions 页面手动运行，只有 `main` 分支会执行发布。
 
-网站完全使用静态资源：音乐 Demo 展示预先分析的四首音乐，肌骨回放读取预先导出的数据，DTW 当前为制作中占位页。网页运行不需要后端接口或计算服务器。
+网站完全使用静态资源：音乐 Demo 展示预先分析的四首音乐，肌骨回放读取预先导出的数据，动作节拍检测 Demo 展示四段动作的真人视频、SMPL-X 骨架和 beat 对照。网页运行不需要后端接口或计算服务器。
+
+动作节拍检测 Demo 默认开启原音乐、使用 1 倍速，点击播放后开始回放。可切换动作、原速/半速和原音乐，并定位检测出的 beat。查看页、视频、封面和公开参数摘要均位于 `dist/motion-beat-demo/`，使用站内相对路径；不包含原始 GLB、服务器路径或运行记录。完整 DTW 变速 Demo 仍待接入。
 
 ## 发布到现有 Sites
 

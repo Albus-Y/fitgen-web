@@ -8,8 +8,9 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 4), {
   input: ["三维骨架动作与源帧率", "音乐拍点与目标片段时长"],
   output: ["30 FPS 变速骨架动作", "时间映射与对齐诊断"],
   next: "变速后的动作片段交给模块 5，按编排顺序拼接。",
-  demoTitle: "DTW 动作变速 Demo",
-  demoStatus: "Demo 制作中",
+  demoTitle: "动作节拍检测demo",
+  demoDescription: "选择 4 段健身动作，对照真人视频、SMPL-X 骨架与动作节拍，支持原速、半速和原音乐开关。",
+  demoUrl: "motion-beat-demo/index.html",
   overviewSections: [
     {
       title: "把已有动作放到音乐时间轴上",

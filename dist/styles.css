@@ -75,6 +75,8 @@ h2 { font-size: clamp(24px, 2.2vw, 33px); letter-spacing: -.035em; line-height: 
 .module-type { margin-left: auto; white-space: nowrap; color: var(--muted); }
 .module-title p, .io-grid p, .io-grid li, .details-content p, .technical-section p { margin: 8px 0; line-height: 1.85; color: var(--copy); overflow-wrap: anywhere; }
 .design-tab, .technical-links a { display: inline-block; text-decoration: underline; text-underline-offset: 4px; padding: 4px 0; }
+.demo-tag { display: inline-block; border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; color: var(--accent); font-size: 14px; font-weight: 600; }
+.demo-tag:hover, .demo-tag:focus-visible { background: var(--accent); color: var(--canvas); }
 .io-grid { margin: 0 var(--pad) 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 25px; border-top: 1px solid var(--line); padding-top: 16px; }
 .io-grid h4, .details-content h4 { color: var(--lavender); margin: 0 0 5px; font-size: 14px; }
 .io-grid ul { padding-left: 18px; margin: 0; }

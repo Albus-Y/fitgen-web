@@ -1,5 +1,5 @@
 import { composeClip, createReviewAudio } from './review-data.js';
-import { createEightCountPanel, eightCountTitle as blockTitle } from './eight-count-panel.js?v=7d91fd13bd';
+import { createEightCountPanel, eightCountTitle as blockTitle } from './eight-count-panel.js?v=300d71f833';
 
 const $=s=>document.querySelector(s);
 const video=$('#video');

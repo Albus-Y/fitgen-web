@@ -71,7 +71,7 @@ AGENTS.md                    面向协作者与编码助手的约定
 
 动作节拍检测 Demo 默认开启原音乐，点击播放后按原速回放。可切换动作和原音乐，并定位检测出的 beat。每段动作只发布带原音乐、仅 beat 提示音两份原速视频；进度与 beat 定位始终使用原动作秒数。查看页、视频、封面和公开参数摘要均位于 `dist/motion-beat-demo/`，使用站内相对路径；不包含原始 GLB、服务器路径或运行记录。
 
-模块 4 的 Pamela 动作扰动-DTW 三栏对比 Demo（`dist/pamela-dtw-demo/`）使用服务器现有 Anchor xTW（descriptor → Drop-DTW → GDTW），在同一原声与时间轴下对照原序列、时间扰动、重定时输出。种子固定为 20261126，可切换三段动作、四档扰动和两种 beat 输入；24 组结果由服务器实际计算，网页按 SHA256 核对输入并重采样。body22 数据约 464 KiB，服务器结果约 287 KiB；复用音乐、网格和主题，不新增视频或在线服务。三个 Demo 均按 1× 播放。原版 DTW 归档在 `experiment/pamela-vanilla-dtw-20261126`（`8c27a9c`）。接口、复现和结果见 [实验说明](docs/pamela-dtw-experiment.md)。
+模块 4 第三个 Demo 在同一首音乐下对比原子动作原速循环、服务器 Anchor xTW 与 GPT-6.2 Astra 独立编排。默认用首个完整八拍选择整数轮数。慢速深蹲可把窗口切换为两个八拍，在两档倍率下对照原速循环与服务器 Anchor xTW，检查动作如何连续跨过第 9 拍。实验数据与复现步骤见[原子动作八拍编排](docs/pamela-eight-count.md)。
 
 ## 发布到现有 Sites
 

@@ -1,4 +1,4 @@
-import {samplePose} from './experiment.js?v=0c54eefb16';
+import {LABELS} from './atomic.js?v=4bc7cdc476';
 
 export const COLORS=['#b8d7f2','#ffb196','#c1b3f1'];
 const INK='#f4f0ec',MUTED='#b4aeb7',LINE='#3b3844';
@@ -12,13 +12,14 @@ export function canvasContext(canvas){
 export function fitCamera(data){
   const angle=26*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle);let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
   for(let i=0;i<data.length;i+=3){const x=c*data[i]+s*data[i+2],y=data[i+1];minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);}
-  return {c,s,cx:(minX+maxX)/2,cy:(minY+maxY)/2,spanX:Math.max(maxX-minX,.4)*1.12,spanY:Math.max(maxY-minY,1)*1.08,floor:minY};
+  return {c,s,rootX:c*data[0]+s*data[2],cx:(minX+maxX)/2,cy:(minY+maxY)/2,spanX:Math.max(maxX-minX,.4)*1.12,spanY:Math.max(maxY-minY,1)*1.08,floor:minY};
 }
 
-export function drawPose(canvas,variant,time,result,parents,camera,color){
-  const {ctx,width,height}=canvasContext(canvas),pose=samplePose(variant.positions,result.frames,result.joints,result.fps,time);
+export function drawPose(canvas,variant,time,result,parents,camera,color,pose){
+  const {ctx,width,height}=canvasContext(canvas);
   const scale=Math.min((height-48)/camera.spanY,(width-24)/camera.spanX),ox=width/2,oy=height*.47;
-  const project=(x,y,z)=>[ox+scale*(camera.c*x+camera.s*z-camera.cx),oy-scale*(y-camera.cy)];
+  const followX=camera.c*pose[0]+camera.s*pose[2]-camera.rootX;
+  const project=(x,y,z)=>[ox+scale*(camera.c*x+camera.s*z-camera.cx-followX),oy-scale*(y-camera.cy)];
   const floorY=project(0,camera.floor,0)[1];
   const gradient=ctx.createLinearGradient(0,0,0,height);gradient.addColorStop(0,'#22222d');gradient.addColorStop(1,'#191921');ctx.fillStyle=gradient;ctx.fillRect(0,0,width,height);
   ctx.strokeStyle='#34323f';ctx.lineWidth=.7;
@@ -43,41 +44,72 @@ export function drawPose(canvas,variant,time,result,parents,camera,color){
   return active;
 }
 
-export function drawTimeline(canvas,result,music,time,range=[0,result.duration]){
-  const {ctx,width,height}=canvasContext(canvas),left=64,right=14,top=32,rows=[59,100,140,180],[lo,hi]=range;
-  const x=t=>left+(t-lo)/(hi-lo)*(width-left-right);
-  ctx.font='11px "DM Sans","Microsoft YaHei",sans-serif';ctx.textAlign='left';
-  for(const block of music.blocks){
-    const start=Math.max(lo,block.start_time_sec),end=Math.min(hi,block.end_time_sec);if(end<=start)continue;
-    const span=x(end)-x(start);ctx.fillStyle=block.is_complete?'#b8d7f219':'#c1b3f112';ctx.fillRect(x(start),8,span,18);
-    let label=block.is_complete?'八拍 '+block.fullNumber:block.block_type==='gap'?'空缺':'未满';
-    if(ctx.measureText(label).width>span-8&&block.is_complete)label=String(block.fullNumber);
-    if(ctx.measureText(label).width<=span-8){ctx.fillStyle=MUTED;ctx.fillText(label,x(start)+4,21);}
+export const PLOT_LEFT = 82, PLOT_RIGHT = 12;
+export const ROWS = [47, 81, 115, 149];
+
+export function drawTimeline(canvas, result, music, time, range = [0, result.duration]) {
+  const {ctx, width, height} = canvasContext(canvas);
+  const [lo, hi] = range, left = PLOT_LEFT, right = width - PLOT_RIGHT;
+  const x = t => left + (t - lo) * (right - left) / (hi - lo);
+  const visible = t => t >= lo - 1e-8 && t <= hi + 1e-8;
+  ctx.font = '11px "DM Sans","Microsoft YaHei",sans-serif';
+  ctx.textAlign = 'left';
+  for (const block of result.blocks) {
+    const a = Math.max(lo, block.start_time_sec), b = Math.min(hi, block.end_time_sec);
+    if (a >= b) continue;
+    ctx.fillStyle = block.is_complete ? '#b8d7f21b' : '#b9a6d52b';
+    ctx.fillRect(x(a), 5, x(b) - x(a), 18);
+    const label = block.beat_count === 16 ? '八拍 ' + block.fullNumber + '–' + (block.fullNumber + 1) :
+      block.strategy === 'excerpt' ? '余 8 拍 · 模板片段' :
+      block.is_complete ? '八拍 ' + block.fullNumber : block.block_type === 'gap' ? '空缺' : '残拍';
+    if (ctx.measureText(label).width + 6 < x(b) - x(a)) {
+      ctx.fillStyle = MUTED;
+      ctx.fillText(label, x(a) + 4, 18);
+    }
+    if (block.reset && visible(block.start_time_sec)) {
+      ctx.strokeStyle = '#b4a1c8';
+      ctx.setLineDash([2, 4]);
+      ctx.beginPath(); ctx.moveTo(x(block.start_time_sec), 24); ctx.lineTo(x(block.start_time_sec), height - 24); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if (block.middleTime != null && visible(block.middleTime)) {
+      ctx.fillStyle = '#9caabb66';
+      ctx.fillRect(x(block.middleTime), 20, 1, height - 42);
+    }
   }
-  ['音乐','原序列','扰动','DTW'].forEach((label,i)=>{ctx.fillStyle=i?COLORS[i-1]:MUTED;ctx.fillText(label,5,rows[i]+4);ctx.strokeStyle=LINE;ctx.beginPath();ctx.moveTo(left,rows[i]);ctx.lineTo(width-right,rows[i]);ctx.stroke();});
-  for(const beat of music.music_beats){if(beat.time_sec<lo||beat.time_sec>hi)continue;const xx=x(beat.time_sec);ctx.strokeStyle=COLORS[0];ctx.lineWidth=beat.is_downbeat?2:1;ctx.beginPath();ctx.moveTo(xx,rows[0]-9);ctx.lineTo(xx,rows[0]+9);ctx.stroke();if(beat.is_downbeat){ctx.fillStyle=COLORS[0];ctx.beginPath();ctx.moveTo(xx,rows[0]-15);ctx.lineTo(xx+3,rows[0]-11);ctx.lineTo(xx,rows[0]-7);ctx.lineTo(xx-3,rows[0]-11);ctx.fill();}}
-  result.variants.forEach((variant,k)=>variant.beats.forEach(t=>{if(t<lo||t>hi)return;ctx.fillStyle=COLORS[k];ctx.beginPath();ctx.arc(x(t),rows[k+1],Math.abs(t-time)<.05?4.5:3,0,Math.PI*2);ctx.fill();}));
-  const step=hi-lo>15?5:1;ctx.fillStyle=MUTED;ctx.textAlign='center';for(let t=Math.ceil(lo/step)*step;t<=hi;t+=step)ctx.fillText(t.toFixed(hi-lo>15?0:1)+'s',x(t),height-8);
-  if(time>=lo&&time<=hi){ctx.strokeStyle=INK;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(x(time),top-7);ctx.lineTo(x(time),height-24);ctx.stroke();}
-  canvas.dataset.renderTime=time.toFixed(6);canvas.dataset.start=lo;canvas.dataset.end=hi;
-}
-
-export function drawMap(canvas,result,time){
-  const {ctx,width,height}=canvasContext(canvas),pad=38,w=width-pad-12,h=height-pad-15,x=t=>pad+t/result.duration*w,y=t=>height-pad-t/result.duration*h;
-  ctx.font='10px "DM Sans","Microsoft YaHei",sans-serif';ctx.strokeStyle=LINE;ctx.fillStyle=MUTED;
-  for(let t=0;t<=30;t+=5){ctx.beginPath();ctx.moveTo(x(t),y(0));ctx.lineTo(x(t),y(30));ctx.moveTo(x(0),y(t));ctx.lineTo(x(30),y(t));ctx.stroke();ctx.fillText(String(t),x(t)-4,height-22);ctx.fillText(String(t),13,y(t)+3);}
-  result.variants.forEach((v,k)=>{ctx.strokeStyle=COLORS[k];ctx.lineWidth=k===0?1:1.7;ctx.setLineDash(k===0?[4,4]:[]);ctx.beginPath();v.sourceTimes.forEach((s,i)=>{const xx=x(result.times[i]),yy=y(s);if(i===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);});ctx.stroke();});ctx.setLineDash([]);
-  ctx.strokeStyle='#f4f0ec88';ctx.beginPath();ctx.moveTo(x(time),y(0));ctx.lineTo(x(time),y(30));ctx.stroke();
-  ctx.fillStyle=MUTED;ctx.fillText('音乐时间（秒）',width/2-30,height-4);ctx.fillText('原动作时间（秒）',pad,10);
-}
-
-export function drawPath(canvas,result){
-  const {ctx,width,height}=canvasContext(canvas),p=30,w=width-p-12,h=height-p-16,a=result.alignment;
-  const x=t=>p+t/result.duration*w,y=t=>height-p-t/result.duration*h;
-  ctx.fillStyle=MUTED;ctx.font='10px "Microsoft YaHei",sans-serif';ctx.fillText('扰动输入时间（秒）',p,11);ctx.fillText('音乐时间（秒）',width-92,height-3);
-  ctx.strokeStyle=LINE;ctx.lineWidth=.7;
-  for(let t=0;t<=result.duration;t+=5){ctx.beginPath();ctx.moveTo(x(t),y(0));ctx.lineTo(x(t),y(result.duration));ctx.moveTo(x(0),y(t));ctx.lineTo(x(result.duration),y(t));ctx.stroke();ctx.fillText(String(t),x(t)-4,height-15);ctx.fillText(String(t),8,y(t)+3);}
-  const line=(values,color,dashed)=>{ctx.strokeStyle=color;ctx.lineWidth=1.6;ctx.setLineDash(dashed?[4,4]:[]);ctx.beginPath();values.forEach((value,i)=>{if(i)ctx.lineTo(x(a.outputTimes[i]),y(value));else ctx.moveTo(x(a.outputTimes[i]),y(value));});ctx.stroke();};
-  line(a.referenceInputTimes,'#b4aeb7',true);line(a.inputTimes,COLORS[2],false);
-  ctx.fillStyle=COLORS[1];for(const [motion,music] of a.anchorPairs){ctx.beginPath();ctx.arc(x(music),y(motion),2.7,0,Math.PI*2);ctx.fill();}
+  ['音乐', ...LABELS.slice(0, result.displayMethods.length)].forEach((label, i) => {
+    ctx.fillStyle = i ? COLORS[i - 1] : MUTED;
+    ctx.fillText(label, 4, ROWS[i] + 3);
+    ctx.strokeStyle = LINE;
+    ctx.beginPath(); ctx.moveTo(left, ROWS[i]); ctx.lineTo(right, ROWS[i]); ctx.stroke();
+  });
+  for (const beat of music.music_beats) {
+    if (!visible(beat.time_sec)) continue;
+    const xx = x(beat.time_sec);
+    ctx.fillStyle = COLORS[0];
+    ctx.fillRect(xx - .7, ROWS[0] - 6, beat.is_downbeat ? 2 : 1, 12);
+    if (beat.is_downbeat) {
+      ctx.beginPath(); ctx.moveTo(xx, 34); ctx.lineTo(xx + 3, 37); ctx.lineTo(xx, 40); ctx.lineTo(xx - 3, 37); ctx.closePath(); ctx.fill();
+    }
+  }
+  result.variants.forEach((v, i) => {
+    ctx.fillStyle = COLORS[i]; ctx.strokeStyle = COLORS[i];
+    for (const t of v.beats.filter(visible)) {
+      ctx.beginPath(); ctx.arc(x(t), ROWS[i + 1] - 3, Math.abs(t - time) < .05 ? 4 : 2.8, 0, 2 * Math.PI); ctx.fill();
+    }
+    for (const t of v.detectedBeats.filter(visible)) {
+      ctx.beginPath(); ctx.arc(x(t), ROWS[i + 1] + 5, 2.5, 0, 2 * Math.PI); ctx.stroke();
+    }
+  });
+  ctx.fillStyle = MUTED;
+  const step = hi - lo > 15 ? 5 : 1;
+  for (let t = Math.ceil(lo / step) * step; t <= hi; t += step) {
+    ctx.textAlign = t === hi ? 'right' : 'center';
+    ctx.fillText(t + 's', x(t), height - 5);
+  }
+  if (visible(time)) {
+    ctx.strokeStyle = INK;
+    ctx.beginPath(); ctx.moveTo(x(time), 24); ctx.lineTo(x(time), height - 21); ctx.stroke();
+  }
+  canvas.dataset.start = lo; canvas.dataset.end = hi; canvas.dataset.renderTime = time.toFixed(6);
 }

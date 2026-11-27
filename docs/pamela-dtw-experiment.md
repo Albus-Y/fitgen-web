@@ -1,6 +1,6 @@
 # Pamela 扰动实验：服务器 Anchor xTW
 
-页面为 `dist/pamela-dtw-demo/index.html`，由模块 4 的第三个 demo 入口进入，也可从音乐/动作 beat 审查页的第二个选项卡进入。三栏与共用原声、音乐八拍、原始 beat 均继续保留，播放速度固定为 1×。
+本文归档 2026-11-26 的扰动恢复实验，24 组数据和回归脚本仍可复现。当前模块 4 第三个 Demo 展示[原子动作八拍编排](pamela-eight-count.md)。
 
 原版（标准、全局、无约束）DTW 已提交到 `experiment/pamela-vanilla-dtw-20261126`，提交 `8c27a9c`。该分支保留当时的实现、说明与失败结果。当前 main 使用服务器现有模块，没有在浏览器重新实现该求解器。
 

@@ -20,9 +20,10 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 4), {
       url: "pamela-beat-demo/index.html"
     },
     {
-      title: "Pamela动作扰动-DTW三栏对比demo",
-      description: "同一原声下对照原序列、时间扰动与服务器 Anchor xTW 输出（Drop-DTW + GDTW），分别检查贴拍与时序恢复。",
-      url: "pamela-dtw-demo/index.html"
+      title: "原子动作八拍编排 demo",
+      description: "在一个八拍内对比原速循环、服务器 Anchor xTW 与 GPT-6.2 Astra 编排。慢速深蹲还可切换到两个八拍，查看 Anchor xTW 怎样跨组安排整数轮动作。",
+      url: "pamela-dtw-demo/index.html",
+      tag: { label: "Demo 3 · 原子动作八拍编排", query: "?window=2&rate=1.2" }
     }
   ],
   overviewSections: [

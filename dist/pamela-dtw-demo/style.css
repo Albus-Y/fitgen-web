@@ -9,3 +9,30 @@
 @media(max-width:720px){.comparison-stage{grid-template-columns:1fr}.comparison-stage .three-up{gap:6px}}
 .beat-highlights{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.beat-highlights>span{font-size:11px;color:var(--muted);white-space:nowrap}.beat-highlights button{font-size:11px;padding:9px 10px;white-space:nowrap}.beat-highlights button[aria-pressed=true]{color:var(--highlight-color);border-color:var(--highlight-color)}.beat-highlights button[aria-pressed=true]::before{content:'● ';font-size:9px}.beat-highlights button[aria-pressed=false]::before{content:'○ ';font-size:9px}#highlight-0{--highlight-color:var(--original)}#highlight-1{--highlight-color:var(--disturbed)}#highlight-2{--highlight-color:var(--corrected)}
 .motion-card.beat-active{outline:3px solid #ffad59;outline-offset:-3px}
+.setup {align-items:center; gap:clamp(16px,3.5vw,52px)}
+.setup .atom-fact {display:grid; gap:5px; font-variant-numeric:tabular-nums}
+.atom-fact span {font-size:11px; color:var(--muted)}
+.atom-fact strong {font-size:14px; font-weight:550}
+.setup #reference {margin-left:auto}
+.three-up[aria-busy="true"] {opacity:.55}
+.motion-card.unavailable {position:relative}
+.empty-motion {display:none}
+.unavailable .empty-motion {display:block; position:absolute; top:50%; left:10px; right:10px; transform:translateY(-50%); text-align:center; color:var(--muted); font-size:13px}
+.unavailable canvas,.unavailable .card-foot {visibility:hidden}
+.timelines canvas {height:183px}
+.inspection:not(:empty) {margin-top:8px; color:var(--copy); font-size:12px}
+#candidates tr[data-selected="true"] td:last-child {color:var(--original)}
+.evaluation + .evaluation {margin-bottom:22px}
+.card-head span,.card-foot {font-variant-numeric:tabular-nums}
+.setup [hidden],main:not(.paired) .pair-method,
+.paired .single-method,.paired #motion-card-2,.paired #highlight-2,.paired .corrected-text {display:none}
+.paired .three-up {grid-template-columns:repeat(2,minmax(0,1fr))}
+.paired .motion-card {display:flex;flex-direction:column}
+.paired .motion-card canvas {flex-grow:1}
+.paired .timelines canvas {height:149px}
+.paired .finding {border-left-color:var(--disturbed)}
+@media(max-width:700px) {
+  .setup {gap:14px 22px}
+  .setup #reference {margin-left:0}
+  .card-head span {min-height:12px}
+}

@@ -1,3 +1,11 @@
 # 校验和以发布时的字节为准，跨平台 checkout 不转换结果 JSON 的换行。
 dist/pamela-dtw-demo/results/*.json text eol=lf
 scripts/run_pamela_server_xtw.py text eol=lf
+dist/pamela-dtw-demo/eight-count/*.json text eol=lf
+dist/pamela-dtw-demo/eight-count/*.f32 binary
+dist/pamela-beat-demo/analysis.json text eol=lf
+dist/motion-beat-demo/catalog.json text eol=lf
+scripts/run_atom_anchor.py text eol=lf
+scripts/build_pamela_eight_count.py text eol=lf
+scripts/build_squat_two_eights.py text eol=lf
+scripts/arrange_atom_astra.py text eol=lf

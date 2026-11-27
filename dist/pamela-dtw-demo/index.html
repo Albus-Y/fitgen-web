@@ -1,51 +1,58 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pamela 动作扰动与 DTW 对比 · FitGen</title>
-<link rel="stylesheet" href="../workspace.css"><link rel="stylesheet" href="style.css?v=db88eb688d"><link rel="stylesheet" href="../pamela-beat-demo/eight-count-panel.css?v=4afed2a89d"><script defer src="../navigation.js"></script></head>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原子动作八拍编排 · FitGen</title>
+<link rel="stylesheet" href="../workspace.css">
+<link rel="stylesheet" href="style.css?v=022eb0f373">
+<link rel="stylesheet" href="../pamela-beat-demo/eight-count-panel.css?v=4afed2a89d">
+<script defer src="../navigation.js"></script>
+</head>
 <body><main>
-<div class="mast"><a class="brand" href="../index.html" aria-label="FitGen 首页"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FitGen</a><a href="../index.html#module-4" data-return>‹ 返回模块 4</a></div>
-<nav class="demo-tabs" aria-label="实验步骤"><a href="../pamela-beat-demo/index.html">音乐与动作 beat 审查</a><span aria-current="page">扰动与 DTW 对比</span></nav>
-<header><div><h1>Pamela 动作扰动与 DTW 对比</h1><p>服务器现有 Anchor xTW：Drop-DTW 配对 + GDTW 变速。三栏共享同一段原声与时间轴。</p></div><button id="export" disabled>导出实验记录</button></header>
-<section class="setup" aria-label="实验设置">
-<label>动作片段<select id="clip" disabled aria-label="动作片段"></select></label>
-<label>时间扰动<select id="preset" aria-label="时间扰动"><option value="none">无扰动（对照）</option><option value="mild">轻微扰动</option><option value="medium" selected>中等扰动</option><option value="strong">明显扰动</option></select></label>
-<label>已计算的随机种子<input id="seed" type="number" value="20261126" readonly aria-label="已计算的随机种子"></label>
-<label class="mode-label">输入 beat<select id="beat-mode" aria-label="输入 beat"><option value="tracked">已确认 beat 随动作一起扰动</option><option value="redetect">从扰动动作重新检测</option></select></label>
-<button id="run" disabled>重新载入</button>
+<div class="mast"><a class="brand" href="../index.html" aria-label="FitGen 首页"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i></span>FitGen</a><a href="../index.html#module-4" data-return>‹ 返回模块 4</a></div>
+<nav class="demo-tabs" aria-label="实验"><a href="../pamela-beat-demo/index.html">音乐与动作 beat 审查</a><span aria-current="page">原子动作八拍编排</span></nav>
+<header><div><h1>原子动作八拍编排</h1><p>选择动作与编排窗口，比较整数轮动作在原音乐上的转折落点。</p></div><button id="export" disabled>导出实验记录</button></header>
+<section class="setup" aria-label="动作设置">
+  <label>原子动作<select id="clip" disabled></select></label>
+  <label>容许倍率<select id="rate-range" disabled></select></label>
+  <label id="window-setting" hidden>编排窗口<select id="window-size"><option value="1">1 个八拍</option><option value="2">2 个八拍</option></select></label>
+  <div class="atom-fact"><span>单轮时长</span><strong id="atom-duration">—</strong></div>
+  <div class="atom-fact"><span>轮内动作拍</span><strong id="atom-events">—</strong></div>
+  <button id="reference" disabled>回到参考八拍</button>
 </section>
-<div id="status" class="status" role="status">正在读取共用音乐与动作数据…</div>
-<div class="comparison-stage"><section class="three-up" aria-label="三栏同步动作">
-<article id="motion-card-0" class="motion-card original"><div class="card-head"><h2>原序列</h2><span>基线</span></div><canvas id="pose-0" role="img" aria-label="原序列 SMPL-X 身体骨架"></canvas><div class="card-foot"><span id="beat-count-0">— 个 beat</span><span>原动作 <b id="source-time-0">0.00</b> s</span></div></article>
-<article id="motion-card-1" class="motion-card disturbed"><div class="card-head"><h2>扰动序列</h2><span>可重复的时间变形</span></div><canvas id="pose-1" role="img" aria-label="扰动序列 SMPL-X 身体骨架"></canvas><div class="card-foot"><span id="beat-count-1">— 个 beat</span><span>原动作 <b id="source-time-1">0.00</b> s</span></div></article>
-<article id="motion-card-2" class="motion-card corrected"><div class="card-head"><h2>DTW 后</h2><span>服务器 Anchor xTW</span></div><canvas id="pose-2" role="img" aria-label="服务器 xTW 后 SMPL-X 身体骨架"></canvas><div class="card-foot"><span id="beat-count-2">— 个 beat</span><span>原动作 <b id="source-time-2">0.00</b> s</span></div></article>
-</section>
-<aside class="count-panel" aria-label="音乐八拍查看"><div class="count-head"><span id="block-title" data-count="title">八拍网格</span><span id="block-type" class="badge" data-count="type">等待分析结果</span></div>
-<div id="counts" class="counts" data-count="cells" aria-label="当前区间拍点"></div><p id="block-note" class="subtle" data-count="note"></p>
-<div class="count-clock"><strong id="count-clock" data-count="clock">0.00</strong><span> / <span id="count-duration" data-count="duration">30.00</span> 秒</span></div>
-<div class="step-buttons"><button id="prev-block" data-count="prev" disabled>上一组</button><button id="next-block" data-count="next" disabled>下一组</button></div>
-</aside></div>
+<div id="status" class="status" role="status">正在加载音乐与编排结果…</div>
+<div class="comparison-stage"><section class="three-up" aria-label="同步动作对照">
+<article id="motion-card-0" class="motion-card original"><div class="card-head"><h2>原速循环</h2><span id="repeat-0">1× 基线</span></div><canvas id="pose-0" role="img" aria-label="原速循环骨架"></canvas><div class="card-foot"><span>当前倍率 <b id="rate-0">—</b></span><span>轮内 <b id="phase-0">—</b> s</span></div></article>
+<article id="motion-card-1" class="motion-card disturbed"><div class="card-head"><h2>Anchor xTW</h2><span id="repeat-1">服务器</span></div><canvas id="pose-1" role="img" aria-label="服务器 Anchor xTW 骨架"></canvas><p class="empty-motion">当前倍率内，八拍排不下整数轮</p><div class="card-foot"><span>当前倍率 <b id="rate-1">—</b></span><span>轮内 <b id="phase-1">—</b> s</span></div></article>
+<article id="motion-card-2" class="motion-card corrected"><div class="card-head"><h2>GPT-6.2 Astra</h2><span id="repeat-2">独立编排</span></div><canvas id="pose-2" role="img" aria-label="Astra 独立编排骨架"></canvas><p class="empty-motion">当前倍率内，八拍排不下整数轮</p><div class="card-foot"><span>当前倍率 <b id="rate-2">—</b></span><span>轮内 <b id="phase-2">—</b> s</span></div></article>
+</section><aside class="count-panel" aria-label="音乐八拍查看"><div class="count-head"><span data-count="title">八拍网格</span><span class="badge" data-count="type">等待加载</span></div>
+<div id="counts" class="counts" data-count="cells" aria-label="当前区间拍点"></div><p class="subtle" data-count="note"></p>
+<div class="count-clock"><strong data-count="clock">0.00</strong><span> / <span data-count="duration">30.00</span> 秒</span></div>
+<div class="step-buttons"><button id="prev-block" data-count="prev" disabled>上一组</button><button id="next-block" data-count="next" disabled>下一组</button></div></aside></div>
 <section class="transport" aria-label="同步播放控制">
 <div class="play-row"><button id="play" class="primary" disabled>播放</button><strong id="clock">0.00 <small>/ 30.00 s</small></strong>
-<label>循环<select id="loop" aria-label="循环"><option value="all">整段</option><option id="loop-block" value="block" disabled>当前完整八拍</option><option value="off">关闭</option></select></label>
-<div class="sounds"><button id="music" aria-pressed="true">原音乐</button><button id="music-cue" aria-pressed="false">音乐拍提示音</button><label>动作提示音<select id="motion-cue" aria-label="动作提示音"><option value="off">关闭</option><option value="0">原序列</option><option value="1">扰动序列</option><option value="2">DTW 后</option></select></label></div>
-<div class="beat-highlights" role="group" aria-labelledby="beat-highlight-label"><span id="beat-highlight-label">动作 beat 边框</span><button id="highlight-0" data-beat-highlight="0" aria-pressed="true" aria-controls="motion-card-0" aria-label="原序列动作 beat 边框高亮">原序列</button><button id="highlight-1" data-beat-highlight="1" aria-pressed="true" aria-controls="motion-card-1" aria-label="扰动序列动作 beat 边框高亮">扰动序列</button><button id="highlight-2" data-beat-highlight="2" aria-pressed="true" aria-controls="motion-card-2" aria-label="DTW 后动作 beat 边框高亮">DTW 后</button></div></div>
-<input id="seek" type="range" min="0" max="30" step="0.001" value="0" disabled aria-label="共同播放位置（秒）">
-</section>
-<section class="timelines" aria-label="三路拍点对照"><div class="section-head"><h2>同一音乐时间轴上的拍点</h2><span id="grid-position">—</span></div><canvas id="overview" role="img" aria-label="音乐、原序列、扰动、DTW 四行拍点总览"></canvas>
-<div class="section-head zoom-head"><h2>当前区间放大</h2><label>八拍区间<select id="block" aria-label="八拍区间"></select></label></div><canvas id="zoom" role="img" aria-label="当前八拍三路拍点放大"></canvas><p class="hint">点击时间轴或拖动进度条可暂停定位。菱形是音乐 downbeat；DTW 行显示全部输入事件经 GDTW 映射后的时间，包含未被选作锚点的事件。</p></section>
-<section class="evaluation" aria-label="实验结果"><div class="section-head"><h2>分别评价贴拍与时序恢复</h2><span>100 ms 仅作观察窗口</span></div><div id="finding" class="finding"></div>
-<div class="table-wrap"><table><thead><tr><th>指标</th><th class="original-text">原序列</th><th class="disturbed-text">扰动序列</th><th class="corrected-text">DTW 后</th></tr></thead><tbody id="metrics"></tbody></table></div>
-<p class="hint">贴拍与恢复分开评价，原序列恢复误差为 0 不代表完全踩拍。重检测用于检查实际动作转折。服务器的 0.5–2× 约束作用于“音乐时间 → 扰动输入时间”；相对原序列的总速度还包含原有扰动。</p>
-</section>
-<section class="diagnostic-plots"><div><h2>恢复原始时序</h2><p class="hint">蓝线：原始；橙线：扰动；紫线：DTW 后。越接近蓝色对角线，时序恢复越接近原序列。</p><canvas id="map" role="img" aria-label="相对原始序列的时间映射"></canvas></div><div><h2>匹配与时间映射</h2><p class="hint">橙点：Drop-DTW 锚点；灰线：参考映射；紫线：GDTW 实际输出。</p><canvas id="path" role="img" aria-label="Drop-DTW 锚点与 GDTW 时间映射"></canvas></div></section>
-<details class="method"><summary>实验方法、参数与数据来源</summary>
-<p>沿用上一版的时间扰动：固定 0 和 30 秒端点，不添加姿态噪声。随机种子固定为 20261126，服务器预先计算三段动作 × 四档扰动 × 两种输入模式，共 24 组结果。网页校验输入和结果的 SHA256，再复现重采样，切换设置不重新运行求解器。</p>
-<p>直接调用服务器 Module2_xtw 的 xtw.retime_motion_to_music：归一化事件时间与前后间隔的对数构成 descriptor；加权 L1 代价进入双侧 Drop-DTW，再由 GDTW 优化时间映射。使用现有默认参数：descriptor 权重均为 1，drop cost 自动取第 75 百分位的一半，GDTW 为 181 点、累计正则 0.02、速度正则 0.10、4 次迭代、真实秒速度范围 0.5–2×。</p>
-<p>保持审查版 beat 的 reflect 平滑边界规则，通过低层接口传入已确认或重新检测的事件。服务器通用高层提取器使用 nearest，本实验没有切换到该提取器。为适配服务器的 (T−1)/FPS 时长契约，输入额外重复一次末帧定义 30 秒边界；输出仍为 600 帧 / 20 FPS，末端保持语义不变。</p>
-<p>真实扰动映射只用于生成输入和评价，不传入服务器求解接口。导出记录包含服务器代码指纹、配置、锚点、丢弃事件、GDTW 映射和扰动真值；三维序列可单独导出。原版 DTW 已归档到 experiment/pamela-vanilla-dtw-20261126（8c27a9c）。</p>
-<p id="provenance"></p><p id="algorithm-info"></p>
-<div class="method-links"><a href="results/manifest.json" target="_blank" rel="noopener">服务器版本、参数与 SHA256</a><a href="data/manifest.json" target="_blank" rel="noopener">骨架来源与 SHA256</a><button id="export-motion" disabled>导出三路动作数据</button></div>
-</details>
-<footer>FitGen · 模块 4 · 扰动恢复实验</footer>
-</main><output id="diagnostics" hidden></output><script type="module" src="app.js?v=ccf3455ca1"></script></body></html>
+<label>循环<select id="loop"><option value="block">当前完整八拍</option><option value="all">整段</option><option value="off" selected>关闭</option></select></label>
+<div class="sounds"><button id="music" aria-pressed="true">原音乐</button><button id="music-cue" aria-pressed="false">音乐拍提示音</button>
+<label>动作提示音<select id="motion-cue"><option value="off">关闭</option><option value="0">原速循环</option><option value="1">Anchor xTW</option><option value="2">Astra 编排</option></select></label></div>
+<div class="beat-highlights" role="group" aria-label="各栏动作 beat 边框"><span>动作 beat 边框</span>
+<button id="highlight-0" data-beat-highlight="0" aria-pressed="true" aria-controls="motion-card-0">原速循环</button><button id="highlight-1" data-beat-highlight="1" aria-pressed="true" aria-controls="motion-card-1">Anchor xTW</button><button id="highlight-2" data-beat-highlight="2" aria-pressed="true" aria-controls="motion-card-2">Astra 编排</button></div></div>
+<input id="seek" type="range" min="0" max="30" step="0.001" value="0" disabled aria-label="共同播放位置（秒）"></section>
+<section class="timelines" aria-label="同步拍点">
+<div class="section-head"><h2>整段拍点</h2><span id="grid-position">—</span></div><canvas id="overview" role="img" aria-label="整段音乐和各栏动作拍点"></canvas>
+<div class="section-head zoom-head"><h2>当前区间</h2><label>八拍区间<select id="block"></select></label></div>
+<canvas id="zoom" role="img" aria-label="当前区间的音乐和动作拍点"></canvas>
+<p class="hint">实心圆是原子动作拍的映射位置，空心圆是从输出骨架重新检测的转折。菱形标记音乐重拍，竖虚线标记动作相位重置。点击拍点可定位。</p>
+<p id="inspection" class="inspection" aria-live="polite"></p></section>
+<section class="evaluation"><div class="section-head"><h2 id="reference-heading">参考八拍选了几轮</h2><span id="reference-range"></span></div>
+<p id="finding" class="finding"></p><div class="table-wrap"><table><thead><tr><th>方法</th><th>轮数</th><th>各转折最近拍位</th><th>±100 ms 命中</th><th>平均误差</th><th>P95</th><th>实际倍率</th><th>选用</th></tr></thead><tbody id="candidates"></tbody></table></div></section>
+<section class="evaluation"><div class="section-head"><h2>当前区间的实际结果</h2><span id="group-range"></span></div>
+<div class="table-wrap"><table><thead><tr><th>指标</th><th class="original-text">原速循环</th><th class="disturbed-text">Anchor xTW</th><th class="corrected-text">Astra 编排</th></tr></thead><tbody id="metrics"></tbody></table></div><p id="group-note" class="hint"></p></section>
+<details class="method"><summary>编排方法、映射与数据来源</summary>
+<p>三个原子动作均来自 MotionDatasetTest 的原始 GLB，按 20 FPS 提取 22 个关节。原片中已审查的动作拍按 GLB 的源帧区间换算到轮内。末端边界帧用于确定周期和水平根位移；相邻轮共享接缝。</p>
+<p class="single-method">Anchor xTW 调用服务器的 Drop-DTW 和 GDTW。GPT-6.2 Astra 独立编写编排器，用分段线性逆速度安排转折，再积分生成映射。两种方法分别在所选倍率范围内试遍首个完整八拍的可行整数轮数。先比较命中率，同率且平均误差相差 10 ms 以内时，依次比较相对原速的均方根偏差与倍率总变化量。</p>
+<p class="single-method">后续完整组复用轮数与拍型，逐拍迁移后对超限速度作有界最小二乘修正。残拍播放模板的相应部分，无拍区按原速循环，下个完整组首拍重新起步。音乐时钟连续，整段骨架按绝对时间统一采样。当前区间的贴拍误差按最近已确认音乐拍计算。</p>
+<p class="pair-method">慢速深蹲每轮 2.85 秒。服务器 Anchor xTW 把相邻两个八拍连成一个窗口，在首个窗口试算所有可行整数轮。用全部转折的 ±100 ms 贴拍命中率选轮数，后两个窗口沿用同一条映射，按各自的 17 个实际拍点微调时间和局部倍率。第 9 拍保持动作连续。</p>
+<p class="pair-method">第 7 个八拍单独收尾。当前倍率有整数解时播放该八拍的服务器结果，无整数解时播放双八拍模板的前半段。全段共用音乐时钟，以 20 FPS 重采样骨架。</p>
+<p id="provenance"></p><div class="method-links"><a id="manifest-link" href="eight-count/manifest.json" target="_blank" rel="noopener">实验清单与 SHA256</a><button id="export-motion" disabled>导出三路骨架</button></div></details>
+<footer>FitGen · 模块 4</footer></main><output id="diagnostics" hidden></output>
+<script type="module" src="app.js?v=2e02850777"></script></body></html>

@@ -54,6 +54,8 @@ function renderModule(module) {
     description: module.demoStatus || module.demoDescription || '播放 4 首音乐，查看节拍、段落与八拍网格。',
     url: module.demoUrl
   }] : []);
+  const demoTags = demos.filter(item => item.tag).map(({url, tag}) =>
+    `<a class="demo-tag" href="${escapeHTML(url + tag.query)}">${escapeHTML(tag.label)}</a>`).join('');
   const demo = demos.map(item => `
     <div class="module-demo">
       <div><strong>${escapeHTML(item.title)}</strong>
@@ -66,7 +68,7 @@ function renderModule(module) {
       <div class="module-number">${number(id)}</div>
       <div class="module-title"><div class="module-eyebrow">${escapeHTML(english)}</div>
         <h3>${escapeHTML(title)}</h3><span class="module-status">${escapeHTML(status)}</span>
-        <p>${escapeHTML(description)}</p>${design}
+        <p>${escapeHTML(description)}</p>${design}${demoTags}
       </div>
       <span class="module-type">${type}</span>
     </div>

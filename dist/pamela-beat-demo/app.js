@@ -1,10 +1,12 @@
 import { composeClip, createReviewAudio } from './review-data.js';
+import { createEightCountPanel, eightCountTitle as blockTitle } from './eight-count-panel.js?v=7d91fd13bd';
 
 const $=s=>document.querySelector(s);
 const video=$('#video');
 const theme=getComputedStyle(document.documentElement);
 const palette={music:theme.getPropertyValue('--music').trim(),motion:theme.getPropertyValue('--accent').trim(),ink:theme.getPropertyValue('--ink').trim(),muted:theme.getPropertyValue('--muted').trim(),line:theme.getPropertyValue('--line').trim()};
-const state={clip:null,ready:false,playing:false,offset:0,speed:1,loop:'all',loopBlock:null,selected:null,blockId:null,startAt:0,videoStarted:false,token:0};
+const state={clip:null,ready:false,playing:false,offset:0,loop:'all',loopBlock:null,selected:null,blockId:null,startAt:0,videoStarted:false,token:0};
+const eightCount=createEightCountPanel($('.count-panel'),t=>{if(state.ready)seek(t)});
 let ctx,splitter,merger,gains,source,audioBuffer,abort,videoUrl,videoSeekToken=0,playSequence=0;
 const sound={music:true,musicClick:false,motionClick:false};
 const sync={maxUiGapMs:0,corrections:0,frames:0,lastFrame:0,lastVideoTime:0};
@@ -37,7 +39,7 @@ function bounds(){
 }
 function time(){
   if(!state.playing)return state.offset;
-  let t=state.offset+Math.max(0,audibleClock()-state.startAt)*state.speed;
+  let t=state.offset+Math.max(0,audibleClock()-state.startAt);
   const [lo,hi]=bounds();
   if(state.loop!=='off'&&t>=hi)t=lo+(t-hi)%(hi-lo);
   return Math.max(0,Math.min(t,state.clip.duration));
@@ -69,33 +71,22 @@ async function play(){
   if(state.offset>=hi-.002)state.offset=lo;
   await seekVideo(state.offset);
   if(token!==state.token||sequence!==playSequence||!state.ready)return;
-  source=ctx.createBufferSource();source.buffer=audioBuffer;source.playbackRate.value=state.speed;
+  source=ctx.createBufferSource();source.buffer=audioBuffer;
   source.loop=state.loop!=='off';source.loopStart=lo;source.loopEnd=hi;
   source.connect(splitter);
   state.startAt=ctx.currentTime+.08;
   state.playing=true;state.videoStarted=false;
-  video.playbackRate=state.speed;
+  video.playbackRate=1;
   source.start(state.startAt,state.offset);
   $('#play').textContent='暂停';
 }
 function blockAt(t){return state.clip?.blocks.find(b=>t>=b.start_time_sec-1e-7&&t<b.end_time_sec-1e-7)||state.clip?.blocks.at(-1)}
-function blockTitle(b){
-  if(!b)return '没有八拍网格';
-  if(b.is_complete)return '第 '+b.fullNumber+' 组八拍';
-  return ({partial_head:'段首不足八拍',partial_tail:'段尾不足八拍',gap:'无法可靠分组'})[b.block_type]||'未完成区间';
-}
-function blockBeats(b){return !b||b.start_beat_index===null?[]:state.clip.music_beats.filter(x=>x.beat_index>=b.start_beat_index&&x.beat_index<=b.end_beat_index)}
 function seek(t){
   pause();state.offset=Math.max(0,Math.min(t,state.clip.duration));
   if(state.loop==='block'&&(state.offset<bounds()[0]||state.offset>=bounds()[1])){
     state.loop='all';state.loopBlock=null;$('#loop').value='all';
   }
   seekVideo(state.offset);render(time());
-}
-async function changeRate(rate){
-  const wasPlaying=state.playing;pause();state.speed=rate;video.playbackRate=rate;
-  document.querySelectorAll('.speed').forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.speed)===rate));
-  if(wasPlaying)await play();
 }
 function chooseMotion(i){
   state.selected=i;seek(state.clip.nearest[i].time);
@@ -112,27 +103,9 @@ function renderSelection(){
 }
 function refreshBlock(b){
   state.blockId=b?.block_id;
-  $('#block-title').textContent=blockTitle(b);
   $('#zoom-title').textContent=blockTitle(b)+' · 放大';
-  $('#block-type').textContent=b?.is_complete?'完整 8 拍':b?.block_type==='gap'?'空缺':'不足 8 拍';
-  $('#block-note').textContent=b?number(b.start_time_sec,2)+'–'+number(b.end_time_sec,2)+' 秒'+(b.is_complete?' · 第 1、5 拍为小节首拍':' · 保留原分析结果，不补齐'):'没有可靠网格';
   $('#block-select').value=b?.block_id||'';
   $('#loop-block').disabled=!b?.is_complete;
-  const box=$('#counts');box.replaceChildren();
-  const beats=blockBeats(b);
-  if(!beats.length){const e=document.createElement('div');e.className='count-empty';e.textContent='此区间没有可靠分组的拍点。请结合原音乐审查。';box.append(e)}
-  beats.forEach((beat,i)=>{
-    const btn=document.createElement('button');btn.className='count-cell'+(beat.is_downbeat?' downbeat':'');
-    btn.dataset.beatIndex=beat.beat_index;
-    const label=b.is_complete?i+1:(beat.beat_in_bar??'•');
-    btn.append(document.createTextNode(label));
-    const small=document.createElement('small');small.textContent=number(beat.time_sec,2)+'s';btn.append(small);
-    btn.title='音乐拍 '+(beat.beat_index+1)+'，'+number(beat.time_sec,3)+' 秒'+(b.is_complete?'，八拍内第 '+label+' 拍':'，小节内位置 '+label);
-    btn.onclick=()=>seek(beat.time_sec);box.append(btn);
-  });
-  if(b&&!b.is_complete&&beats.length)$('#block-note').textContent+='；按钮数字为小节内位置。';
-  const index=state.clip.blocks.indexOf(b);
-  $('#prev-block').disabled=index<=0;$('#next-block').disabled=index>=state.clip.blocks.length-1;
 }
 function resizeCanvas(canvas){
   const w=canvas.getBoundingClientRect().width,h=canvas.getBoundingClientRect().height,dpr=devicePixelRatio||1;
@@ -189,11 +162,8 @@ function render(t){
   if(!state.clip)return;
   const b=state.loop==='block'?state.loopBlock:blockAt(t);
   if(b?.block_id!==state.blockId)refreshBlock(b);
-  $('#clock').textContent=t.toFixed(2);$('#clock').dataset.time=t.toFixed(6);
+  eightCount.render(state.clip,b,t);
   $('#seek').value=t;
-  const current=[...state.clip.music_beats].reverse().find(x=>x.time_sec<=t+1e-6);
-  $('#counts').dataset.activeBeat=current?.beat_index??'';
-  document.querySelectorAll('.count-cell').forEach(el=>{const active=Number(el.dataset.beatIndex)===current?.beat_index;el.classList.toggle('current',active);el.setAttribute('aria-current',active?'true':'false')});
   draw($('#overview'),0,state.clip.duration,t);
   draw($('#zoom'),b?.start_time_sec??0,b?.end_time_sec??state.clip.duration,t,true);
 }
@@ -215,7 +185,7 @@ function tick(now){
   }
   sync.lastFrame=state.playing?now:0;
   render(t);
-  if(state.clip)diagnostics.textContent=JSON.stringify({clip:state.clip.id,ready:state.ready,playing:state.playing,time:t,videoTime:video.currentTime,speed:state.speed,loop:state.loop,bounds:bounds(),audioChannels:audioBuffer?.numberOfChannels??0,audioDuration:audioBuffer?.duration??0,sound,audioContext:ctx?.state,block:state.blockId,sync});
+  if(state.clip)diagnostics.textContent=JSON.stringify({clip:state.clip.id,ready:state.ready,playing:state.playing,time:t,videoTime:video.currentTime,speed:1,loop:state.loop,bounds:bounds(),audioChannels:audioBuffer?.numberOfChannels??0,audioDuration:audioBuffer?.duration??0,sound,audioContext:ctx?.state,block:state.blockId,sync});
   requestAnimationFrame(tick);
 }
 function canvasClick(event){
@@ -254,7 +224,7 @@ function populate(){
 async function loadClip(id){
   pause();state.ready=false;state.clip=null;state.selected=null;state.blockId=null;state.offset=0;state.loop='all';state.loopBlock=null;
   $('#loop').value='all';$('#play').disabled=true;$('#seek').disabled=true;$('#rows').replaceChildren();
-  $('#counts').replaceChildren();$('#clock').textContent='0.00';notice('正在加载原声、画面与八拍网格…');
+  eightCount.clear();notice('正在加载原声、画面与八拍网格…');
   abort?.abort();abort=new AbortController();const signal=abort.signal,token=++state.token;
   video.removeAttribute('src');video.load();
   if(videoUrl){URL.revokeObjectURL(videoUrl);videoUrl=null}
@@ -284,7 +254,6 @@ async function loadClip(id){
 }
 let catalog,motionCatalog;
 $('#play').onclick=()=>state.playing?pause():play().catch(e=>notice(e.message,true));
-document.querySelectorAll('.speed').forEach(b=>b.onclick=()=>changeRate(Number(b.dataset.speed)));
 $('#seek').oninput=e=>{if(state.ready)seek(Number(e.target.value))};
 $('#music').onclick=()=>{sound.music=!sound.music;updateSound()};
 $('#music-click').onclick=()=>{sound.musicClick=!sound.musicClick;updateSound()};
@@ -296,8 +265,6 @@ $('#loop').onchange=async e=>{
   if(was)await play();
 };
 $('#block-select').onchange=e=>{const b=state.clip.blocks.find(b=>b.block_id===e.target.value);if(b)seek(b.start_time_sec)};
-function stepBlock(direction){if(!state.clip)return;const i=state.clip.blocks.findIndex(b=>b.block_id===state.blockId),b=state.clip.blocks[i+direction];if(b)seek(b.start_time_sec)}
-$('#prev-block').onclick=()=>stepBlock(-1);$('#next-block').onclick=()=>stepBlock(1);
 $('#overview').onclick=canvasClick;$('#zoom').onclick=canvasClick;
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.playing){pause();notice('页面进入后台，已暂停；返回后点击播放继续审查。')}});
 video.addEventListener('error',()=>{if(state.ready){pause();notice('视频解码失败，请刷新页面。',true)}});

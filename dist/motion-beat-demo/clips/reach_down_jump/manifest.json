@@ -1337,10 +1337,9 @@
     }
   },
   "playback": {
-    "method": "HTMLMediaElement.playbackRate",
+    "method": "fixed_1x",
     "supported_rates": [
-      1,
-      0.5
+      1
     ],
     "preserves_pitch": true,
     "timeline": "source_seconds"

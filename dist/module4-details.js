@@ -11,13 +11,18 @@ Object.assign(window.FITGEN_MODULES.find(module => module.id === 4), {
   demos: [
     {
       title: "动作节拍检测demo",
-      description: "选择 4 段健身动作，对照真人视频、SMPL-X 骨架与动作节拍，支持原速、半速和原音乐开关。",
+      description: "选择 4 段健身动作，对照真人视频、SMPL-X 骨架与动作节拍，原速回放并可开关原音乐。",
       url: "motion-beat-demo/index.html"
     },
     {
       title: "Pamela音乐-动作beat分析demo",
-      description: "对照 3 段 Pamela 动作的原音乐八拍网格与动作 beat，支持独立提示音、拍点定位、倍速和八拍循环。",
+      description: "对照 3 段 Pamela 动作的原音乐八拍网格与动作 beat，支持独立提示音、拍点定位和八拍循环。",
       url: "pamela-beat-demo/index.html"
+    },
+    {
+      title: "Pamela动作扰动-DTW三栏对比demo",
+      description: "同一原声下对照原序列、时间扰动与服务器 Anchor xTW 输出（Drop-DTW + GDTW），分别检查贴拍与时序恢复。",
+      url: "pamela-dtw-demo/index.html"
     }
   ],
   overviewSections: [

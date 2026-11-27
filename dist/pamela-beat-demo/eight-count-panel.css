@@ -1,0 +1,26 @@
+.count-panel{--music:#b8d7f2;min-width:0;padding:19px 19px 15px;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--music);border-radius:9px;display:flex;flex-direction:column}
+.count-panel .count-head{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:600}
+.count-panel .badge{font-size:11px;background:var(--raised);color:var(--muted);padding:3px 7px;border-radius:4px;white-space:nowrap}
+.count-panel .counts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:17px 0 10px;min-height:90px}
+.count-panel .count-cell{padding:8px 0 5px;border-color:var(--line);color:var(--copy);font-size:21px;line-height:1.2;position:relative;font-variant-numeric:tabular-nums}
+.count-panel .count-cell small{display:block;font-size:10px;font-weight:400;margin-top:4px}
+.count-panel .count-cell.downbeat{border-top:3px solid var(--music);padding-top:6px}
+.count-panel .count-cell.current{background:var(--music);color:var(--canvas);border-color:var(--music);box-shadow:none}
+.count-panel .count-empty{grid-column:1/-1;align-self:center;color:var(--muted);font-size:13px;line-height:1.8}
+.count-panel .subtle{color:var(--muted);font-size:12px;margin:0;line-height:1.8}
+.count-panel .count-clock{margin-top:auto;padding-top:10px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.count-panel .count-clock strong{font-size:27px;font-weight:550;color:var(--ink)}
+.count-panel .step-buttons{display:flex;gap:8px;margin-top:10px}
+.count-panel .step-buttons button{flex:1;font-size:12px;padding:6px}
+@media(max-width:1000px){.count-panel{padding:15px}}
+@media(max-width:720px){
+  .count-panel{display:grid;grid-template-columns:minmax(0,1fr) 115px;gap:8px 14px}
+  .count-panel .count-head{grid-column:1/-1}
+  .count-panel .counts{grid-column:1;margin:0;min-height:0;gap:5px;grid-template-columns:repeat(4,1fr)}
+  .count-panel .count-cell{font-size:19px;padding:5px 0}
+  .count-panel .count-cell small{font-size:9px}
+  .count-panel .count-clock{grid-column:2;grid-row:2;align-self:center;text-align:right}
+  .count-panel .step-buttons{grid-column:2;grid-row:3;margin:0}
+  .count-panel .step-buttons button{font-size:10px;padding:5px 3px}
+  .count-panel [data-count=note]{grid-column:1}
+}

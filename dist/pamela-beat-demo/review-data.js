@@ -35,10 +35,17 @@ export function composeClip(music, motion) {
 
 // 原声与两种提示音共享一个采样轴，提示音无需作为媒体文件发布。
 export function createReviewAudio(context, decoded, clip) {
+  return createMultitrackAudio(context,decoded,clip.duration,[
+    clip.music_beats.map(beat=>({time:beat.time_sec,frequency:beat.is_downbeat?1050:720,amplitude:beat.is_downbeat?.9:.65})),
+    clip.motion_beats.map(time=>({time,frequency:1800,amplitude:.8}))
+  ]);
+}
+
+export function createMultitrackAudio(context, decoded, duration, tracks) {
   if (decoded.numberOfChannels !== 2) throw Error('原声没有解码为双声道');
-  if (Math.abs(decoded.duration - clip.duration) > .002) throw Error('原声与片段时长不一致');
-  const rate = decoded.sampleRate, length = Math.round(clip.duration * rate);
-  const result = context.createBuffer(4, length, rate);
+  if (Math.abs(decoded.duration - duration) > .002) throw Error('原声与片段时长不一致');
+  const rate = decoded.sampleRate, length = Math.round(duration * rate);
+  const result = context.createBuffer(2+tracks.length, length, rate);
   for (let channel = 0; channel < 2; channel++) {
     result.getChannelData(channel).set(decoded.getChannelData(channel).subarray(0, length));
   }
@@ -51,7 +58,6 @@ export function createReviewAudio(context, decoded, clip) {
       output[start + i] += amplitude * Math.sin(2 * Math.PI * frequency * t) * Math.exp(-t * 95) * Math.min(t / .002, 1);
     }
   }
-  clip.music_beats.forEach(beat => click(beat.time_sec, 2, beat.is_downbeat ? 1050 : 720, beat.is_downbeat ? .9 : .65));
-  clip.motion_beats.forEach(time => click(time, 3, 1800, .8));
+  tracks.forEach((events,index)=>events.forEach(event=>click(event.time,index+2,event.frequency,event.amplitude)));
   return result;
 }

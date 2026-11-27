@@ -20,17 +20,15 @@ code{background:#17273b;padding:3px 6px;border-radius:4px}summary{cursor:pointer
 <h1 id="clip-title">PLANK-JUMP + SQUAT</h1>
 <p>左侧：源视频。右侧：GLB 人体与提取出的身体 22 关节。下方：运动强度、检测到的 beat 和当前时间游标。</p>
 <div class="toolbar chooser"><label for="clip-select">选择视频</label><select id="clip-select" aria-label="选择视频"><option value="plank_jump_squat">PLANK-JUMP + SQUAT</option><option value="slow_squat">SLOW SQUAT</option><option value="jumping_jack">JUMPING JACK</option><option value="reach_down_jump">REACH DOWN JUMP</option></select><small id="clip-summary"></small></div>
-<video id="video" controls playsinline loop preload="auto" poster="poster.jpg" src="beat_review_music_1x.mp4"></video>
+<video id="video" controls controlslist="noplaybackrate" playsinline loop preload="auto" poster="poster.jpg" src="beat_review_music_1x.mp4"></video>
 <div class="toolbar">
 <button id="play">播放 / 暂停</button>
-<button class="speed" data-speed="1" aria-pressed="true">原速 1×</button>
-<button class="speed" data-speed="0.5" aria-pressed="false">半速 0.5×</button>
 <button id="loop" aria-pressed="true">循环：开</button>
 <button id="music" aria-pressed="true">原音乐：开</button>
 <span class="status" id="status" role="status">源时间 0.00 / 3.70 秒</span>
 </div>
 <div><span id="beat-heading">定位检测点</span><small>　点击会暂停在该 beat，播放可继续观察前后动作。</small><div id="beats" class="beat-list" aria-label="检测到的 beat"></div></div>
-<p class="note">提示音是检测结果的 click。可用“原音乐”开关叠加当前片段的原片音轨；关闭后只保留 beat 提示音。视频、音乐和提示音一起变速，实际速度以播放按钮为准；画面、进度和 beat 定位均使用原动作时间。原片 25 FPS 与 GLB 20 FPS 按时间戳同步，未做逐帧视觉校准。</p>
+<p class="note">提示音是检测结果的 click。可用“原音乐”开关叠加当前片段的原片音轨；关闭后只保留 beat 提示音。统一按原速播放，画面、进度和 beat 定位均使用原动作时间。原片 25 FPS 与 GLB 20 FPS 按时间戳同步，未做逐帧视觉校准。</p>
 <div class="panel grid">
 <div><small>Module2 输入</small><div class="value" id="input-shape"></div><p class="note" id="input-description"></p></div>
 <div><small>当前提取器</small><div class="value">平均关节位移的局部极小值</div><p class="note">高斯平滑 σ = 5 帧（0.25 秒）<br>最小间隔 0.20 秒</p></div>
@@ -42,16 +40,15 @@ code{background:#17273b;padding:3px 6px;border-radius:4px}summary{cursor:pointer
 <p>检查包含骨长稳定性、独立四元数 FK 对照、NPZ 无损读取，以及视频完整解码、帧数、时长检查。所有 beat 都是算法候选，不等同于人工标注。本次只检验现有提取器，不涉及 descriptor 或 DTW。</p>
 <p>建议先完整循环观看，再定位检测点，分别判断是否命中你认为的动作停顿或节奏节点，以及有没有漏检和多检。</p>
 </details>
-<div class="toolbar"><a class="link" id="open-normal" href="beat_review_music_1x.mp4" target="_blank" rel="noopener">单独打开原速视频</a><a class="link" id="open-slow" href="index.html?speed=0.5" target="_blank" rel="noopener">单独打开半速查看页</a><a class="link" id="open-manifest" href="manifest.json" target="_blank" rel="noopener">当前片段参数与检查记录</a></div>
+<div class="toolbar"><a class="link" id="open-normal" href="beat_review_music_1x.mp4" target="_blank" rel="noopener">单独打开原速视频</a><a class="link" id="open-manifest" href="manifest.json" target="_blank" rel="noopener">当前片段参数与检查记录</a></div>
 <footer>动作节拍检测 · 原视频、SMPL-X 骨架与检测结果同步回放</footer>
-<script id="clip-catalog" type="application/json">{"schema_version": "fitgen-motion-beat-demo-v2", "defaults": {"original_music": true, "playback_speed": 1}, "playback": {"method": "HTMLMediaElement.playbackRate", "supported_rates": [1, 0.5], "preserves_pitch": true, "timeline": "source_seconds"}, "clips": [{"id": "plank_jump_squat", "title": "PLANK-JUMP + SQUAT", "shape": [75, 22, 3], "fps": 20.0, "media_duration": 3.7, "motion_duration": 3.7, "content_frames": 74, "boundary": true, "beats": [0.95, 1.75, 2.5], "assets": {"normal": "beat_review_1x.mp4", "music_normal": "beat_review_music_1x.mp4", "poster": "poster.jpg", "manifest": "manifest.json"}}, {"id": "slow_squat", "title": "SLOW SQUAT", "shape": [600, 22, 3], "fps": 20.0, "media_duration": 30.0, "motion_duration": 29.95, "content_frames": 600, "boundary": false, "beats": [1.5, 2.95, 4.45, 6.0, 7.55, 9.05, 10.55, 12.05, 13.6, 15.1, 16.55, 18.0, 19.45, 20.85, 22.35, 23.85, 25.4, 26.8, 28.35], "assets": {"normal": "clips/slow_squat/beat_review_1x.mp4", "music_normal": "clips/slow_squat/beat_review_music_1x.mp4", "poster": "clips/slow_squat/poster.jpg", "manifest": "clips/slow_squat/manifest.json"}}, {"id": "jumping_jack", "title": "JUMPING JACK", "shape": [600, 22, 3], "fps": 20.0, "media_duration": 30.0, "motion_duration": 29.95, "content_frames": 600, "boundary": false, "beats": [2.2, 3.1, 4.1, 4.85, 5.7, 6.65, 7.45, 8.45, 9.25, 10.15, 11.1, 11.8, 12.85, 13.7, 14.6, 15.5, 16.35, 17.2, 18.1, 19.0, 19.9, 20.85, 21.65, 22.5, 23.4, 24.25, 25.2, 26.05, 27.05, 27.85, 28.8], "assets": {"normal": "clips/jumping_jack/beat_review_1x.mp4", "music_normal": "clips/jumping_jack/beat_review_music_1x.mp4", "poster": "clips/jumping_jack/poster.jpg", "manifest": "clips/jumping_jack/manifest.json"}}, {"id": "reach_down_jump", "title": "REACH DOWN JUMP", "shape": [600, 22, 3], "fps": 20.0, "media_duration": 30.0, "motion_duration": 29.95, "content_frames": 600, "boundary": false, "beats": [0.55, 1.6, 2.4, 3.1, 3.85, 4.6, 5.3, 6.05, 6.8, 7.55, 8.25, 9.0, 9.75, 10.45, 11.15, 11.9, 12.65, 13.35, 14.05, 14.8, 15.55, 16.25, 17.0, 17.7, 18.45, 19.2, 19.95, 20.7, 21.5, 22.25, 23.0, 23.75, 24.5, 25.25, 26.0, 26.8, 27.55, 28.35, 29.1], "assets": {"normal": "clips/reach_down_jump/beat_review_1x.mp4", "music_normal": "clips/reach_down_jump/beat_review_music_1x.mp4", "poster": "clips/reach_down_jump/poster.jpg", "manifest": "clips/reach_down_jump/manifest.json"}}]}</script>
+<script id="clip-catalog" type="application/json">{"schema_version": "fitgen-motion-beat-demo-v2", "defaults": {"original_music": true, "playback_speed": 1}, "playback": {"method": "fixed_1x", "supported_rates": [1], "preserves_pitch": true, "timeline": "source_seconds"}, "clips": [{"id": "plank_jump_squat", "title": "PLANK-JUMP + SQUAT", "shape": [75, 22, 3], "fps": 20.0, "media_duration": 3.7, "motion_duration": 3.7, "content_frames": 74, "boundary": true, "beats": [0.95, 1.75, 2.5], "assets": {"normal": "beat_review_1x.mp4", "music_normal": "beat_review_music_1x.mp4", "poster": "poster.jpg", "manifest": "manifest.json"}}, {"id": "slow_squat", "title": "SLOW SQUAT", "shape": [600, 22, 3], "fps": 20.0, "media_duration": 30.0, "motion_duration": 29.95, "content_frames": 600, "boundary": false, "beats": [1.5, 2.95, 4.45, 6.0, 7.55, 9.05, 10.55, 12.05, 13.6, 15.1, 16.55, 18.0, 19.45, 20.85, 22.35, 23.85, 25.4, 26.8, 28.35], "assets": {"normal": "clips/slow_squat/beat_review_1x.mp4", "music_normal": "clips/slow_squat/beat_review_music_1x.mp4", "poster": "clips/slow_squat/poster.jpg", "manifest": "clips/slow_squat/manifest.json"}}, {"id": "jumping_jack", "title": "JUMPING JACK", "shape": [600, 22, 3], "fps": 20.0, "media_duration": 30.0, "motion_duration": 29.95, "content_frames": 600, "boundary": false, "beats": [2.2, 3.1, 4.1, 4.85, 5.7, 6.65, 7.45, 8.45, 9.25, 10.15, 11.1, 11.8, 12.85, 13.7, 14.6, 15.5, 16.35, 17.2, 18.1, 19.0, 19.9, 20.85, 21.65, 22.5, 23.4, 24.25, 25.2, 26.05, 27.05, 27.85, 28.8], "assets": {"normal": "clips/jumping_jack/beat_review_1x.mp4", "music_normal": "clips/jumping_jack/beat_review_music_1x.mp4", "poster": "clips/jumping_jack/poster.jpg", "manifest": "clips/jumping_jack/manifest.json"}}, {"id": "reach_down_jump", "title": "REACH DOWN JUMP", "shape": [600, 22, 3], "fps": 20.0, "media_duration": 30.0, "motion_duration": 29.95, "content_frames": 600, "boundary": false, "beats": [0.55, 1.6, 2.4, 3.1, 3.85, 4.6, 5.3, 6.05, 6.8, 7.55, 8.25, 9.0, 9.75, 10.45, 11.15, 11.9, 12.65, 13.35, 14.05, 14.8, 15.55, 16.25, 17.0, 17.7, 18.45, 19.2, 19.95, 20.7, 21.5, 22.25, 23.0, 23.75, 24.5, 25.25, 26.0, 26.8, 27.55, 28.35, 29.1], "assets": {"normal": "clips/reach_down_jump/beat_review_1x.mp4", "music_normal": "clips/reach_down_jump/beat_review_music_1x.mp4", "poster": "clips/reach_down_jump/poster.jpg", "manifest": "clips/reach_down_jump/manifest.json"}}]}</script>
 <script>
 const catalog=JSON.parse(document.getElementById('clip-catalog').textContent),clips=catalog.clips;
 const video=document.getElementById('video'),status=document.getElementById('status');
 const musicButton=document.getElementById('music'),select=document.getElementById('clip-select');
-const params=new URLSearchParams(location.search),requestedRate=Number(params.get('speed'));
+const params=new URLSearchParams(location.search);
 let current=clips.find(clip=>clip.id===params.get('clip'))||clips[0];
-let playbackRate=catalog.playback.supported_rates.includes(requestedRate)?requestedRate:catalog.defaults.playback_speed;
 let musicEnabled=params.get('music')==='0'?false:params.get('music')==='1'?true:catalog.defaults.original_music;
 let pendingSwitch=null,switchToken=0;
 function sourceTime(){return pendingSwitch?pendingSwitch.time:video.currentTime}
@@ -59,21 +56,13 @@ function update(){status.textContent='源时间 '+sourceTime().toFixed(2)+' / '+
 function media(clip,music){return clip.assets[music?'music_normal':'normal']}
 function applyPlaybackRate(){
   video.preservesPitch=true;
-  if(video.defaultPlaybackRate!==playbackRate)video.defaultPlaybackRate=playbackRate;
-  if(video.playbackRate!==playbackRate)video.playbackRate=playbackRate;
-}
-function setPlaybackRate(rate){
-  playbackRate=rate;
-  applyPlaybackRate();updateControls();
+  if(video.defaultPlaybackRate!==1)video.defaultPlaybackRate=1;
+  if(video.playbackRate!==1)video.playbackRate=1;
 }
 function updateControls(){
   musicButton.textContent='原音乐：'+(musicEnabled?'开':'关');
   musicButton.setAttribute('aria-pressed',String(musicEnabled));
-  document.querySelectorAll('.speed').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.speed)===playbackRate)));
   document.getElementById('open-normal').href=media(current,musicEnabled);
-  const slowUrl=new URL('index.html',location.href);
-  slowUrl.search=new URLSearchParams({clip:current.id,speed:'0.5',music:musicEnabled?'1':'0'}).toString();
-  document.getElementById('open-slow').href=slowUrl.href;
 }
 function seekBeat(time){
   video.pause();
@@ -128,13 +117,7 @@ function switchMedia(nextClip,nextMusic){
 }
 video.addEventListener('timeupdate',update);
 video.addEventListener('loadedmetadata',applyPlaybackRate);
-video.addEventListener('ratechange',()=>{
-  // 换源时保留已选速度；原生播放器调整速度时同步按钮状态。
-  if(pendingSwitch){applyPlaybackRate();return}
-  playbackRate=video.playbackRate;
-  if(video.defaultPlaybackRate!==playbackRate)video.defaultPlaybackRate=playbackRate;
-  updateControls();
-});
+video.addEventListener('ratechange',applyPlaybackRate);
 video.addEventListener('error',()=>{pendingSwitch=null;status.textContent='视频加载失败，请刷新页面重试。'});
 document.getElementById('play').onclick=()=>{
   if(pendingSwitch){pendingSwitch.resume=!pendingSwitch.resume;return}
@@ -145,7 +128,6 @@ document.getElementById('loop').onclick=e=>{
   e.currentTarget.setAttribute('aria-pressed',String(video.loop));
 };
 musicButton.onclick=()=>switchMedia(current,!musicEnabled);
-document.querySelectorAll('.speed').forEach(b=>b.onclick=()=>setPlaybackRate(Number(b.dataset.speed)));
 select.onchange=()=>switchMedia(clips.find(c=>c.id===select.value),musicEnabled);
 applyPlaybackRate();
 if(video.getAttribute('src')!==media(current,musicEnabled))video.src=media(current,musicEnabled);

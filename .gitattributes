@@ -1,0 +1,3 @@
+# 校验和以发布时的字节为准，跨平台 checkout 不转换结果 JSON 的换行。
+dist/pamela-dtw-demo/results/*.json text eol=lf
+scripts/run_pamela_server_xtw.py text eol=lf

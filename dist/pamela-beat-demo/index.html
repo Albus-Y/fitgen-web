@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pamela音乐-动作beat分析demo · FitGen</title><link rel="stylesheet" href="../workspace.css"><link rel="stylesheet" href="style.css"><script defer src="../navigation.js"></script></head>
+<title>Pamela音乐-动作beat分析demo · FitGen</title><link rel="stylesheet" href="../workspace.css"><link rel="stylesheet" href="style.css?v=2e5d63840d"><link rel="stylesheet" href="eight-count-panel.css?v=4afed2a89d"><script defer src="../navigation.js"></script></head>
 <body><main><div class="review-mast"><a class="brand" href="../index.html" aria-label="FitGen 首页"><span class="brand-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FitGen</a><a class="return-link" href="../index.html#module-4" data-return>返回模块 4</a></div>
+<nav class="experiment-tabs" aria-label="实验步骤"><span aria-current="page">音乐与动作 beat 审查</span><a href="../pamela-dtw-demo/index.html">扰动与 DTW 对比</a></nav>
 <header class="page-head"><div><h1>Pamela 音乐-动作 beat 分析</h1><p>先听音乐拍，再看动作落点。保留原始时序，观察它们如何对应。</p></div>
 <label class="clip-picker">选择动作<select id="clip-select" disabled aria-label="选择动作"></select></label></header>
 <div id="notice" class="notice" role="status">正在读取三个示例…</div>
 <section class="stage" aria-label="同步回放">
 <div class="film"><div class="video-window"><video id="video" muted playsinline preload="auto" aria-label="原视频与 SMPL-X 同步画面"></video></div><div class="film-foot"><span id="clip-title">准备画面</span><span>原视频 / SMPL-X</span></div></div>
-<aside class="count-panel"><div class="count-head"><span id="block-title">八拍网格</span><span id="block-type" class="badge">等待分析结果</span></div>
-<div id="counts" class="counts" aria-label="当前区间拍点"></div><p id="block-note" class="subtle"></p>
-<div class="clock"><strong id="clock">0.00</strong><span> / <span id="duration">30.00</span> 秒</span></div>
-<div class="step-buttons"><button id="prev-block" disabled>上一组</button><button id="next-block" disabled>下一组</button></div>
+<aside class="count-panel" aria-label="音乐八拍查看"><div class="count-head"><span id="block-title" data-count="title">八拍网格</span><span id="block-type" class="badge" data-count="type">等待分析结果</span></div>
+<div id="counts" class="counts" data-count="cells" aria-label="当前区间拍点"></div><p id="block-note" class="subtle" data-count="note"></p>
+<div class="count-clock"><strong id="clock" data-count="clock">0.00</strong><span> / <span id="duration" data-count="duration">30.00</span> 秒</span></div>
+<div class="step-buttons"><button id="prev-block" data-count="prev" disabled>上一组</button><button id="next-block" data-count="next" disabled>下一组</button></div>
 </aside></section>
 <section class="transport" aria-label="播放控制">
-<div class="transport-row"><button id="play" class="primary" disabled>播放</button><div class="segmented" aria-label="播放速度"><button class="speed" data-speed="1" aria-pressed="true">1×</button><button class="speed" data-speed="0.5" aria-pressed="false">0.5×</button></div>
+<div class="transport-row"><button id="play" class="primary" disabled>播放</button>
 <label class="loop-label">循环<select id="loop"><option value="all">整段循环</option><option value="block" id="loop-block">当前完整八拍</option><option value="off">关闭循环</option></select></label>
 <div class="sound-controls"><button id="music" aria-pressed="true">原音乐</button><button id="music-click" class="music-color" aria-pressed="false">音乐拍提示音</button><button id="motion-click" class="motion-color" aria-pressed="false">动作拍提示音</button></div></div>
 <input id="seek" aria-label="播放位置（秒）" type="range" min="0" max="30" step="0.001" value="0" disabled>
@@ -33,8 +34,8 @@
 <p class="hint">这里显示最近拍点距离，不是 DTW 匹配结果。100 ms 仅作观察窗口；不要求每个音乐拍都有动作拍，也不把原动作视为完全对齐的真值。</p>
 </section>
 <details class="provenance"><summary>分析来源与时间说明</summary><p id="analysis-note"></p>
-<p>画面复用已审查的原视频与 SMPL-X。动作关键帧覆盖 0–29.95 秒；最后 0.05 秒沿用末帧。音乐八拍是模型分析结果，需人工审查。半速时音乐与两种提示音共同降速。</p>
+<p>画面复用已审查的原视频与 SMPL-X。动作关键帧覆盖 0–29.95 秒；最后 0.05 秒沿用末帧。音乐八拍是模型分析结果，需人工审查。统一按原速播放。</p>
 <p id="warnings"></p><div id="data-links"></div>
 </details>
 <footer>FitGen · Pamela 音乐与动作 beat 分析</footer>
-</main><script type="module" src="app.js"></script></body></html>
+</main><script type="module" src="app.js?v=fab593ef68"></script></body></html>
